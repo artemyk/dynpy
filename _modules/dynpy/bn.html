@@ -1,0 +1,253 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>dynpy.bn &mdash; DynPy 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="DynPy 0.1 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">DynPy 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for dynpy.bn</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Boolean Network classes</span>
+
+<span class="sd">&gt;&gt;&gt; import dynpy.bn, dynpy.sample_bn_nets, dynpy.dynsys</span>
+<span class="sd">&gt;&gt;&gt; b = dynpy.bn.BooleanNetworkFromTruthTables(rules=dynpy.sample_bn_nets.yeast)</span>
+<span class="sd">&gt;&gt;&gt; b.computeStateSpace(dynsys_class=dynpy.dynsys.StochasticDynSys)</span>
+<span class="sd">&gt;&gt;&gt; atts, attbasins = b.dyn.getAttractorsAndBasins()</span>
+<span class="sd">&gt;&gt;&gt; print map(len, attbasins)</span>
+<span class="sd">[1764, 151, 109, 9, 7, 7, 1]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">scipy.sparse</span> <span class="kn">as</span> <span class="nn">ss</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">dynsys</span>
+
+<span class="n">DEFAULT_DYNAMICS_CLASS</span> <span class="o">=</span> <span class="n">dynsys</span><span class="o">.</span><span class="n">SparseStochasticDynSys</span>
+
+<div class="viewcode-block" id="tuple2int"><a class="viewcode-back" href="../../dynpy.html#dynpy.bn.tuple2int">[docs]</a><span class="k">def</span> <span class="nf">tuple2int</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">))),</span> <span class="mi">2</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="int2tuple"><a class="viewcode-back" href="../../dynpy.html#dynpy.bn.int2tuple">[docs]</a><span class="k">def</span> <span class="nf">int2tuple</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">num_places</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bin</span><span class="p">(</span><span class="n">i</span><span class="p">)[</span><span class="mi">2</span><span class="p">:]</span><span class="o">.</span><span class="n">rjust</span><span class="p">(</span><span class="n">num_places</span><span class="p">,</span> <span class="s">&#39;0&#39;</span><span class="p">)))</span>
+</div>
+<div class="viewcode-block" id="MultivariateSys"><a class="viewcode-back" href="../../dynpy.html#dynpy.bn.MultivariateSys">[docs]</a><span class="k">class</span> <span class="nc">MultivariateSys</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_nodes</span><span class="p">,</span> <span class="n">node_labels</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">kargs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_nodes</span>       <span class="o">=</span> <span class="n">num_nodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_set</span>        <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_nodes</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">node_labels</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">node_labels</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_nodes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_labels</span>     <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">node_labels</span><span class="p">)</span> <span class="c"># tuple(map(str, node_labels))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_label_ndxs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">l</span><span class="p">,</span> <span class="n">ndx</span><span class="p">)</span> <span class="k">for</span> <span class="n">ndx</span><span class="p">,</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_labels</span><span class="p">))</span>
+
+<div class="viewcode-block" id="MultivariateSys.computeStateSpace"><a class="viewcode-back" href="../../dynpy.html#dynpy.bn.MultivariateSys.computeStateSpace">[docs]</a>    <span class="k">def</span> <span class="nf">computeStateSpace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trans</span><span class="p">,</span> <span class="n">dynsys_class</span> <span class="o">=</span> <span class="n">DEFAULT_DYNAMICS_CLASS</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dyn</span> <span class="o">=</span> <span class="n">dynsys_class</span><span class="p">(</span><span class="n">trans</span> <span class="o">=</span> <span class="n">trans</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="BooleanNetworkBase"><a class="viewcode-back" href="../../dynpy.html#dynpy.bn.BooleanNetworkBase">[docs]</a><span class="k">class</span> <span class="nc">BooleanNetworkBase</span><span class="p">(</span><span class="n">MultivariateSys</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_nodes</span><span class="p">,</span> <span class="o">*</span><span class="n">kargs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">BooleanNetworkBase</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">num_nodes</span><span class="p">,</span> <span class="o">*</span><span class="n">kargs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prints the attractors and basin of the Boolean Network object</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="BooleanNetworkBase.printAttractorsAndBasins"><a class="viewcode-back" href="../../dynpy.html#dynpy.bn.BooleanNetworkBase.printAttractorsAndBasins">[docs]</a>    <span class="k">def</span> <span class="nf">printAttractorsAndBasins</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">basinAtts</span><span class="p">,</span> <span class="n">basinStates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dyn</span><span class="o">.</span><span class="n">getAttractorsAndBasins</span><span class="p">()</span>
+        <span class="n">row_format</span> <span class="o">=</span><span class="s">&quot;{:&gt;7}&quot;</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_nodes</span>
+        <span class="k">for</span> <span class="n">cBasinNdx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">basinAtts</span><span class="p">)):</span>
+            <span class="k">print</span> <span class="s">&quot;* BASIN </span><span class="si">%d</span><span class="s"> : </span><span class="si">%d</span><span class="s"> States&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">cBasinNdx</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">basinStates</span><span class="p">[</span><span class="n">cBasinNdx</span><span class="p">]))</span>
+            <span class="k">print</span> <span class="s">&quot;ATTRACTORS:&quot;</span>
+            <span class="k">print</span> <span class="n">row_format</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">node_labels</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">att</span> <span class="ow">in</span> <span class="n">basinAtts</span><span class="p">[</span><span class="n">cBasinNdx</span><span class="p">]:</span>
+                <span class="k">print</span> <span class="n">row_format</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">int2tuple</span><span class="p">(</span><span class="n">att</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_nodes</span><span class="p">))</span>
+            <span class="k">print</span>
+            <span class="k">print</span>
+
+</div></div>
+<div class="viewcode-block" id="BooleanNetworkWithTrans"><a class="viewcode-back" href="../../dynpy.html#dynpy.bn.BooleanNetworkWithTrans">[docs]</a><span class="k">class</span> <span class="nc">BooleanNetworkWithTrans</span><span class="p">(</span><span class="n">BooleanNetworkBase</span><span class="p">):</span>
+<div class="viewcode-block" id="BooleanNetworkWithTrans.computeStateSpace"><a class="viewcode-back" href="../../dynpy.html#dynpy.bn.BooleanNetworkWithTrans.computeStateSpace">[docs]</a>    <span class="k">def</span> <span class="nf">computeStateSpace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dynsys_class</span><span class="p">,</span> <span class="n">trans</span><span class="p">):</span>
+        <span class="n">expected_shape</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_nodes</span>
+        <span class="k">if</span> <span class="n">trans</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">expected_shape</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="s">&quot;transition matrix shape is </span><span class="si">%s</span><span class="s">, but expected first dimension to be 2^</span><span class="si">%d</span><span class="s">=</span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span>
+                <span class="p">(</span><span class="n">trans</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">num_nodes</span><span class="p">,</span> <span class="n">expected_shape</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">trans</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">expected_shape</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="s">&quot;transition matrix shape is </span><span class="si">%s</span><span class="s">, but expected second dimension to be 2^</span><span class="si">%d</span><span class="s">=</span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span>
+                <span class="p">(</span><span class="n">trans</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">num_nodes</span><span class="p">,</span> <span class="n">expected_shape</span><span class="p">))</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BooleanNetworkWithTrans</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">computeStateSpace</span><span class="p">(</span><span class="n">dynsys_class</span> <span class="o">=</span> <span class="n">dynsys_class</span><span class="p">,</span> <span class="n">trans</span> <span class="o">=</span> <span class="n">dynsys_class</span><span class="o">.</span><span class="n">finalizeTransMx</span><span class="p">(</span><span class="n">trans</span><span class="p">)</span> <span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="BooleanNetworkFromTruthTables"><a class="viewcode-back" href="../../dynpy.html#dynpy.bn.BooleanNetworkFromTruthTables">[docs]</a><span class="k">class</span> <span class="nc">BooleanNetworkFromTruthTables</span><span class="p">(</span><span class="n">BooleanNetworkBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rules passed in a list with each element being: [nodename, inputNodes, truthtable ] . </span>
+<span class="sd">    For example, [ &#39;NodeName1&#39;,[&#39;NodeName2&#39;,&#39;NodeName4&#39;],[0,0,0,1] ], ]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rules</span><span class="p">,</span> <span class="o">*</span><span class="n">kargs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">node_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">lbl</span> <span class="k">for</span> <span class="p">(</span><span class="n">lbl</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">table</span><span class="p">)</span> <span class="ow">in</span> <span class="n">rules</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rules</span> <span class="o">=</span> <span class="n">rules</span>
+        <span class="n">num_nodes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rules</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BooleanNetworkFromTruthTables</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">num_nodes</span> <span class="o">=</span> <span class="n">num_nodes</span><span class="p">,</span> <span class="n">node_labels</span> <span class="o">=</span> <span class="n">node_labels</span><span class="p">,</span> <span class="n">rules</span><span class="o">=</span><span class="n">rules</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BooleanNetworkFromTruthTables.getNodeNextState"><a class="viewcode-back" href="../../dynpy.html#dynpy.bn.BooleanNetworkFromTruthTables.getNodeNextState">[docs]</a>    <span class="k">def</span> <span class="nf">getNodeNextState</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodeIndex</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rules</span><span class="p">[</span><span class="n">nodeIndex</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span> <span class="o">-</span> <span class="n">tuple2int</span><span class="p">(</span><span class="n">inputs</span><span class="p">)]</span>
+</div>
+<div class="viewcode-block" id="BooleanNetworkFromTruthTables.getNextState"><a class="viewcode-back" href="../../dynpy.html#dynpy.bn.BooleanNetworkFromTruthTables.getNextState">[docs]</a>    <span class="k">def</span> <span class="nf">getNextState</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">startState</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        TODO: Use this to generate fast weave code, or at least make faster</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getNodeNextState</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="p">[</span><span class="n">startState</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">node_label_ndxs</span><span class="p">[</span><span class="n">cInput</span><span class="p">]]</span> <span class="k">for</span> <span class="n">cInput</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rules</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_nodes</span><span class="p">)</span> <span class="p">)</span>
+</div>
+<div class="viewcode-block" id="BooleanNetworkFromTruthTables.computeStateSpace"><a class="viewcode-back" href="../../dynpy.html#dynpy.bn.BooleanNetworkFromTruthTables.computeStateSpace">[docs]</a>    <span class="k">def</span> <span class="nf">computeStateSpace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dynsys_class</span> <span class="o">=</span> <span class="n">DEFAULT_DYNAMICS_CLASS</span><span class="p">):</span>
+        <span class="n">trans_size</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_nodes</span>
+        <span class="c"># Builds the actual state transition graph</span>
+
+        <span class="n">startStates</span> <span class="o">=</span> <span class="p">[</span><span class="n">int2tuple</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_nodes</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">trans_size</span><span class="p">)]</span>
+        <span class="n">trans</span> <span class="o">=</span> <span class="n">dynsys_class</span><span class="o">.</span><span class="n">getEditableBlankTransMx</span><span class="p">(</span><span class="n">num_states</span> <span class="o">=</span> <span class="n">trans_size</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">startStates</span><span class="p">:</span>
+            <span class="n">trans</span><span class="p">[</span> <span class="n">tuple2int</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="p">,</span> <span class="n">tuple2int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getNextState</span><span class="p">(</span><span class="n">s</span><span class="p">))</span> <span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">BooleanNetworkFromTruthTables</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">computeStateSpace</span><span class="p">(</span><span class="n">dynsys_class</span> <span class="o">=</span> <span class="n">dynsys_class</span><span class="p">,</span> <span class="n">trans</span> <span class="o">=</span> <span class="n">dynsys_class</span><span class="o">.</span><span class="n">finalizeTransMx</span><span class="p">(</span><span class="n">trans</span><span class="p">)</span> <span class="p">)</span>
+</div>
+<div class="viewcode-block" id="BooleanNetworkFromTruthTables.getStructuralGraph"><a class="viewcode-back" href="../../dynpy.html#dynpy.bn.BooleanNetworkFromTruthTables.getStructuralGraph">[docs]</a>    <span class="k">def</span> <span class="nf">getStructuralGraph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;    </span>
+<span class="sd">        Get structural connectivity graph for BN</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_nodes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_nodes</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">ndx</span><span class="p">,</span> <span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">table</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rules</span><span class="p">):</span>
+            <span class="n">ix1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_label_ndxs</span><span class="p">[</span><span class="n">node</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
+                <span class="n">mx</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">node_label_ndxs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">rules</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]]][</span><span class="n">ix1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+</div></div>
+<div class="viewcode-block" id="BooleanNetworkFromFuncs"><a class="viewcode-back" href="../../dynpy.html#dynpy.bn.BooleanNetworkFromFuncs">[docs]</a><span class="k">class</span> <span class="nc">BooleanNetworkFromFuncs</span><span class="p">(</span><span class="n">BooleanNetworkFromTruthTables</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get structural connectivity graph for BN</span>
+<span class="sd">    Rules passed in a list with each element being: [nodename, inputNodes, booleanfunc ] . For example:</span>
+<span class="sd">    [ &#39;NodeName1&#39;,[&#39;NodeName2&#39;,&#39;NodeNam4&#39;],lambda (NodeName2,NodeName4): NodeName2 and NodeName4 ],</span>
+
+<span class="sd">    For example:</span>
+
+<span class="sd">    &gt;&gt;&gt; import dynpy.bn, dynpy.dynsys</span>
+<span class="sd">    &gt;&gt;&gt; b = dynpy.bn.BooleanNetworkFromFuncs(rules=[[&#39;A&#39;,[&#39;A&#39;,&#39;B&#39;],lambda A,B: A and B],[&#39;B&#39;,[&#39;A&#39;,&#39;B&#39;],lambda A,B: A or B],])</span>
+<span class="sd">    &gt;&gt;&gt; b.computeStateSpace( dynsys_class=dynpy.dynsys.StochasticDynSys )</span>
+<span class="sd">    &gt;&gt;&gt; print b.dyn.trans</span>
+<span class="sd">    [[ 1.  0.  0.  0.]</span>
+<span class="sd">     [ 0.  1.  0.  0.]</span>
+<span class="sd">     [ 0.  1.  0.  0.]</span>
+<span class="sd">     [ 0.  0.  0.  1.]]</span>
+
+<span class="sd">    or, for sparse transition matrices:</span>
+
+<span class="sd">    &gt;&gt;&gt; import dynpy.bn, dynpy.dynsys</span>
+<span class="sd">    &gt;&gt;&gt; b = dynpy.bn.BooleanNetworkFromFuncs(rules=[[&#39;A&#39;,[&#39;A&#39;,&#39;B&#39;],lambda A,B: A and B],[&#39;B&#39;,[&#39;A&#39;,&#39;B&#39;],lambda A,B: A or B],])</span>
+<span class="sd">    &gt;&gt;&gt; b.computeStateSpace( dynsys_class=dynpy.dynsys.SparseStochasticDynSys )</span>
+<span class="sd">    &gt;&gt;&gt; print b.dyn.trans</span>
+<span class="sd">      (0, 0)	1.0</span>
+<span class="sd">      (1, 1)	1.0</span>
+<span class="sd">      (2, 1)	1.0</span>
+<span class="sd">      (3, 3)	1.0</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rules</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BooleanNetworkFromFuncs</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">rules</span><span class="o">=</span><span class="n">rules</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BooleanNetworkFromFuncs.getNodeNextState"><a class="viewcode-back" href="../../dynpy.html#dynpy.bn.BooleanNetworkFromFuncs.getNodeNextState">[docs]</a>    <span class="k">def</span> <span class="nf">getNodeNextState</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodeIndex</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rules</span><span class="p">[</span><span class="n">nodeIndex</span><span class="p">][</span><span class="mi">2</span><span class="p">](</span><span class="o">*</span><span class="n">inputs</span><span class="p">)</span>
+ 
+
+</div></div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">doctest</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="s">&quot;..&quot;</span><span class="p">)]</span> <span class="o">+</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span>
+    <span class="n">verbose</span> <span class="o">=</span> <span class="bp">True</span> 
+    <span class="n">r</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span><span class="bp">None</span><span class="p">,</span><span class="bp">None</span><span class="p">,</span><span class="n">verbose</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">doctest</span><span class="o">.</span><span class="n">NORMALIZE_WHITESPACE</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">DynPy 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Artemy.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b3.
+    </div>
+  </body>
+</html>

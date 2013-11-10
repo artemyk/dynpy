@@ -1,0 +1,469 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>dynpy package &mdash; DynPy 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="DynPy 0.1 documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">DynPy 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="dynpy-package">
+<h1>dynpy package<a class="headerlink" href="#dynpy-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-dynpy.bn">
+<span id="dynpy-bn-module"></span><h2>dynpy.bn module<a class="headerlink" href="#module-dynpy.bn" title="Permalink to this headline">¶</a></h2>
+<p>Boolean Network classes</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dynpy.bn</span><span class="o">,</span> <span class="nn">dynpy.sample_bn_nets</span><span class="o">,</span> <span class="nn">dynpy.dynsys</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">dynpy</span><span class="o">.</span><span class="n">bn</span><span class="o">.</span><span class="n">BooleanNetworkFromTruthTables</span><span class="p">(</span><span class="n">rules</span><span class="o">=</span><span class="n">dynpy</span><span class="o">.</span><span class="n">sample_bn_nets</span><span class="o">.</span><span class="n">yeast</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">.</span><span class="n">computeStateSpace</span><span class="p">(</span><span class="n">dynsys_class</span><span class="o">=</span><span class="n">dynpy</span><span class="o">.</span><span class="n">dynsys</span><span class="o">.</span><span class="n">StochasticDynSys</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">atts</span><span class="p">,</span> <span class="n">attbasins</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">dyn</span><span class="o">.</span><span class="n">getAttractorsAndBasins</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="n">attbasins</span><span class="p">)</span>
+<span class="go">[1764, 151, 109, 9, 7, 7, 1]</span>
+</pre></div>
+</div>
+<dl class="class">
+<dt id="dynpy.bn.BooleanNetworkBase">
+<em class="property">class </em><tt class="descclassname">dynpy.bn.</tt><tt class="descname">BooleanNetworkBase</tt><big>(</big><em>num_nodes</em>, <em>*kargs</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dynpy/bn.html#BooleanNetworkBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.bn.BooleanNetworkBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dynpy.bn.MultivariateSys" title="dynpy.bn.MultivariateSys"><tt class="xref py py-class docutils literal"><span class="pre">dynpy.bn.MultivariateSys</span></tt></a></p>
+<dl class="method">
+<dt id="dynpy.bn.BooleanNetworkBase.printAttractorsAndBasins">
+<tt class="descname">printAttractorsAndBasins</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/dynpy/bn.html#BooleanNetworkBase.printAttractorsAndBasins"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.bn.BooleanNetworkBase.printAttractorsAndBasins" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dynpy.bn.BooleanNetworkFromFuncs">
+<em class="property">class </em><tt class="descclassname">dynpy.bn.</tt><tt class="descname">BooleanNetworkFromFuncs</tt><big>(</big><em>rules</em><big>)</big><a class="reference internal" href="_modules/dynpy/bn.html#BooleanNetworkFromFuncs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.bn.BooleanNetworkFromFuncs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dynpy.bn.BooleanNetworkFromTruthTables" title="dynpy.bn.BooleanNetworkFromTruthTables"><tt class="xref py py-class docutils literal"><span class="pre">dynpy.bn.BooleanNetworkFromTruthTables</span></tt></a></p>
+<p>Get structural connectivity graph for BN
+Rules passed in a list with each element being: [nodename, inputNodes, booleanfunc ] . For example:
+[ &#8216;NodeName1&#8217;,[&#8216;NodeName2&#8217;,&#8217;NodeNam4&#8217;],lambda (NodeName2,NodeName4): NodeName2 and NodeName4 ],</p>
+<p>For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dynpy.bn</span><span class="o">,</span> <span class="nn">dynpy.dynsys</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">dynpy</span><span class="o">.</span><span class="n">bn</span><span class="o">.</span><span class="n">BooleanNetworkFromFuncs</span><span class="p">(</span><span class="n">rules</span><span class="o">=</span><span class="p">[[</span><span class="s">&#39;A&#39;</span><span class="p">,[</span><span class="s">&#39;A&#39;</span><span class="p">,</span><span class="s">&#39;B&#39;</span><span class="p">],</span><span class="k">lambda</span> <span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">:</span> <span class="n">A</span> <span class="ow">and</span> <span class="n">B</span><span class="p">],[</span><span class="s">&#39;B&#39;</span><span class="p">,[</span><span class="s">&#39;A&#39;</span><span class="p">,</span><span class="s">&#39;B&#39;</span><span class="p">],</span><span class="k">lambda</span> <span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">:</span> <span class="n">A</span> <span class="ow">or</span> <span class="n">B</span><span class="p">],])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">.</span><span class="n">computeStateSpace</span><span class="p">(</span> <span class="n">dynsys_class</span><span class="o">=</span><span class="n">dynpy</span><span class="o">.</span><span class="n">dynsys</span><span class="o">.</span><span class="n">StochasticDynSys</span> <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">b</span><span class="o">.</span><span class="n">dyn</span><span class="o">.</span><span class="n">trans</span>
+<span class="go">[[ 1.  0.  0.  0.]</span>
+<span class="go"> [ 0.  1.  0.  0.]</span>
+<span class="go"> [ 0.  1.  0.  0.]</span>
+<span class="go"> [ 0.  0.  0.  1.]]</span>
+</pre></div>
+</div>
+<p>or, for sparse transition matrices:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dynpy.bn</span><span class="o">,</span> <span class="nn">dynpy.dynsys</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">dynpy</span><span class="o">.</span><span class="n">bn</span><span class="o">.</span><span class="n">BooleanNetworkFromFuncs</span><span class="p">(</span><span class="n">rules</span><span class="o">=</span><span class="p">[[</span><span class="s">&#39;A&#39;</span><span class="p">,[</span><span class="s">&#39;A&#39;</span><span class="p">,</span><span class="s">&#39;B&#39;</span><span class="p">],</span><span class="k">lambda</span> <span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">:</span> <span class="n">A</span> <span class="ow">and</span> <span class="n">B</span><span class="p">],[</span><span class="s">&#39;B&#39;</span><span class="p">,[</span><span class="s">&#39;A&#39;</span><span class="p">,</span><span class="s">&#39;B&#39;</span><span class="p">],</span><span class="k">lambda</span> <span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">:</span> <span class="n">A</span> <span class="ow">or</span> <span class="n">B</span><span class="p">],])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">.</span><span class="n">computeStateSpace</span><span class="p">(</span> <span class="n">dynsys_class</span><span class="o">=</span><span class="n">dynpy</span><span class="o">.</span><span class="n">dynsys</span><span class="o">.</span><span class="n">SparseStochasticDynSys</span> <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">b</span><span class="o">.</span><span class="n">dyn</span><span class="o">.</span><span class="n">trans</span>
+<span class="go">  (0, 0)    1.0</span>
+<span class="go">  (1, 1)    1.0</span>
+<span class="go">  (2, 1)    1.0</span>
+<span class="go">  (3, 3)    1.0</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="dynpy.bn.BooleanNetworkFromFuncs.getNodeNextState">
+<tt class="descname">getNodeNextState</tt><big>(</big><em>nodeIndex</em>, <em>inputs</em><big>)</big><a class="reference internal" href="_modules/dynpy/bn.html#BooleanNetworkFromFuncs.getNodeNextState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.bn.BooleanNetworkFromFuncs.getNodeNextState" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dynpy.bn.BooleanNetworkFromTruthTables">
+<em class="property">class </em><tt class="descclassname">dynpy.bn.</tt><tt class="descname">BooleanNetworkFromTruthTables</tt><big>(</big><em>rules</em>, <em>*kargs</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dynpy/bn.html#BooleanNetworkFromTruthTables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.bn.BooleanNetworkFromTruthTables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dynpy.bn.BooleanNetworkBase" title="dynpy.bn.BooleanNetworkBase"><tt class="xref py py-class docutils literal"><span class="pre">dynpy.bn.BooleanNetworkBase</span></tt></a></p>
+<p>Rules passed in a list with each element being: [nodename, inputNodes, truthtable ] . 
+For example, [ &#8216;NodeName1&#8217;,[&#8216;NodeName2&#8217;,&#8217;NodeName4&#8217;],[0,0,0,1] ], ]</p>
+<dl class="method">
+<dt id="dynpy.bn.BooleanNetworkFromTruthTables.computeStateSpace">
+<tt class="descname">computeStateSpace</tt><big>(</big><em>dynsys_class=&lt;class 'dynpy.dynsys.SparseStochasticDynSys'&gt;</em><big>)</big><a class="reference internal" href="_modules/dynpy/bn.html#BooleanNetworkFromTruthTables.computeStateSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.bn.BooleanNetworkFromTruthTables.computeStateSpace" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dynpy.bn.BooleanNetworkFromTruthTables.getNextState">
+<tt class="descname">getNextState</tt><big>(</big><em>startState</em><big>)</big><a class="reference internal" href="_modules/dynpy/bn.html#BooleanNetworkFromTruthTables.getNextState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.bn.BooleanNetworkFromTruthTables.getNextState" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO: Use this to generate fast weave code, or at least make faster</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dynpy.bn.BooleanNetworkFromTruthTables.getNodeNextState">
+<tt class="descname">getNodeNextState</tt><big>(</big><em>nodeIndex</em>, <em>inputs</em><big>)</big><a class="reference internal" href="_modules/dynpy/bn.html#BooleanNetworkFromTruthTables.getNodeNextState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.bn.BooleanNetworkFromTruthTables.getNodeNextState" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dynpy.bn.BooleanNetworkFromTruthTables.getStructuralGraph">
+<tt class="descname">getStructuralGraph</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/dynpy/bn.html#BooleanNetworkFromTruthTables.getStructuralGraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.bn.BooleanNetworkFromTruthTables.getStructuralGraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get structural connectivity graph for BN</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dynpy.bn.BooleanNetworkWithTrans">
+<em class="property">class </em><tt class="descclassname">dynpy.bn.</tt><tt class="descname">BooleanNetworkWithTrans</tt><big>(</big><em>num_nodes</em>, <em>*kargs</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dynpy/bn.html#BooleanNetworkWithTrans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.bn.BooleanNetworkWithTrans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dynpy.bn.BooleanNetworkBase" title="dynpy.bn.BooleanNetworkBase"><tt class="xref py py-class docutils literal"><span class="pre">dynpy.bn.BooleanNetworkBase</span></tt></a></p>
+<dl class="method">
+<dt id="dynpy.bn.BooleanNetworkWithTrans.computeStateSpace">
+<tt class="descname">computeStateSpace</tt><big>(</big><em>dynsys_class</em>, <em>trans</em><big>)</big><a class="reference internal" href="_modules/dynpy/bn.html#BooleanNetworkWithTrans.computeStateSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.bn.BooleanNetworkWithTrans.computeStateSpace" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dynpy.bn.MultivariateSys">
+<em class="property">class </em><tt class="descclassname">dynpy.bn.</tt><tt class="descname">MultivariateSys</tt><big>(</big><em>num_nodes</em>, <em>node_labels=None</em>, <em>*kargs</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/dynpy/bn.html#MultivariateSys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.bn.MultivariateSys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="dynpy.bn.MultivariateSys.computeStateSpace">
+<tt class="descname">computeStateSpace</tt><big>(</big><em>trans</em>, <em>dynsys_class=&lt;class 'dynpy.dynsys.SparseStochasticDynSys'&gt;</em><big>)</big><a class="reference internal" href="_modules/dynpy/bn.html#MultivariateSys.computeStateSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.bn.MultivariateSys.computeStateSpace" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="dynpy.bn.int2tuple">
+<tt class="descclassname">dynpy.bn.</tt><tt class="descname">int2tuple</tt><big>(</big><em>i</em>, <em>num_places</em><big>)</big><a class="reference internal" href="_modules/dynpy/bn.html#int2tuple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.bn.int2tuple" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="dynpy.bn.tuple2int">
+<tt class="descclassname">dynpy.bn.</tt><tt class="descname">tuple2int</tt><big>(</big><em>b</em><big>)</big><a class="reference internal" href="_modules/dynpy/bn.html#tuple2int"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.bn.tuple2int" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-dynpy.ca">
+<span id="dynpy-ca-module"></span><h2>dynpy.ca module<a class="headerlink" href="#module-dynpy.ca" title="Permalink to this headline">¶</a></h2>
+<p>Cellular automaton.  For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pylab</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">matplotlib.patches</span> <span class="kn">import</span> <span class="n">Ellipse</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">delta</span> <span class="o">=</span> <span class="mf">45.0</span> <span class="c"># degrees</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">angles</span> <span class="o">=</span> <span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">360</span><span class="o">+</span><span class="n">delta</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ells</span> <span class="o">=</span> <span class="p">[</span><span class="n">Ellipse</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">angles</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="s">&#39;equal&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">ells</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">e</span><span class="o">.</span><span class="n">set_clip_box</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">bbox</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">e</span><span class="o">.</span><span class="n">set_alpha</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">a</span><span class="o">.</span><span class="n">add_artist</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>and then, what do you know...</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pylab</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">matplotlib.patches</span> <span class="kn">import</span> <span class="n">Ellipse</span>
+
+<span class="n">delta</span> <span class="o">=</span> <span class="mf">45.0</span> <span class="c"># degrees</span>
+
+<span class="n">angles</span> <span class="o">=</span> <span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">360</span><span class="o">+</span><span class="n">delta</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span>
+<span class="n">ells</span> <span class="o">=</span> <span class="p">[</span><span class="n">Ellipse</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">angles</span><span class="p">]</span>
+
+<span class="n">a</span> <span class="o">=</span> <span class="n">subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="s">&#39;equal&#39;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">ells</span><span class="p">:</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">set_clip_box</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">bbox</span><span class="p">)</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">set_alpha</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="n">a</span><span class="o">.</span><span class="n">add_artist</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+<span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="./pyplots/ellipses.py">Source code</a>, <a class="reference external" href="./pyplots/ellipses.png">png</a>, <a class="reference external" href="./pyplots/ellipses.hires.png">hires.png</a>, <a class="reference external" href="./pyplots/ellipses.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="_images/ellipses.png" src="_images/ellipses.png" />
+</div>
+<dl class="class">
+<dt id="dynpy.ca.CellularAutomaton">
+<em class="property">class </em><tt class="descclassname">dynpy.ca.</tt><tt class="descname">CellularAutomaton</tt><big>(</big><em>num_nodes</em>, <em>num_neighbors</em>, <em>ca_rule_number</em><big>)</big><a class="reference internal" href="_modules/dynpy/ca.html#CellularAutomaton"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.ca.CellularAutomaton" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dynpy.bn.BooleanNetworkFromTruthTables" title="dynpy.bn.BooleanNetworkFromTruthTables"><tt class="xref py py-class docutils literal"><span class="pre">dynpy.bn.BooleanNetworkFromTruthTables</span></tt></a></p>
+<p>Create cellular automaton object</p>
+<p>&gt;&gt;&gt;ca = CellularAutomaton(10)</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-dynpy.dynsys">
+<span id="dynpy-dynsys-module"></span><h2>dynpy.dynsys module<a class="headerlink" href="#module-dynpy.dynsys" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="dynpy.dynsys.SparseStochasticDynSys">
+<em class="property">class </em><tt class="descclassname">dynpy.dynsys.</tt><tt class="descname">SparseStochasticDynSys</tt><big>(</big><em>trans</em><big>)</big><a class="reference internal" href="_modules/dynpy/dynsys.html#SparseStochasticDynSys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsys.SparseStochasticDynSys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dynpy.dynsys.StochasticDynSys" title="dynpy.dynsys.StochasticDynSys"><tt class="xref py py-class docutils literal"><span class="pre">dynpy.dynsys.StochasticDynSys</span></tt></a></p>
+<dl class="classmethod">
+<dt id="dynpy.dynsys.SparseStochasticDynSys.finalizeTransMx">
+<em class="property">classmethod </em><tt class="descname">finalizeTransMx</tt><big>(</big><em>mx</em><big>)</big><a class="reference internal" href="_modules/dynpy/dynsys.html#SparseStochasticDynSys.finalizeTransMx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsys.SparseStochasticDynSys.finalizeTransMx" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="dynpy.dynsys.SparseStochasticDynSys.getEditableBlankTransMx">
+<em class="property">classmethod </em><tt class="descname">getEditableBlankTransMx</tt><big>(</big><em>num_states</em><big>)</big><a class="reference internal" href="_modules/dynpy/dynsys.html#SparseStochasticDynSys.getEditableBlankTransMx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsys.SparseStochasticDynSys.getEditableBlankTransMx" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="dynpy.dynsys.SparseStochasticDynSys.getRightEigs">
+<em class="property">classmethod </em><tt class="descname">getRightEigs</tt><big>(</big><em>mx</em><big>)</big><a class="reference internal" href="_modules/dynpy/dynsys.html#SparseStochasticDynSys.getRightEigs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsys.SparseStochasticDynSys.getRightEigs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="dynpy.dynsys.SparseStochasticDynSys.mxFormat">
+<em class="property">classmethod </em><tt class="descname">mxFormat</tt><big>(</big><em>mx</em><big>)</big><a class="reference internal" href="_modules/dynpy/dynsys.html#SparseStochasticDynSys.mxFormat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsys.SparseStochasticDynSys.mxFormat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dynpy.dynsys.StochasticDynSys">
+<em class="property">class </em><tt class="descclassname">dynpy.dynsys.</tt><tt class="descname">StochasticDynSys</tt><big>(</big><em>trans</em><big>)</big><a class="reference internal" href="_modules/dynpy/dynsys.html#StochasticDynSys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsys.StochasticDynSys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dynpy.dynsys.StochasticDynSysBase" title="dynpy.dynsys.StochasticDynSysBase"><tt class="xref py py-class docutils literal"><span class="pre">dynpy.dynsys.StochasticDynSysBase</span></tt></a></p>
+<dl class="classmethod">
+<dt id="dynpy.dynsys.StochasticDynSys.finalizeTransMx">
+<em class="property">classmethod </em><tt class="descname">finalizeTransMx</tt><big>(</big><em>mx</em><big>)</big><a class="reference internal" href="_modules/dynpy/dynsys.html#StochasticDynSys.finalizeTransMx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsys.StochasticDynSys.finalizeTransMx" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="dynpy.dynsys.StochasticDynSys.getEditableBlankTransMx">
+<em class="property">classmethod </em><tt class="descname">getEditableBlankTransMx</tt><big>(</big><em>num_states</em><big>)</big><a class="reference internal" href="_modules/dynpy/dynsys.html#StochasticDynSys.getEditableBlankTransMx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsys.StochasticDynSys.getEditableBlankTransMx" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="dynpy.dynsys.StochasticDynSys.getRightEigs">
+<em class="property">classmethod </em><tt class="descname">getRightEigs</tt><big>(</big><em>mx</em><big>)</big><a class="reference internal" href="_modules/dynpy/dynsys.html#StochasticDynSys.getRightEigs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsys.StochasticDynSys.getRightEigs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dynpy.dynsys.StochasticDynSys.getUniformStartStates">
+<tt class="descname">getUniformStartStates</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/dynpy/dynsys.html#StochasticDynSys.getUniformStartStates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsys.StochasticDynSys.getUniformStartStates" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="dynpy.dynsys.StochasticDynSys.mxFormat">
+<em class="property">classmethod </em><tt class="descname">mxFormat</tt><big>(</big><em>mx</em><big>)</big><a class="reference internal" href="_modules/dynpy/dynsys.html#StochasticDynSys.mxFormat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsys.StochasticDynSys.mxFormat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dynpy.dynsys.StochasticDynSysBase">
+<em class="property">class </em><tt class="descclassname">dynpy.dynsys.</tt><tt class="descname">StochasticDynSysBase</tt><big>(</big><em>trans</em><big>)</big><a class="reference internal" href="_modules/dynpy/dynsys.html#StochasticDynSysBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsys.StochasticDynSysBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="dynpy.dynsys.StochasticDynSysBase.equilibriumDistribution">
+<tt class="descname">equilibriumDistribution</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/dynpy/dynsys.html#StochasticDynSysBase.equilibriumDistribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsys.StochasticDynSysBase.equilibriumDistribution" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="dynpy.dynsys.StochasticDynSysBase.finalizeTransMx">
+<em class="property">classmethod </em><tt class="descname">finalizeTransMx</tt><big>(</big><em>mx</em><big>)</big><a class="reference internal" href="_modules/dynpy/dynsys.html#StochasticDynSysBase.finalizeTransMx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsys.StochasticDynSysBase.finalizeTransMx" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dynpy.dynsys.StochasticDynSysBase.getAttractorsAndBasins">
+<tt class="descname">getAttractorsAndBasins</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/dynpy/dynsys.html#StochasticDynSysBase.getAttractorsAndBasins"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsys.StochasticDynSysBase.getAttractorsAndBasins" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="dynpy.dynsys.StochasticDynSysBase.getLeftEigs">
+<em class="property">classmethod </em><tt class="descname">getLeftEigs</tt><big>(</big><em>mx</em><big>)</big><a class="reference internal" href="_modules/dynpy/dynsys.html#StochasticDynSysBase.getLeftEigs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsys.StochasticDynSysBase.getLeftEigs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dynpy.dynsys.StochasticDynSysBase.getMultistepDynsys">
+<tt class="descname">getMultistepDynsys</tt><big>(</big><em>num_iters</em><big>)</big><a class="reference internal" href="_modules/dynpy/dynsys.html#StochasticDynSysBase.getMultistepDynsys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsys.StochasticDynSysBase.getMultistepDynsys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="dynpy.dynsys.StochasticDynSysBase.getRightEigs">
+<em class="property">classmethod </em><tt class="descname">getRightEigs</tt><big>(</big><em>mx</em><big>)</big><a class="reference internal" href="_modules/dynpy/dynsys.html#StochasticDynSysBase.getRightEigs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsys.StochasticDynSysBase.getRightEigs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="dynpy.dynsys.StochasticDynSysBase.getTransitionList">
+<em class="property">classmethod </em><tt class="descname">getTransitionList</tt><big>(</big><em>mx</em><big>)</big><a class="reference internal" href="_modules/dynpy/dynsys.html#StochasticDynSysBase.getTransitionList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsys.StochasticDynSysBase.getTransitionList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dynpy.dynsys.StochasticDynSysBase.iterateDyn">
+<tt class="descname">iterateDyn</tt><big>(</big><em>startStates=None</em>, <em>num_iters=1</em><big>)</big><a class="reference internal" href="_modules/dynpy/dynsys.html#StochasticDynSysBase.iterateDyn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsys.StochasticDynSysBase.iterateDyn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dynpy.dynsys.StochasticDynSysBase.stg_igraph">
+<tt class="descname">stg_igraph</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/dynpy/dynsys.html#StochasticDynSysBase.stg_igraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsys.StochasticDynSysBase.stg_igraph" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dynpy.dynsysutils">
+<span id="dynpy-dynsysutils-module"></span><h2>dynpy.dynsysutils module<a class="headerlink" href="#module-dynpy.dynsysutils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="dynpy.dynsysutils.convertNetToDynObj">
+<tt class="descclassname">dynpy.dynsysutils.</tt><tt class="descname">convertNetToDynObj</tt><big>(</big><em>num_nodes</em>, <em>edges</em>, <em>title</em>, <em>equilibriumStartStateProbs=False</em><big>)</big><a class="reference internal" href="_modules/dynpy/dynsysutils.html#convertNetToDynObj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsysutils.convertNetToDynObj" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="dynpy.dynsysutils.convertNetToWeightedNet">
+<tt class="descclassname">dynpy.dynsysutils.</tt><tt class="descname">convertNetToWeightedNet</tt><big>(</big><em>edges</em><big>)</big><a class="reference internal" href="_modules/dynpy/dynsysutils.html#convertNetToWeightedNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsysutils.convertNetToWeightedNet" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="dynpy.dynsysutils.dictToMatrixDyn">
+<tt class="descclassname">dynpy.dynsysutils.</tt><tt class="descname">dictToMatrixDyn</tt><big>(</big><em>num_nodes</em>, <em>dyn</em><big>)</big><a class="reference internal" href="_modules/dynpy/dynsysutils.html#dictToMatrixDyn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsysutils.dictToMatrixDyn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="dynpy.dynsysutils.entropy">
+<tt class="descclassname">dynpy.dynsysutils.</tt><tt class="descname">entropy</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/dynpy/dynsysutils.html#entropy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsysutils.entropy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="dynpy.dynsysutils.getCondEntropy">
+<tt class="descclassname">dynpy.dynsysutils.</tt><tt class="descname">getCondEntropy</tt><big>(</big><em>dynObjTrans</em>, <em>startStateDist=None</em><big>)</big><a class="reference internal" href="_modules/dynpy/dynsysutils.html#getCondEntropy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsysutils.getCondEntropy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="dynpy.dynsysutils.getMargStateFunc">
+<tt class="descclassname">dynpy.dynsysutils.</tt><tt class="descname">getMargStateFunc</tt><big>(</big><em>num_nodes</em>, <em>keep_nodes</em><big>)</big><a class="reference internal" href="_modules/dynpy/dynsysutils.html#getMargStateFunc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsysutils.getMargStateFunc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="dynpy.dynsysutils.getUniformPriorParams">
+<tt class="descclassname">dynpy.dynsysutils.</tt><tt class="descname">getUniformPriorParams</tt><big>(</big><em>trans</em>, <em>alpha=0.5</em><big>)</big><a class="reference internal" href="_modules/dynpy/dynsysutils.html#getUniformPriorParams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsysutils.getUniformPriorParams" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="dynpy.dynsysutils.getUniformStartStates">
+<tt class="descclassname">dynpy.dynsysutils.</tt><tt class="descname">getUniformStartStates</tt><big>(</big><em>num_nodes</em><big>)</big><a class="reference internal" href="_modules/dynpy/dynsysutils.html#getUniformStartStates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsysutils.getUniformStartStates" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="dynpy.dynsysutils.getZerosCreator">
+<tt class="descclassname">dynpy.dynsysutils.</tt><tt class="descname">getZerosCreator</tt><big>(</big><em>mx</em><big>)</big><a class="reference internal" href="_modules/dynpy/dynsysutils.html#getZerosCreator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.dynsysutils.getZerosCreator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-dynpy.mxutils">
+<span id="dynpy-mxutils-module"></span><h2>dynpy.mxutils module<a class="headerlink" href="#module-dynpy.mxutils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="dynpy.mxutils.make2d">
+<tt class="descclassname">dynpy.mxutils.</tt><tt class="descname">make2d</tt><big>(</big><em>mx</em><big>)</big><a class="reference internal" href="_modules/dynpy/mxutils.html#make2d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.mxutils.make2d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="dynpy.mxutils.raise_matrix_power">
+<tt class="descclassname">dynpy.mxutils.</tt><tt class="descname">raise_matrix_power</tt><big>(</big><em>d</em>, <em>exponent</em><big>)</big><a class="reference internal" href="_modules/dynpy/mxutils.html#raise_matrix_power"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dynpy.mxutils.raise_matrix_power" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-dynpy.sample_bn_nets">
+<span id="dynpy-sample-bn-nets-module"></span><h2>dynpy.sample_bn_nets module<a class="headerlink" href="#module-dynpy.sample_bn_nets" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-dynpy">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-dynpy" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">dynpy package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-dynpy.bn">dynpy.bn module</a></li>
+<li><a class="reference internal" href="#module-dynpy.ca">dynpy.ca module</a></li>
+<li><a class="reference internal" href="#module-dynpy.dynsys">dynpy.dynsys module</a></li>
+<li><a class="reference internal" href="#module-dynpy.dynsysutils">dynpy.dynsysutils module</a></li>
+<li><a class="reference internal" href="#module-dynpy.mxutils">dynpy.mxutils module</a></li>
+<li><a class="reference internal" href="#module-dynpy.sample_bn_nets">dynpy.sample_bn_nets module</a></li>
+<li><a class="reference internal" href="#module-dynpy">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/dynpy.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">DynPy 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Artemy.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b3.
+    </div>
+  </body>
+</html>

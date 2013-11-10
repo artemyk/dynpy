@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>dynpy.ca &mdash; DynPy 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="DynPy 0.1 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">DynPy 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for dynpy.ca</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Cellular automaton.  For example:</span>
+
+<span class="sd">&gt;&gt;&gt; from pylab import *</span>
+<span class="sd">&gt;&gt;&gt; from matplotlib.patches import Ellipse</span>
+<span class="sd">&gt;&gt;&gt; delta = 45.0 # degrees</span>
+<span class="sd">&gt;&gt;&gt; angles = arange(0, 360+delta, delta)</span>
+<span class="sd">&gt;&gt;&gt; ells = [Ellipse((1, 1), 4, 2, a) for a in angles]</span>
+<span class="sd">&gt;&gt;&gt; a = subplot(111, aspect=&#39;equal&#39;)</span>
+<span class="sd">&gt;&gt;&gt; for e in ells:</span>
+<span class="sd">&gt;&gt;&gt;     e.set_clip_box(a.bbox)</span>
+<span class="sd">&gt;&gt;&gt;     e.set_alpha(0.1)</span>
+<span class="sd">&gt;&gt;&gt;     a.add_artist(e)</span>
+<span class="sd">&gt;&gt;&gt; </span>
+<span class="sd">&gt;&gt;&gt; xlim(-2, 4)</span>
+<span class="sd">&gt;&gt;&gt; ylim(-1, 3)</span>
+<span class="sd">&gt;&gt;&gt; </span>
+<span class="sd">&gt;&gt;&gt; show()</span>
+
+<span class="sd">and then, what do you know...</span>
+
+<span class="sd">.. plot:: pyplots/ellipses.py</span>
+<span class="sd">   :include-source:</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">bn</span>
+<div class="viewcode-block" id="CellularAutomaton"><a class="viewcode-back" href="../../dynpy.html#dynpy.ca.CellularAutomaton">[docs]</a><span class="k">class</span> <span class="nc">CellularAutomaton</span><span class="p">(</span><span class="n">bn</span><span class="o">.</span><span class="n">BooleanNetworkFromTruthTables</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create cellular automaton object</span>
+
+<span class="sd">    &gt;&gt;&gt;ca = CellularAutomaton(10)</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_nodes</span><span class="p">,</span> <span class="n">num_neighbors</span><span class="p">,</span> <span class="n">ca_rule_number</span><span class="p">):</span>
+        <span class="n">truth_table</span> <span class="o">=</span> <span class="n">bn</span><span class="o">.</span><span class="n">int2tuple</span><span class="p">(</span><span class="n">ca_rule_number</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">num_neighbors</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">rules</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_nodes</span><span class="p">):</span>
+            <span class="n">rules</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+                <span class="n">i</span><span class="p">,</span> <span class="p">[(</span><span class="n">i</span><span class="o">+</span><span class="n">n</span><span class="p">)</span> <span class="o">%</span> <span class="n">num_nodes</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">num_neighbors</span><span class="p">,</span> <span class="n">num_neighbors</span><span class="o">+</span><span class="mi">1</span><span class="p">)],</span> <span class="n">truth_table</span>
+            <span class="p">])</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CellularAutomaton</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">rules</span><span class="o">=</span><span class="n">rules</span><span class="p">)</span>
+
+</div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">doctest</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="s">&quot;..&quot;</span><span class="p">)]</span> <span class="o">+</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span>
+    <span class="n">verbose</span> <span class="o">=</span> <span class="bp">True</span> 
+    
+    <span class="n">num_nodes</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">num_steps</span> <span class="o">=</span> <span class="mi">50</span>
+    <span class="n">ca</span> <span class="o">=</span> <span class="n">CellularAutomaton</span><span class="p">(</span><span class="n">num_nodes</span><span class="o">=</span><span class="n">num_nodes</span><span class="p">,</span> <span class="n">num_neighbors</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ca_rule_number</span><span class="o">=</span><span class="mi">110</span><span class="p">)</span>
+    <span class="n">spacetime</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">num_steps</span><span class="p">,</span><span class="n">num_nodes</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&#39;int&#39;</span><span class="p">)</span>
+
+    <span class="n">cState</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_nodes</span><span class="p">)</span>
+    <span class="n">cState</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">num_nodes</span><span class="o">/</span><span class="mi">2</span><span class="p">)]</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_steps</span><span class="p">):</span>
+        <span class="n">spacetime</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">cState</span>
+        <span class="n">cState</span> <span class="o">=</span> <span class="n">ca</span><span class="o">.</span><span class="n">getNextState</span><span class="p">(</span><span class="n">cState</span><span class="p">)</span>
+
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s">&#39;.&#39;</span><span class="p">,</span><span class="s">&#39;#&#39;</span><span class="p">])</span>
+    <span class="k">print</span> <span class="n">labels</span><span class="p">[</span><span class="n">spacetime</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;int&#39;</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">spacetime</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;#&#39;</span> <span class="k">if</span> <span class="n">e</span> <span class="o">==</span> <span class="mf">1.0</span> <span class="k">else</span> <span class="s">&#39;.&#39;</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">line</span><span class="p">)</span>
+    <span class="c">#r = doctest.testmod(None,None,None,verbose, None, doctest.NORMALIZE_WHITESPACE)</span>
+    <span class="c">#sys.exit( r[0] )</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">DynPy 0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Artemy.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b3.
+    </div>
+  </body>
+</html>
