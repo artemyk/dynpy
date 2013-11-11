@@ -2,7 +2,7 @@ make clean
 mkdir ../htmldocs/html
 
 cd ../htmldocs/html
-git clone git@github.iu.edu:akolchin/DynPy.git ..
+git clone git@github.iu.edu:akolchin/DynPy.git .
 git checkout origin/gh-pages -b gh-pages
 git branch -d master
 
