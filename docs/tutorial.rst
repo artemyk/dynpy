@@ -51,3 +51,16 @@ For a CA:
 	    cState = ca.getNextState(cState)
 
 	plt.spy(spacetime)
+
+
+For random walker:
+
+.. plot::
+	:include-source:
+
+	import networkx as nx
+	import matplotlib.pyplot as plt
+	import dynpy.graphdynamics
+
+	num_steps = 50
+	rw = dynpy.graphdynamics.RandomWalker(graph=nx.to_numpy_matrix( nx.karate_club_graph() ) )

@@ -10,6 +10,7 @@ cd ../../docs
 
 make html
 
+cd ../htmldocs/html
 echo "Created by following https://gist.github.com/chrisjacob/833223" > README.textile
 git add .
 git commit -m "Documentation updated"

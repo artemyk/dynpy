@@ -20,20 +20,17 @@ def tuple2int(b):
 def int2tuple(i, num_places):
     return tuple(map(int, bin(i)[2:].rjust(num_places, '0')))
 
-class MultivariateSys(object):
-    def __init__(self, num_nodes, node_labels=None, *kargs, **kwargs):
+class MultivariateDynamicalSystemBase(dynsys.DynamicalSystemBase):
+    def __init__(self, num_nodes, node_labels=None, discrete_time = False):
         self.num_nodes       = num_nodes
         self.node_set        = tuple(range(self.num_nodes))
         if node_labels is None:
             node_labels = range(self.num_nodes)
         self.node_labels     = tuple(node_labels) # tuple(map(str, node_labels))
         self.node_label_ndxs = dict((l, ndx) for ndx, l in enumerate(self.node_labels))
+        super(MultivariateDynamicalSystem).__init__(discrete_time)
 
-    def computeStateSpace(self, trans, dynsys_class = DEFAULT_DYNAMICS_CLASS):
-        self.dyn = dynsys_class(trans = trans)
-
-
-class BooleanNetworkBase(MultivariateSys):
+class BooleanNetworkBase(MultivariateDynamicalSystemBase):
     def __init__(self, num_nodes, *kargs, **kwargs):
 
         super(BooleanNetworkBase, self).__init__(num_nodes, *kargs, **kwargs)
@@ -57,17 +54,17 @@ class BooleanNetworkBase(MultivariateSys):
 
 
 class BooleanNetworkWithTrans(BooleanNetworkBase):
-    def computeStateSpace(self, dynsys_class, trans):
+    def checkTransitionMatrix(self):
         expected_shape = 2 ** self.num_nodes
-        if trans.shape[0] != expected_shape:
+        if self.trans.shape[0] != expected_shape:
             raise Exception(
                 "transition matrix shape is %s, but expected first dimension to be 2^%d=%d" %
-                (trans.shape, num_nodes, expected_shape))
-        if trans.shape[1] != expected_shape:
+                (self.trans.shape, num_nodes, expected_shape))
+        if self.trans.shape[1] != expected_shape:
             raise Exception(
                 "transition matrix shape is %s, but expected second dimension to be 2^%d=%d" %
-                (trans.shape, num_nodes, expected_shape))
-        super(BooleanNetworkWithTrans,self).computeStateSpace(dynsys_class = dynsys_class, trans = dynsys_class.finalizeTransMx(trans) )
+                (self.trans.shape, num_nodes, expected_shape))
+        super(BooleanNetworkWithTrans,self).checkTransitionMatrix()
 
 
 class BooleanNetworkFromTruthTables(BooleanNetworkBase):
@@ -86,13 +83,13 @@ class BooleanNetworkFromTruthTables(BooleanNetworkBase):
     def getNodeNextState(self, nodeIndex, inputs):
         return self.rules[nodeIndex][2][-1 - tuple2int(inputs)]
 
-    def getNextState(self, startState):
+    def iterateState(self, startState):
         """
         TODO: Use this to generate fast weave code, or at least make faster
         """
         return tuple(self.getNodeNextState(i, [startState[self.node_label_ndxs[cInput]] for cInput in self.rules[i][1]]) for i in xrange(self.num_nodes) )
 
-    def computeStateSpace(self, dynsys_class = DEFAULT_DYNAMICS_CLASS):
+    def computeTransitionMatrix(self):
         trans_size = 2 ** self.num_nodes
         # Builds the actual state transition graph
 
@@ -101,7 +98,8 @@ class BooleanNetworkFromTruthTables(BooleanNetworkBase):
         for s in startStates:
             trans[ tuple2int(s) , tuple2int(self.getNextState(s)) ] = 1.
 
-        super(BooleanNetworkFromTruthTables,self).computeStateSpace(dynsys_class = dynsys_class, trans = dynsys_class.finalizeTransMx(trans) )
+        self.trans = dynsys_class.finalizeTransMx(trans)
+        super(BooleanNetworkFromTruthTables,self).checkTransitionMatrix()
 
     def getStructuralGraph(self):
         """    
