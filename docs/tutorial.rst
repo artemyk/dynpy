@@ -1,5 +1,5 @@
 DynPy tutorial
-=============
+==============
 
 Let's try to get space time diagram of yeast network
 
