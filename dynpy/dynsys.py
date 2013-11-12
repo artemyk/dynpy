@@ -13,32 +13,68 @@ if sys.version_info < (3,):
     range = xrange
 
 
-import mxutils
+import mx
 
 # Constants for finding attractors
 MAX_ATTRACTOR_LENGTH = 5
 TRANSIENT_LENGTH     = 30
 
+DEFAULT_TRANSMX_CLASS = mx.SparseMatrix
 
-class StochasticDynSysBase(object):
+class DynamicalSystemBase(object):
 
-    def __init__(self, trans):
-        self.trans      = trans
+    def __init__(self, discrete_time = True):
+        self.discrete_time = discrete_time
 
-    @classmethod
-    def getRightEigs(cls, mx):
+    def iterateState(self, startState, num_iters=1):
         NotImplementedError
 
-    @classmethod
-    def getLeftEigs(cls, mx):
-        vals, vecs = cls.getRightEigs(mx.T)
-        return vals, vecs.T
+    def checkTransitionMatrix(self):
+        if self.trans.shape[0] != self.trans.shape[1]:
+            raise Exception('Expect square transition matrix (got %s)' % self.trans.trans.shape)
+
+    def getTrajectory(self, startState, num_iters=1):
+        cState = startState
+        returnStates = [cState,]
+        for i in range(num_iters):
+            cState = self.iterateState(cState)
+            returnStates.append(cState)
+        return returnStates
+
+    def stg_igraph(self):
+        return igraph.Graph(zip(*self.trans.nonzero()), directed=True)
+
+    def getAttractorsAndBasins(self):
+
+        STG = self.stg_igraph()
+
+        multistepDyn = self.transCls.pow(self.trans, TRANSIENT_LENGTH) 
+        attractorStates = np.ravel( self.transCls.make2d( multistepDyn.sum(axis=0) ).nonzero()[1]  )
+
+        basins = collections.defaultdict(list)
+        for attState in attractorStates:
+            cBasin = tuple( STG.subcomponent(attState, mode = 'IN') ) 
+            basins[cBasin].append(attState)
+
+        basinAtts = basins.values()
+        basinStates = basins.keys()
+        bySizeOrder = np.argsort(map(len, basinStates))[::-1]
+        return [basinAtts[b] for b in bySizeOrder], [basinStates[b] for b in bySizeOrder]
+
+
+class LinearDynamicalSystem(DynamicalSystemBase):
+    def __init__(self, trans, transCls = DEFAULT_TRANSMX_CLASS, discrete_time = True):
+        self.discrete_time = discrete_time
+        self.trans = trans
+        self.transCls = transCls
+
+    def iterateState(self, startState, num_iters=1):
+        curStartStates = self.transCls.formatMx( startState )
+        r = curStartStates.dot( self.transCls.pow(self.trans, num_iters) )
+        return r
 
     def equilibriumDistribution(self):
-        if self.trans.shape[0] != self.trans.shape[1]:
-            raise Exception('Expect square transition matrix (got %s)' % self.trans.shape)
-
-        vals, vecsL = self.getLeftEigs(self.trans)
+        vals, vecsL = self.transCls.getLeftEigs(self.trans)
 
         oneEigenvals = np.flatnonzero(np.abs(vals - 1) < 1e-8)
         if len(oneEigenvals) != 1:
@@ -54,28 +90,24 @@ class StochasticDynSysBase(object):
 
         return equilibriumDistribution
 
-    @classmethod
-    def getTransitionList(cls, mx):
-        return zip(*mx.nonzero())
-    def stg_igraph(self):
-        return igraph.Graph(self.getTransitionList(self.trans), directed=True)
+    def getMultistepDynsys(self, num_iters):
+        # TODO!!!!
+        import copy
+        rObj = copy.copy(self)
+        rObj.trans = self.transCls.pow(self.trans, num_iters)
+        return rObj
 
-    def getAttractorsAndBasins(self):
+class DynamicalSystemEnsemble(LinearDynamicalSystem):
+    def __init__(self, baseDynamicalSystem, discrete_time = True):
+        self.baseDynamicalSystem = baseDynamicalSystem
+        super(DynamicalSystemEnsemble, self).__init__(trans = baseDynamicalSystem.trans, transCls = baseDynamicalSystem.transCls, discrete_time = discrete_time)
 
-        STG = self.stg_igraph()
 
-        multistepDyn = mxutils.raise_matrix_power(self.trans, TRANSIENT_LENGTH) 
-        attractorStates = np.ravel( mxutils.make2d( multistepDyn.sum(axis=0) ).nonzero()[1]  )
+    def getUniformDistribution(self):
+        num_states = self.baseDynamicalSystem.trans.shape[0]
+        return np.ones(num_states) / float(num_states)
 
-        basins = collections.defaultdict(list)
-        for attState in attractorStates:
-            cBasin = tuple( STG.subcomponent(attState, mode = 'IN') ) 
-            basins[cBasin].append(attState)
 
-        basinAtts = basins.values()
-        basinStates = basins.keys()
-        bySizeOrder = np.argsort(map(len, basinStates))[::-1]
-        return [basinAtts[b] for b in bySizeOrder], [basinStates[b] for b in bySizeOrder]
 
     """        
 
@@ -102,69 +134,10 @@ class StochasticDynSysBase(object):
             allAttractors = allAttractors + cStateDistribution
         return allAttractors / float(MAX_ATTRACTOR_LENGTH)
     """
-    def iterateDyn(self, startStates=None, num_iters=1):
-        assert startStates is None or startStates.shape
-        curStartStates = self.mxFormat( startStates if startStates is not None else self.getUniformStartStates() )
-        r = curStartStates.dot( mxutils.raise_matrix_power(self.trans, num_iters) )
-        return r
-
-    def getMultistepDynsys(self, num_iters):
-        import copy
-        rObj = copy.copy(self)
-        rObj.trans = mxutils.raise_matrix_power(self.trans, num_iters)
-        return rObj
-        
-    @classmethod
-    def finalizeTransMx(cls, mx):
-        if np.any(mx.sum(axis=1) != 1.0):
-            raise Exception('State transitions do not add up to 1.0')
-        return mx
-
-class StochasticDynSys(StochasticDynSysBase): # For dense transition matrices
-    @classmethod
-    def mxFormat(cls, mx):
-        return np.array(mx)
-
-    def getUniformStartStates(self):
-        return np.ones( shape = (self.trans.shape[0],) ) / self.trans.shape[0]
-
-    @classmethod
-    def getRightEigs(cls, mx):
-        vals, vecsR = scipy.linalg.eig(mx)
-        return vals, vecsR
-
-    @classmethod
-    def getEditableBlankTransMx(cls, num_states):
-        return np.zeros((num_states, num_states))
-
-    # Convert transition matrix to finalized format
-    @classmethod
-    def finalizeTransMx(cls, mx):
-        if ss.issparse(mx):
-            raise Exception('Transition matrix for this class should not be sparse')
-        return super(StochasticDynSys, cls).finalizeTransMx(cls.mxFormat(mx))
 
 
-class SparseStochasticDynSys(StochasticDynSys):
-    @classmethod
-    def mxFormat(cls, mx):
-        return ss.csr_matrix(mx)
 
-    @classmethod
-    def getRightEigs(cls, mx):
-        vals, vecsR = scipy.sparse.linalg.eigs(self.trans.T)
-        return vals, vecsR
 
-    @classmethod
-    def getEditableBlankTransMx(cls, num_states):
-        return ss.lil_matrix((num_states, num_states))
-
-    # Convert transition matrix to finalized format
-    @classmethod
-    def finalizeTransMx(cls, mx):
-        if not ss.issparse(mx):
-            raise Exception('Transition matrix for this class should be sparse')
-        return super(StochasticDynSys, cls).finalizeTransMx(cls.mxFormat(mx))
 
 """
 class MappedStochasticStateDynSys(StochasticDynSys):
@@ -212,3 +185,17 @@ iterate:
     def getMultistepDynsys(self, num_iters):
         NotImplementedError
                 """
+
+
+
+class MultivariateDynamicalSystemBase(DynamicalSystemBase):
+
+    def __init__(self, num_nodes, node_labels=None, transMatrixClass=DEFAULT_TRANSMX_CLASS, discrete_time=True):
+        self.num_nodes = num_nodes
+        self.node_set = tuple(range(self.num_nodes))
+        if node_labels is None:
+            node_labels = range(self.num_nodes)
+        self.node_labels = tuple(node_labels)  # tuple(map(str, node_labels))
+        self.node_label_ndxs = dict((l, ndx) for ndx, l in enumerate(self.node_labels))
+        self.transCls = transMatrixClass
+        super(MultivariateDynamicalSystemBase, self).__init__(discrete_time)
