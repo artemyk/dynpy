@@ -17,6 +17,7 @@ To build the HTML documentation locally, use:
 ``make html``
 
 To make the HTML documentation and push it to the GitHub pages repository, do:
+
 ``./make_gh_pages.sh``
 
 
