@@ -6,8 +6,6 @@
 Welcome to DynPy's documentation!
 =================================
 
-Contents:
-
 Check out the tutorial:
 :doc:`tutorial`
 

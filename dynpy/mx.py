@@ -1,5 +1,19 @@
 import numpy as np
+import numpy.linalg
+import scipy.linalg
 import scipy.sparse as ss
+import scipy.sparse.linalg
+import hashlib
+
+def toarray(mx):
+    if isinstance(mx, np.ndarray):
+        return mx
+    else:
+        return mx.toarray()
+
+def hash_np(mx):
+    return hashlib.sha1(mx).hexdigest()
+
 
 
 class MxBase(object):
@@ -11,13 +25,26 @@ class MxBase(object):
         return mx
 
     @classmethod
-    def getRightEigs(cls, mx):
-        NotImplementedError
+    def getLargestRightEigs(cls, mx):
+        raise NotImplementedError  # this is a virtual class, sublcasses should implement
 
     @classmethod
-    def getLeftEigs(cls, mx):
-        vals, vecs = cls.getRightEigs(mx.T)
+    def getLargestLeftEigs(cls, mx):
+        vals, vecs = cls.getLargestRightEigs(mx.T)
         return vals, vecs.T
+
+    @classmethod
+    def pow(cls, mx, exponent):
+        """Raise matrix to a power
+
+
+        """
+        raise NotImplementedError  # this is a virtual class, sublcasses should implement
+
+    @classmethod
+    def expm(cls, mx):
+        """Matrix exponential"""
+        raise NotImplementedError  # this is a virtual class, sublcasses should implement
 
 
 class SparseMatrix(MxBase):
@@ -27,7 +54,7 @@ class SparseMatrix(MxBase):
 
     @classmethod
     def formatMx(cls,mx):
-        mx = ss.csr_matrix(mx)
+        mx = ss.csc_matrix(mx)
         return mx
 
     @classmethod
@@ -38,14 +65,18 @@ class SparseMatrix(MxBase):
 
     @classmethod
     def pow(cls, mx, exponent):
-        rMx = ss.eye(mx.shape[0])
+        rMx = ss.eye(m=mx.shape[0])
         for i in range(exponent):
           rMx = rMx.dot(mx)
         return rMx
 
     @classmethod
-    def getRightEigs(cls, mx):
-        vals, vecsR = scipy.sparse.linalg.eigs(self.trans.T)
+    def expm(cls, mx):
+        return scipy.sparse.linalg.expm(mx)
+
+    @classmethod
+    def getLargestRightEigs(cls, mx):
+        vals, vecsR = scipy.sparse.linalg.eigs(mx, k=mx.shape[0]-2, which='LR')
         return vals, vecsR
 
     @classmethod
@@ -59,8 +90,12 @@ class SparseMatrix(MxBase):
 
 class DenseMatrix(MxBase):        
     @classmethod
-    def getRightEigs(cls, mx):
-        vals, vecsR = scipy.linalg.eig(mx)
+    def expm(cls, mx):
+        return scipy.linalg.expm(mx)
+
+    @classmethod
+    def getLargestRightEigs(cls, mx):
+        vals, vecsR = scipy.linalg.eig(mx, right=True, left=False)
         return vals, vecsR
 
     @classmethod
@@ -83,7 +118,7 @@ class DenseMatrix(MxBase):
 
     @classmethod
     def pow(cls, mx, exponent):
-        return mx ** exponent
+        return numpy.linalg.matrix_power(mx, exponent)
 
     @classmethod
     def make2d(cls, mx):

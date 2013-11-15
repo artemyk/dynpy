@@ -19,6 +19,7 @@ import os
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('.'))
 sys.path.append(os.path.abspath('sphinxext'))
 
 
@@ -45,12 +46,12 @@ extensions += [
           'matplotlib.sphinxext.mathmpl',
           'matplotlib.sphinxext.only_directives',
           'matplotlib.sphinxext.plot_directive',
-          'matplotlib.sphinxext.ipython_directive',
           'sphinx.ext.autodoc',
           'sphinx.ext.doctest',
           'ipython_console_highlighting',
           # 'inheritance_diagram', 
           'numpydoc']
+          # 'matplotlib.sphinxext.ipython_directive',
              
 
 

@@ -4,59 +4,20 @@ dynpy package
 Submodules
 ----------
 
-dynpy.bn module
----------------
+:doc:`dynpy.bn` - Boolean network module
 
-.. automodule:: dynpy.bn
-    :members:
-    :undoc-members:
-    :show-inheritance:
+:doc:`dynpy.ca` - Cellular automata module
 
-dynpy.ca module
----------------
+:doc:`dynpy.sample_nets` - Module with sample networks and dynamical systems
 
-.. automodule:: dynpy.ca
-    :members:
-    :undoc-members:
-    :show-inheritance:
+:doc:`dynpy.graphdynamics` - Maxtrix utilities module
 
-dynpy.dynsys module
--------------------
+:doc:`dynpy.mx` - Maxtrix utilities module
 
-.. automodule:: dynpy.dynsys
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-dynpy.dynsysutils module
-------------------------
-
-.. automodule:: dynpy.dynsysutils
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-dynpy.mxutils module
---------------------
-
-.. automodule:: dynpy.mxutils
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-dynpy.sample_bn_nets module
----------------------------
-
-.. automodule:: dynpy.sample_bn_nets
-    :members:
-    :undoc-members:
-    :show-inheritance:
+:doc:`dynpy.caching` - Utilities for caching and memoizing
 
 
-Module contents
----------------
 
-.. automodule:: dynpy
-    :members:
-    :undoc-members:
-    :show-inheritance:
+
+
+
