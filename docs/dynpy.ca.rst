@@ -1,5 +1,5 @@
-dynpy.ca module
-===============
+dynpy.ca - Cellular automata module
+===================================
 
 .. automodule:: dynpy.ca
     :members:

@@ -6,11 +6,32 @@
 Welcome to DynPy's documentation!
 =================================
 
-Check out the tutorial:
-:doc:`tutorial`
+.. toctree::
+   :hidden:
+   
+   tutorial
+   todos
+   modules
+
+Check out the :doc:`tutorial`.
+
+A list of :doc:`todos`.
+
+
+
+dynpy module Index
+==================
 
 .. toctree::
    :maxdepth: 2
+
+   dynpy.dynsys
+   dynpy.bn
+   dynpy.ca
+   dynpy.sample_nets
+   dynpy.graphdynamics
+   dynpy.mx
+   dynpy.caching
 
 
 
@@ -18,6 +39,5 @@ Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
 

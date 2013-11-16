@@ -1,5 +1,5 @@
-dynpy.dynsys module
-===================
+dynpy.dynsys - Base module for dynamical systems
+================================================
 
 .. automodule:: dynpy.dynsys
     :members:

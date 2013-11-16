@@ -1,8 +1,15 @@
-from collections import Counter, OrderedDict
+"""
+This module implements several decorates that can help with caching/memoizing
+methods and properties.
+"""
 
+from collections import Counter, OrderedDict
+import functools
 
 class setup_cached_data_method(object):
-
+    """
+    Class used to generate memoizing decorators.
+    """
     def __init__(self, depends_on_attributes=[], sideeffect_attributes=[], args_dont_use_for_key=[], use_cache_check_func=None):
         self.depends_on_attributes = depends_on_attributes
         self.sideeffect_attributes = sideeffect_attributes
@@ -45,12 +52,20 @@ class setup_cached_data_method(object):
 
 
 def cached_data_method(f):
-    return setup_cached_data_method()(f)
+    """
+    Decorator for caching an object's method
+    """
+    return functools.wraps(f)( setup_cached_data_method()(f) )
 
 
 def cached_data_prop(f):
-    return property(cached_data_method(f))
+    """
+    Decorator for caching an object's property
+    """
+    return property( functools.wraps(f)( cached_data_method(f) ) )
 
 
+"""
 def get_noncached_attr_dict(obj):
     return dict([(k, v) for k, v in obj.__dict__.iteritems() if k != '_cache'])
+"""

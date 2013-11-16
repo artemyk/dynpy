@@ -1,5 +1,5 @@
-dynpy.mx module
-===============
+dynpy.mx - Matrix utilities module
+==================================
 
 .. automodule:: dynpy.mx
     :members:

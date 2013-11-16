@@ -1,5 +1,5 @@
-dynpy.bn module
-===============
+dynpy.bn - Boolean network module
+=================================
 
 .. automodule:: dynpy.bn
     :members:

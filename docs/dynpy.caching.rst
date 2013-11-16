@@ -1,5 +1,5 @@
-dynpy.caching module
-====================
+dynpy.caching - Module for caching and memoizing class methods
+==============================================================
 
 .. automodule:: dynpy.caching
     :members:

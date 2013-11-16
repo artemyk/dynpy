@@ -1,5 +1,5 @@
-dynpy.graphdynamics module
-==========================
+dynpy.graphdynamics - Module for implementing dynamical systems on graphs
+=========================================================================
 
 .. automodule:: dynpy.graphdynamics
     :members:

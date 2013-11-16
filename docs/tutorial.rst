@@ -3,112 +3,123 @@ DynPy tutorial
 
 Introduction
 ------------
-asdfsdsfdsdfadfs
-adsfsdfdsf
+DynPy is organized into a hierarchy of classes, with each class representing
+a different kind of dynamical system.   The base classes that are using by
+these systems are defined in :doc:`dynpy.dynsys`.  Some sample systems used in these examples are defined in :doc:`dynpy.sample_nets`.
 
 
 Random walkers
 --------------
 
-For random walker:
+:doc:`dynpy.graphdynamics` provides tools to study dynamics on graphs.  Here is a simple example of how to initialize and plot several steps of a random walker on Zachary's karate club network:
 
 .. plot::
-	:include-source:
+    :include-source:
 
-	import matplotlib.pyplot as plt
-	import dynpy
+    import matplotlib.pyplot as plt
+    import dynpy
 
-	num_steps = 80
-	rw = dynpy.graphdynamics.RandomWalker(graph=dynpy.sample_nets.karateclub_net)
+    num_steps = 30
+    rw = dynpy.graphdynamics.RandomWalker(graph=dynpy.sample_nets.karateclub_net)
 
-	cState = np.zeros(rw.num_vars)
-	cState[ 5 ] = 1
-	spacetime = np.zeros((num_steps,rw.num_vars))
-	for i in range(num_steps):
-	    spacetime[i,:] = cState
-	    cState = rw.iterate(cState)
+    cState = np.zeros(rw.num_vars)
+    cState[ 5 ] = 1
+    spacetime = np.zeros((num_steps,rw.num_vars))
+    for i in range(num_steps):
+        spacetime[i,:] = cState
+        cState = rw.iterate(cState)
 
-	# Also possible, instead of the for loop, to do:
-	# spacetime = rw.getTrajectory(startState=cState, last_timepoint=num_steps)	
+    # Also possible, instead of the for loop, to do:
+    # spacetime = rw.getTrajectory(startState=cState, max_time=num_steps) 
 
-	plt.spy(spacetime)
+    plt.spy(spacetime)
 
+
+Notice how it's possible to get the spacetime trajectory more succinctly using the 
+``getTrajectory`` method.
 
 
 Ensembles
 ---------
 
-For random walker ensemble:
+The above example of the random walker is a stochastic dynamical system.  It is
+also possible to define ensembles of such systems, which then becomes a deterministic linear
+dynamical system over the space of distributions.   Basically, this uses the state-transition 
+graph of the underlying system to generate a Markov chain (or, in the continuous-time case, master 
+equation) over the states of the underlying system. Each state of the underlying system
+is now assigned to a separate variable in the Markov chain system; the value of each variable
+is the probability mass on the corresponding state of the underlying system. 
+See the documentation for :class:`dynpy.dynsys.MarkovChain` 
+for more details. Using the previous example:
 
 .. plot::
-	:include-source:
+    :include-source:
 
-	import matplotlib.pyplot as plt
-	import dynpy
+    import matplotlib.pyplot as plt
+    import dynpy
 
-	rw = dynpy.graphdynamics.RandomWalker(graph=dynpy.sample_nets.karateclub_net)
-	rwEnsemble = dynpy.dynsys.DynamicalSystemEnsemble(rw)
+    rw = dynpy.graphdynamics.RandomWalker(graph=dynpy.sample_nets.karateclub_net)
+    rwEnsemble = dynpy.dynsys.MarkovChain(rw)
 
-	initState = np.zeros(rw.num_vars, 'float')
-	initState[ 5 ] = 1
+    initState = np.zeros(rw.num_vars)
+    initState[ 5 ] = 1
 
-	plt.imshow(rwEnsemble.getTrajectory(startState=initState, last_timepoint=80), interpolation='none')	
-
-
-For continuous-time random walker ensemble:
-
-.. plot::
-	:include-source:
-
-	import matplotlib.pyplot as plt
-	import dynpy
-
-	rw = dynpy.graphdynamics.RandomWalker(graph=dynpy.sample_nets.karateclub_net, discrete_time = False )
-	rwEnsemble = dynpy.dynsys.DynamicalSystemEnsemble(rw)
-
-	initState = np.zeros(rw.num_vars, 'float')
-	initState[ 5 ] = 1
-	plt.imshow(rwEnsemble.getTrajectory(startState=initState, last_timepoint=80, logscale=True), interpolation='none')	
+    plt.imshow(rwEnsemble.getTrajectory(startState=initState, max_time=30), interpolation='none') 
 
 
-It is possible to get the equilibrium distribution quickly using eigen decomposition:
+The dynamical systems in DynPy can also be run as continuous-time systems.  This is usually implemented only for the 'ensemble' versions (since then the continuous-time dynamics reduce to a continuous-time linear dynamical system).   This can be specified by passing in the ``discrete_time=False`` option when constructing the underlying dynamical system. Using the previous example:
 
 .. plot::
-	:include-source:
+    :include-source:
 
-	import matplotlib.pyplot as plt
-	import numpy as np
-	import dynpy
+    import matplotlib.pyplot as plt
+    import dynpy
 
-	rw = dynpy.graphdynamics.RandomWalker(graph=dynpy.sample_nets.karateclub_net, discrete_time = False )
-	rwEnsemble = dynpy.dynsys.DynamicalSystemEnsemble(rw)
+    rw = dynpy.graphdynamics.RandomWalker(graph=dynpy.sample_nets.karateclub_net, discrete_time = False )
+    rwEnsemble = dynpy.dynsys.MarkovChain(rw)
 
-	plt.imshow(np.atleast_2d(rwEnsemble.equilibriumState()), interpolation='none')	
+    initState = np.zeros(rw.num_vars, 'float')
+    initState[ 5 ] = 1
+    plt.imshow(rwEnsemble.getTrajectory(startState=initState, max_time=30, logscale=True), interpolation='none')  
+
+
+It is also possible to get the equilibrium distribution by calling ``equilibriumState()``, which uses eigenspace decomposition:
+
+.. plot::
+    :include-source:
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import dynpy
+
+    rw = dynpy.graphdynamics.RandomWalker(graph=dynpy.sample_nets.karateclub_net, discrete_time = False )
+    rwEnsemble = dynpy.dynsys.MarkovChain(rw)
+
+    plt.imshow(np.atleast_2d(dynpy.mx.todense(rwEnsemble.equilibriumState())), interpolation='none')    
 
 
 
 Boolean Networks
 ----------------
 
-Let's try to get space time diagram of yeast network
+:doc:`dynpy.bn` contains tools to run Boolean network dynamics. Let's try to get space time diagram of the 11-node yeast cell-cycle network, as described in:
+    Li et al, The yeast cell-cycle network is robustly designed, PNAS, 2004. http://www.pnas.org/content/101/14/4781.full.pdf
 
-
-* :class:`dynpy.bn.BooleanNetwork`
 
 .. plot:: 
    :include-source:
 
-	import numpy as np, matplotlib.pyplot as plt
-	import dynpy
+    import numpy as np, matplotlib.pyplot as plt
+    import dynpy
 
-	bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.yeast_cellcycle_bn)
+    bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.yeast_cellcycle_bn)
 
-	initState = np.zeros(bn.num_vars, 'int')
-	initState[ [1,3,6] ] = 1
-	plt.spy(bn.getTrajectory(startState=initState, last_timepoint=15))
+    initState = np.zeros(bn.num_vars, 'int')
+    initState[ [1,3,6] ] = 1
+    plt.spy(bn.getTrajectory(startState=initState, max_time=15))
 
 
-We can also get its attractors, by doing:
+We can also get the network's attractors, by doing:
 
 >>> import dynpy
 >>> bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.yeast_cellcycle_bn)
@@ -117,42 +128,84 @@ We can also get its attractors, by doing:
 [1764, 151, 109, 9, 7, 7, 1]
 
 
+Or print them out using:
 
-An ensemble:
+>>> import dynpy
+>>> bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.yeast_cellcycle_bn)
+>>> bn.printAttractorsAndBasins()
+* BASIN 0 : 1764 States
+ATTRACTORS:
+   Cln3    MBF    SBF Cln1,2   Sic1   Swi5  Cdc20 Clb5,6   Cdh1 Clb1,2   Mcm1
+      0      0      0      0      1      0      0      0      1      0      0
+--------------------------------------------------------------------------------
+* BASIN 1 : 151 States
+ATTRACTORS:
+   Cln3    MBF    SBF Cln1,2   Sic1   Swi5  Cdc20 Clb5,6   Cdh1 Clb1,2   Mcm1
+      0      0      1      1      0      0      0      0      0      0      0
+--------------------------------------------------------------------------------
+* BASIN 2 : 109 States
+ATTRACTORS:
+   Cln3    MBF    SBF Cln1,2   Sic1   Swi5  Cdc20 Clb5,6   Cdh1 Clb1,2   Mcm1
+      0      1      0      0      1      0      0      0      1      0      0
+--------------------------------------------------------------------------------
+* BASIN 3 : 9 States
+ATTRACTORS:
+   Cln3    MBF    SBF Cln1,2   Sic1   Swi5  Cdc20 Clb5,6   Cdh1 Clb1,2   Mcm1
+      0      0      0      0      0      0      0      0      1      0      0
+--------------------------------------------------------------------------------
+* BASIN 4 : 7 States
+ATTRACTORS:
+   Cln3    MBF    SBF Cln1,2   Sic1   Swi5  Cdc20 Clb5,6   Cdh1 Clb1,2   Mcm1
+      0      0      0      0      0      0      0      0      0      0      0
+--------------------------------------------------------------------------------
+* BASIN 5 : 7 States
+ATTRACTORS:
+   Cln3    MBF    SBF Cln1,2   Sic1   Swi5  Cdc20 Clb5,6   Cdh1 Clb1,2   Mcm1
+      0      1      0      0      0      0      0      0      1      0      0
+--------------------------------------------------------------------------------
+* BASIN 6 : 1 States
+ATTRACTORS:
+   Cln3    MBF    SBF Cln1,2   Sic1   Swi5  Cdc20 Clb5,6   Cdh1 Clb1,2   Mcm1
+      0      0      0      0      1      0      0      0      0      0      0
+--------------------------------------------------------------------------------
+
+
+
+Just to demonstrate, it is possible to turn any dynamical system that can provide a state-transition graph (by subclassing  :class:`dynpy.dynsys.DiscreteStateSystemBase` and implementing a `trans` property).  For example, to create an ensemble of the yeast-cell cycle networks, we can do the following:
 
 .. plot::
-	:include-source:
+    :include-source:
 
-	import matplotlib.pyplot as plt
-	import dynpy
+    import matplotlib.pyplot as plt
+    import dynpy
 
-	bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.yeast_cellcycle_bn)
-	bnEnsemble = dynpy.dynsys.DynamicalSystemEnsemble(bn)
+    bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.yeast_cellcycle_bn)
+    bnEnsemble = dynpy.dynsys.MarkovChain(bn)
 
-	# get distribution over states at various timepoints
-	t = bnEnsemble.getTrajectory(startState=bnEnsemble.getUniformDistribution(), last_timepoint=20)
+    # get distribution over states at various timepoints
+    t = bnEnsemble.getTrajectory(startState=bnEnsemble.getUniformDistribution(), max_time=20)
 
-	# project back onto original nodes
-	bnProbs = t.dot(bn.state2ndxMx)
+    # project back from states onto activations of original nodes
+    bnProbs = t.dot(bn.ndx2stateMx)
 
-	# plot
-	plt.imshow(bnProbs, interpolation='none')	
+    # plot
+    plt.imshow(bnProbs, interpolation='none')   
 
 
 Cellular Automata
 -----------------
 
-For a CA:
+The cellular automata class :class:`dynpy.ca.CellularAutomaton` is defined in :doc:`dynpy.ca`.  It is a subclass of :class:`dynpy.bn.BooleanNetwork`.  Effectively, it constructs a Boolean network on a lattice with a homogenous update function.  Here is an example of how to use it:
 
 .. plot::
    :include-source:
 
-	import numpy as np, matplotlib.pyplot as plt
-	import dynpy
+    import numpy as np, matplotlib.pyplot as plt
+    import dynpy
 
-	ca = dynpy.ca.CellularAutomaton(num_vars=100, num_neighbors=1, ca_rule_number=110)
+    ca = dynpy.ca.CellularAutomaton(num_vars=100, num_neighbors=1, ca_rule_number=110)
 
-	initState = np.zeros(ca.num_vars, 'int')
-	initState[int(ca.num_vars/2)] = 1
-	plt.spy(ca.getTrajectory(startState=initState, last_timepoint=50))
+    initState = np.zeros(ca.num_vars, 'int')
+    initState[int(ca.num_vars/2)] = 1
+    plt.spy(ca.getTrajectory(startState=initState, max_time=50))
 

@@ -1,47 +1,18 @@
-# Also look at https://wiki.python.org/moin/PyDSTool
-
-
-"""
-TODO:
-- Marginalization
-
-
-- Perturbation modelling?
-- Ensemble of BNs? (i.e. RBNs?)  Use slots perhaps, to minimize memory overhead
-- Santosh's algebraic model?
-
-- Document!
-
-
-"""
-
-# TODO:
-# - Implement laplacian, normalized laplacian of state-transition graph
-# - Marginalization code
-
-# Tests to do:
-# - Init simple dynamical system, check attractors, both sparse, non-sparse, mapped
-# - Do simple AND 2-node net, check attractors and transition graph
-# - Marginalize simple AND 2-node net, check transition graph for different types (sparse/non-sparse/mapped)
-# - 
-# - Load yeast network, get attractors correctly
-# - Marginalize, check that everything makes sense 
-# - Check random walker from karate code
-
+import sys, os
+sys.path = [os.path.abspath("..")] + sys.path
 
 import dynpy
 import numpy as np
 
 
 #bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_bn_nets.yeast)
-#bnEnsemble = dynpy.dynsys.DynamicalSystemEnsemble(bn)
-#_  = bnEnsemble.getTrajectory(bnEnsemble.getUniformDistribution(), last_timepoint=80).dot(bn.state2ndxMx)
-
+#bnEnsemble = dynpy.dynsys.MarkovChain(bn)
+#_  = bnEnsemble.getTrajectory(bnEnsemble.getUniformDistribution(), max_time=80).dot(bn.ndx2stateMx)
 
 
 
 rw = dynpy.graphdynamics.RandomWalker(graph=dynpy.sample_nets.karateclub_net, discrete_time=False, transCls = dynpy.mx.SparseMatrix )
-rwEnsemble = dynpy.dynsys.DynamicalSystemEnsemble(rw)
+rwEnsemble = dynpy.dynsys.MarkovChain(rw)
 
 
 initState = np.zeros(rw.num_vars, 'float')
@@ -66,22 +37,22 @@ rw = dynpy.graphdynamics.RandomWalker(graph=dynpy.sample_nets.karateclub_net)
 initState = np.zeros(rw.num_vars, 'int')
 initState[ 5 ] = 1
 
-print rw.getTrajectory(initState, last_timepoint=80)
+print rw.getTrajectory(initState, max_time=80)
 
 
 
 #rw = dynpy.graphdynamics.RandomWalker(graph=nx.to_numpy_matrix( nx.karate_club_graph() ), discrete_time = False, transCls=dynpy.mx.SparseMatrix )
-#rwEnsemble = dynpy.dynsys.DynamicalSystemEnsemble(rw)
-#rwEnsemble.getTrajectory(initState, last_timepoint=10, logscale=True)
+#rwEnsemble = dynpy.dynsys.MarkovChain(rw)
+#rwEnsemble.getTrajectory(initState, max_time=10, logscale=True)
 
 rw = dynpy.graphdynamics.RandomWalker(graph=dynpy.sample_nets.karateclub_net, transCls=dynpy.mx.SparseMatrix )
-rwEnsemble = dynpy.dynsys.DynamicalSystemEnsemble(rw)
-rwEnsemble.getTrajectory(initState, last_timepoint=10, logscale=True)
+rwEnsemble = dynpy.dynsys.MarkovChain(rw)
+rwEnsemble.getTrajectory(initState, max_time=10, logscale=True)
 
 
 rw = dynpy.graphdynamics.RandomWalker(graph=dynpy.sample_nets.karateclub_net, transCls=dynpy.mx.DenseMatrix )
-rwEnsemble = dynpy.dynsys.DynamicalSystemEnsemble(rw)
-rwEnsemble.getTrajectory(initState, last_timepoint=80, logscale=True)
+rwEnsemble = dynpy.dynsys.MarkovChain(rw)
+rwEnsemble.getTrajectory(initState, max_time=80, logscale=True)
 
 
 
@@ -122,7 +93,7 @@ for i in range(num_steps):
 
 
 
-rwens = dynpy.dynsys.DynamicalSystemEnsemble(rw)
+rwens = dynpy.dynsys.MarkovChain(rw)
 print rwens.iterateOneStep(startState = rwens.getUniformDistribution())
 
 
@@ -137,7 +108,7 @@ import dynpy.graphdynamics
 
 num_steps = 10
 rw = dynpy.graphdynamics.RandomWalker(graph=dynpy.sample_nets.karateclub_net, discrete_time=False, transCls=dynpy.mx.DenseMatrix )
-rwEnsemble = dynpy.dynsys.DynamicalSystemEnsemble(rw)
+rwEnsemble = dynpy.dynsys.MarkovChain(rw)
 spacetime = np.zeros(shape=(num_steps,rw.num_vars))
 
 cState = np.zeros(rw.num_vars)
