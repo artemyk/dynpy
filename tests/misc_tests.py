@@ -6,13 +6,13 @@ import numpy as np
 
 
 #bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_bn_nets.yeast)
-#bnEnsemble = dynpy.dynsys.MarkovChain(bn)
-#_  = bnEnsemble.getTrajectory(bnEnsemble.getUniformDistribution(), max_time=80).dot(bn.ndx2stateMx)
+#bnMC = dynpy.dynsys.MarkovChain(bn)
+#_  = bnMC.getTrajectory(bnMC.getUniformDistribution(), max_time=80).dot(bn.ndx2stateMx)
 
 
 
 rw = dynpy.graphdynamics.RandomWalker(graph=dynpy.sample_nets.karateclub_net, discrete_time=False, transCls = dynpy.mx.SparseMatrix )
-rwEnsemble = dynpy.dynsys.MarkovChain(rw)
+rwMC = dynpy.dynsys.MarkovChain(rw)
 
 
 initState = np.zeros(rw.num_vars, 'float')
@@ -20,10 +20,10 @@ initState[ 5 ] = 1
 
 
 
-e1 = rwEnsemble.iterate(initState, max_time = 100)
+e1 = rwMC.iterate(initState, max_time = 100)
 print e1
 
-e2 = rwEnsemble.equilibriumState()
+e2 = rwMC.equilibriumState()
 
 
 print e2
@@ -42,17 +42,17 @@ print rw.getTrajectory(initState, max_time=80)
 
 
 #rw = dynpy.graphdynamics.RandomWalker(graph=nx.to_numpy_matrix( nx.karate_club_graph() ), discrete_time = False, transCls=dynpy.mx.SparseMatrix )
-#rwEnsemble = dynpy.dynsys.MarkovChain(rw)
-#rwEnsemble.getTrajectory(initState, max_time=10, logscale=True)
+#rwMC = dynpy.dynsys.MarkovChain(rw)
+#rwMC.getTrajectory(initState, max_time=10, logscale=True)
 
 rw = dynpy.graphdynamics.RandomWalker(graph=dynpy.sample_nets.karateclub_net, transCls=dynpy.mx.SparseMatrix )
-rwEnsemble = dynpy.dynsys.MarkovChain(rw)
-rwEnsemble.getTrajectory(initState, max_time=10, logscale=True)
+rwMC = dynpy.dynsys.MarkovChain(rw)
+rwMC.getTrajectory(initState, max_time=10, logscale=True)
 
 
 rw = dynpy.graphdynamics.RandomWalker(graph=dynpy.sample_nets.karateclub_net, transCls=dynpy.mx.DenseMatrix )
-rwEnsemble = dynpy.dynsys.MarkovChain(rw)
-rwEnsemble.getTrajectory(initState, max_time=80, logscale=True)
+rwMC = dynpy.dynsys.MarkovChain(rw)
+rwMC.getTrajectory(initState, max_time=80, logscale=True)
 
 
 
@@ -108,7 +108,7 @@ import dynpy.graphdynamics
 
 num_steps = 10
 rw = dynpy.graphdynamics.RandomWalker(graph=dynpy.sample_nets.karateclub_net, discrete_time=False, transCls=dynpy.mx.DenseMatrix )
-rwEnsemble = dynpy.dynsys.MarkovChain(rw)
+rwMC = dynpy.dynsys.MarkovChain(rw)
 spacetime = np.zeros(shape=(num_steps,rw.num_vars))
 
 cState = np.zeros(rw.num_vars)
@@ -116,7 +116,7 @@ cState[ 5 ] = 1
 
 for i in range(num_steps):
     spacetime[i,:] = cState
-    cState = rwEnsemble.iterate(cState)
+    cState = rwMC.iterate(cState)
 
 print spacetime
 

@@ -12,57 +12,57 @@ def veryClose(mx1, mx2):
 def test_dense_discrete_equil_vs_iter():
         # Dense discrete time
         rw = dynpy.graphdynamics.RandomWalker(graph=kc_net, transCls = dynpy.mx.DenseMatrix )
-        rwEnsemble = dynpy.dynsys.MarkovChain(rw)
+        rwMC = dynpy.dynsys.MarkovChain(rw)
 
-        e1 = rwEnsemble.iterate(initState, max_time = 100)
-        e2 = rwEnsemble.equilibriumState()
+        e1 = rwMC.iterate(initState, max_time = 100)
+        e2 = rwMC.equilibriumState()
         assert( veryClose(e1 , e2) )
 
 def test_dense_continuous_vs_discrete():
         # Dense continuous time
         rw = dynpy.graphdynamics.RandomWalker(graph=kc_net, transCls = dynpy.mx.DenseMatrix )
-        rwEnsemble = dynpy.dynsys.MarkovChain(rw)
+        rwMC = dynpy.dynsys.MarkovChain(rw)
         rw = dynpy.graphdynamics.RandomWalker(graph=kc_net, discrete_time = False, transCls = dynpy.mx.DenseMatrix )
-        rwEnsembleCT = dynpy.dynsys.MarkovChain(rw)
-        e2 = rwEnsemble.equilibriumState()
-        e2ct = rwEnsembleCT.equilibriumState()
+        rwMCCT = dynpy.dynsys.MarkovChain(rw)
+        e2 = rwMC.equilibriumState()
+        e2ct = rwMCCT.equilibriumState()
         assert( veryClose(e2ct , e2) )
 
 
 def test_dense_continuous_equil_vs_iter():
         # Dense continuous time
         rw = dynpy.graphdynamics.RandomWalker(graph=kc_net, discrete_time = False, transCls = dynpy.mx.DenseMatrix )
-        rwEnsembleCT = dynpy.dynsys.MarkovChain(rw)
-        e1 = rwEnsembleCT.iterate(initState, max_time = 100)
-        e2ct = rwEnsembleCT.equilibriumState()
+        rwMCCT = dynpy.dynsys.MarkovChain(rw)
+        e1 = rwMCCT.iterate(initState, max_time = 100)
+        e2ct = rwMCCT.equilibriumState()
         assert( veryClose(e2ct , e1) )
 
 
 def test_sparse_discrete_equil_vs_iter():
         # Sparse discrete time
         rw = dynpy.graphdynamics.RandomWalker(graph=kc_net, transCls = dynpy.mx.SparseMatrix )
-        rwEnsemble = dynpy.dynsys.MarkovChain(rw)
+        rwMC = dynpy.dynsys.MarkovChain(rw)
 
-        e1 = rwEnsemble.iterate(initState, max_time = 100)
-        e2 = rwEnsemble.equilibriumState()
+        e1 = rwMC.iterate(initState, max_time = 100)
+        e2 = rwMC.equilibriumState()
         assert( veryClose(e1 , e2) )
 
 def test_sparse_continuous_vs_discrete():
         # Sparse continuous time
         rw = dynpy.graphdynamics.RandomWalker(graph=kc_net, transCls = dynpy.mx.DenseMatrix )
-        rwEnsemble = dynpy.dynsys.MarkovChain(rw)
+        rwMC = dynpy.dynsys.MarkovChain(rw)
         rw = dynpy.graphdynamics.RandomWalker(graph=kc_net, discrete_time = False, transCls = dynpy.mx.SparseMatrix )
-        rwEnsembleCT = dynpy.dynsys.MarkovChain(rw)
-        e2 = rwEnsemble.equilibriumState()
-        e2ct = rwEnsembleCT.equilibriumState()
+        rwMCCT = dynpy.dynsys.MarkovChain(rw)
+        e2 = rwMC.equilibriumState()
+        e2ct = rwMCCT.equilibriumState()
         assert( veryClose(e2ct , e2) )
 
 
 def test_sparse_continuous_equil_vs_iter():
         # Sparse continuous time
         rw = dynpy.graphdynamics.RandomWalker(graph=kc_net, discrete_time = False, transCls = dynpy.mx.SparseMatrix )
-        rwEnsembleCT = dynpy.dynsys.MarkovChain(rw)
-        e1 = rwEnsembleCT.iterate(initState, max_time = 100)
-        e2ct = rwEnsembleCT.equilibriumState()
+        rwMCCT = dynpy.dynsys.MarkovChain(rw)
+        e1 = rwMCCT.iterate(initState, max_time = 100)
+        e2ct = rwMCCT.equilibriumState()
         assert( veryClose(e2ct , e1) )
 

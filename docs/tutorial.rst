@@ -3,9 +3,13 @@ DynPy tutorial
 
 Introduction
 ------------
-DynPy is organized into a hierarchy of classes, with each class representing
-a different kind of dynamical system.   The base classes that are using by
-these systems are defined in :doc:`dynpy.dynsys`.  Some sample systems used in these examples are defined in :doc:`dynpy.sample_nets`.
+
+DynPy is a package for defining and running dynamical systems in Python.  The goal is to support a wide-variety of
+continuous/discrete time and continuous/discrete space dynamical systems with easy extensibility + a clean interface.
+
+DynPy is organized into a hierarchy of classes, with each class representing a different kind of dynamical system.   
+The base classes that are using by these systems are defined in :doc:`dynpy.dynsys`.  Some sample systems used in 
+this tutorial are defined in :doc:`dynpy.sample_nets`.
 
 
 Random walkers
@@ -39,11 +43,11 @@ Notice how it's possible to get the spacetime trajectory more succinctly using t
 ``getTrajectory`` method.
 
 
-Ensembles
----------
+Dynamics over state distributions
+---------------------------------
 
 The above example of the random walker is a stochastic dynamical system.  It is
-also possible to define ensembles of such systems, which then becomes a deterministic linear
+also possible to define a dynamical system over a distribution of state of such a system, which then becomes a deterministic linear
 dynamical system over the space of distributions.   Basically, this uses the state-transition 
 graph of the underlying system to generate a Markov chain (or, in the continuous-time case, master 
 equation) over the states of the underlying system. Each state of the underlying system
@@ -59,15 +63,16 @@ for more details. Using the previous example:
     import dynpy
 
     rw = dynpy.graphdynamics.RandomWalker(graph=dynpy.sample_nets.karateclub_net)
-    rwEnsemble = dynpy.dynsys.MarkovChain(rw)
+    rwMC = dynpy.dynsys.MarkovChain(rw)
 
     initState = np.zeros(rw.num_vars)
     initState[ 5 ] = 1
 
-    plt.imshow(rwEnsemble.getTrajectory(startState=initState, max_time=30), interpolation='none') 
+    trajectory = rwMC.getTrajectory(startState=initState, max_time=30)
+    plt.imshow(trajectory, interpolation='none') 
 
 
-The dynamical systems in DynPy can also be run as continuous-time systems.  This is usually implemented only for the 'ensemble' versions (since then the continuous-time dynamics reduce to a continuous-time linear dynamical system).   This can be specified by passing in the ``discrete_time=False`` option when constructing the underlying dynamical system. Using the previous example:
+The dynamical systems in DynPy can also be run as continuous-time systems.  This is usually implemented only for the 'Markov chain' versions (since then the continuous-time dynamics reduce to a continuous-time linear dynamical system).   This can be specified by passing in the ``discrete_time=False`` option when constructing the underlying dynamical system. Using the previous example:
 
 .. plot::
     :include-source:
@@ -76,11 +81,12 @@ The dynamical systems in DynPy can also be run as continuous-time systems.  This
     import dynpy
 
     rw = dynpy.graphdynamics.RandomWalker(graph=dynpy.sample_nets.karateclub_net, discrete_time = False )
-    rwEnsemble = dynpy.dynsys.MarkovChain(rw)
+    rwMC = dynpy.dynsys.MarkovChain(rw)
 
     initState = np.zeros(rw.num_vars, 'float')
     initState[ 5 ] = 1
-    plt.imshow(rwEnsemble.getTrajectory(startState=initState, max_time=30, logscale=True), interpolation='none')  
+    trajectory = rwMC.getTrajectory(startState=initState, max_time=30)
+    plt.imshow(trajectory, interpolation='none') 
 
 
 It is also possible to get the equilibrium distribution by calling ``equilibriumState()``, which uses eigenspace decomposition:
@@ -93,9 +99,10 @@ It is also possible to get the equilibrium distribution by calling ``equilibrium
     import dynpy
 
     rw = dynpy.graphdynamics.RandomWalker(graph=dynpy.sample_nets.karateclub_net, discrete_time = False )
-    rwEnsemble = dynpy.dynsys.MarkovChain(rw)
+    rwMC = dynpy.dynsys.MarkovChain(rw)
 
-    plt.imshow(np.atleast_2d(dynpy.mx.todense(rwEnsemble.equilibriumState())), interpolation='none')    
+    eqState = rwMC.equilibriumState())
+    plt.imshow(np.atleast_2d(dynpy.mx.todense(eqState), interpolation='none')    
 
 
 
@@ -171,7 +178,7 @@ ATTRACTORS:
 
 
 
-Just to demonstrate, it is possible to turn any dynamical system that can provide a state-transition graph (by subclassing  :class:`dynpy.dynsys.DiscreteStateSystemBase` and implementing a `trans` property).  For example, to create an ensemble of the yeast-cell cycle networks, we can do the following:
+Just to demonstrate, it is possible to turn any dynamical system that can provide a state-transition graph (by subclassing  :class:`dynpy.dynsys.DiscreteStateSystemBase` and implementing a `trans` property).  For example, to create a dynamical system over a distribution of states of the yeast-cell cycle networks, we can do the following:
 
 .. plot::
     :include-source:
@@ -180,10 +187,10 @@ Just to demonstrate, it is possible to turn any dynamical system that can provid
     import dynpy
 
     bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.yeast_cellcycle_bn)
-    bnEnsemble = dynpy.dynsys.MarkovChain(bn)
+    bnMC = dynpy.dynsys.MarkovChain(bn)
 
     # get distribution over states at various timepoints
-    t = bnEnsemble.getTrajectory(startState=bnEnsemble.getUniformDistribution(), max_time=20)
+    t = bnMC.getTrajectory(startState=bnMC.getUniformDistribution(), max_time=20)
 
     # project back from states onto activations of original nodes
     bnProbs = t.dot(bn.ndx2stateMx)
