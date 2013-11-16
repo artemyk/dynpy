@@ -16,6 +16,7 @@ Building the documentation
 
 The documentation is built using Sphinx from the ``docs/`` directory.  To build the HTML documentation locally, use ``make html``. To make the HTML documentation and push it to the GitHub pages repository, do ``./make_gh_pages.sh``.
 
+The docstrings should follow NumPy conventions, as specified in https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt .
 
 Running tests
 -------------
