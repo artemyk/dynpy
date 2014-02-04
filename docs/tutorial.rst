@@ -21,6 +21,7 @@ Random walkers
     :include-source:
 
     import matplotlib.pyplot as plt
+    import numpy as np
     import dynpy
 
     num_steps = 30
