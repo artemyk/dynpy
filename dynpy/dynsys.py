@@ -166,12 +166,14 @@ class DynamicalSystemBase(object):
             timepoints = np.linspace(0, max_time, num=num_points, endpoint=True)
 
         returnTrajectory = np.zeros((len(timepoints), self.num_vars), self.state_dtypes)
+
         cState = startState
-        cTimestep = 0
-        for cNdx, nextTimestep in enumerate(timepoints):
+        returnTrajectory[0, :] = cState
+
+        for cNdx in range(1, len(timepoints)):
+            nextState = self.iterate(cState, max_time=timepoints[cNdx]-timepoints[cNdx-1])
+            cState    = nextState
             returnTrajectory[cNdx, :] = mx.toarray(cState)
-            cState = self.iterate(cState, max_time=nextTimestep - cTimestep)
-            cTimestep = nextTimestep
 
         return returnTrajectory
 
