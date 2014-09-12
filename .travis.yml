@@ -11,5 +11,6 @@ before_install:
  - sudo apt-get install -qq python-numpy python-scipy python3-numpy python3-scipy
 install:
  - pip install -e .
+ - pip3 install -e .
 script:
  - "nosetests -v --with-doctest"
