@@ -13,8 +13,8 @@ before_install:
   - sudo ln -s /run/shm /dev/shm
 # Install packages
 install:
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION pip numpy scipy
-  - source activate env_name
+  - conda create --yes -n testenv python=$TRAVIS_PYTHON_VERSION pip numpy scipy
+  - source activate testenv
 #  - pip install -e .
 script:
  - "nosetests -v --with-doctest"
