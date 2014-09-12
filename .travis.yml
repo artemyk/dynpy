@@ -14,5 +14,5 @@ before_install:
 # Install packages
 install:
   - conda install --yes python=$TRAVIS_PYTHON_VERSION atlas numpy scipy
-  - pip install -e .
+#  - pip install -e .
 
