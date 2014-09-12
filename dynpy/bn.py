@@ -10,6 +10,7 @@ import inspect
 import collections
 import itertools
 
+import scipy
 import scipy.sparse as ss
 import numpy as np
 
