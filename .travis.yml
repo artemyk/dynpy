@@ -8,14 +8,13 @@ before_install:
   - ./miniconda.sh -b
   - export PATH=/home/travis/miniconda/bin:$PATH
   - conda update --yes conda
-  # The next couple lines fix a crash with multiprocessing on Travis and are not specific to using Miniconda
-  - sudo rm -rf /dev/shm
-  - sudo ln -s /run/shm /dev/shm
+  - conda update --yes conda
 # Install packages
 install:
   - conda create --yes -n testenv python=$TRAVIS_PYTHON_VERSION 
   - source activate testenv
   - conda install --yes pip numpy scipy
+  - python -c 'import scipy; print scipy.__version__'
 #  - pip install -e .
 script:
  - "nosetests -v --with-doctest"
