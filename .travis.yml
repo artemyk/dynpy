@@ -13,6 +13,6 @@ before_install:
   - sudo ln -s /run/shm /dev/shm
 # Install packages
 install:
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION atlas numpy scipy python-igraph
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION atlas numpy scipy
   - pip install -r requirements.txt
 
