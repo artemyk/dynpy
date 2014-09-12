@@ -8,7 +8,7 @@ before_install:
  # # Add takluyver's python3 matplotlib PPA: 
  # - sudo add-apt-repository -y ppa:takluyver/python3
  - sudo apt-get -qq update
- - sudo apt-get install -qq python-numpy python-scipy python3-numpy python3-scipy
+ - sudo apt-get install -qq python-numpy python-scipy python3-numpy python3-scipy 
  - curl https://raw.githubusercontent.com/numpy/numpy/5025c40965fa5fb2b591f07c152b966dc7b730f0/numpy/_import_tools.py > /home/travis/virtualenv/python3.2_with_system_site_packages/lib/python3.2/site-packages/numpy/_import_tools.py
 install:
  - pip install -e .
