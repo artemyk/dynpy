@@ -8,12 +8,11 @@ install:
   # install deps
   - sudo conda init
   - sudo conda update conda --yes
-  - deps='pip numpy nose sphinx'
-  - conda create --yes -n testenv python=$TRAVIS_PYTHON_VERSION
-  - source activate testenv
-  - conda install --yes $deps
-  - pip install -e .
+  - deps='pip numpy scipy nose'
+  - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
+  - export PATH=$HOME/py/bin:$PATH
   # install your own package into the environment
+  - pip install python-igraph
   - python setup.py install
 script:
   - "nosetests -v --with-doctest"
