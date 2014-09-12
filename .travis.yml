@@ -1,17 +1,18 @@
 language: python
 python:
- - "2.7"
- - "3.2"
-virtualenv:
-  system_site_packages: true
+  - 2.7
+# Setup anaconda
 before_install:
- # # Add takluyver's python3 matplotlib PPA: 
- # - sudo add-apt-repository -y ppa:takluyver/python3
- - sudo apt-get -qq update
- - sudo apt-get install -qq python-numpy python-scipy python3-numpy python3-scipy 
- - curl https://raw.githubusercontent.com/numpy/numpy/5025c40965fa5fb2b591f07c152b966dc7b730f0/numpy/_import_tools.py > /home/travis/virtualenv/python3.2_with_system_site_packages/lib/python3.2/site-packages/numpy/_import_tools.py
+  - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh; else wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh; fi
+  - chmod +x miniconda.sh
+  - ./miniconda.sh -b
+  - export PATH=/home/travis/miniconda/bin:$PATH
+  - conda update --yes conda
+  # The next couple lines fix a crash with multiprocessing on Travis and are not specific to using Miniconda
+  - sudo rm -rf /dev/shm
+  - sudo ln -s /run/shm /dev/shm
+# Install packages
 install:
- - pip install -e .
- - pip3 install -e .
-script:
- - "nosetests -v --with-doctest"
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION atlas numpy scipy python-igraph
+  - pip install -r requirements.txt
+
