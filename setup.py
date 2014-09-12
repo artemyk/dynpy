@@ -10,4 +10,5 @@ setup(name='dynpy',
       author_email='artemyk@gmail.com',
       url='https://github.com/artemyk/dynpy',
       packages=['dynpy'],
+      install_requires = ['numpy>=1.7','scipy>=0.13','python-igraph>=0.6'],
      )
