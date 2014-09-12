@@ -1,17 +1,10 @@
 language: python
 python:
-  - "2.7"
-  - "3.3"
-install:
-  # Install conda
-  - sudo pip install conda
-  # install deps
-  - sudo conda init
-  - sudo conda update --yes conda 
-  - deps="pip `cat requirements.txt | xargs echo -n`"
-  - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
-  - export PATH=$HOME/py/bin:$PATH
-  # install your own package into the environment
-  - python setup.py install
+ - "2.7"
+ - "3.3"
+virtualenv:
+  system_site_packages: true
+before_install:
+ - sudo apt-get install -qq python-numpy python-scipy
 script:
   - "nosetests -v --with-doctest"
