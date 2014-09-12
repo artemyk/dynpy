@@ -8,7 +8,7 @@ install:
   # install deps
   - sudo conda init
   - sudo conda update --yes conda 
-  - deps='pip numpy scipy'
+  - deps="`cat requirements.txt | xargs echo -n`"
   - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
   - export PATH=$HOME/py/bin:$PATH
   # install your own package into the environment
