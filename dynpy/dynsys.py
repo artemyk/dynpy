@@ -289,7 +289,7 @@ class MarkovChain(LinearSystem):
     It can also be done for a Boolean network:
     
     >>> import dynpy
-    >>> bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.yeast_cellcycle_bn)
+    >>> bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.yeast_cellcycle_bn, transCls=dynpy.mx.SparseMatrix)
     >>> bnEnsemble = dynpy.dynsys.MarkovChain(bn)
     >>> trajectory = bnEnsemble.getTrajectory(bnEnsemble.getUniformDistribution(), max_time=80)
 
@@ -297,10 +297,11 @@ class MarkovChain(LinearSystem):
     variables in the underlying system, we can use the `ndx2stateMx` matrix of the underlying system. For example:
 
     >>> import dynpy
-    >>> bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.yeast_cellcycle_bn)
+    >>> import numpy as np
+    >>> bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.yeast_cellcycle_bn, transCls=dynpy.mx.SparseMatrix)
     >>> bnEnsemble = dynpy.dynsys.MarkovChain(bn)
     >>> final_state = bnEnsemble.iterate(bnEnsemble.getUniformDistribution(), max_time=80)
-    >>> print(final_state.dot(bn.ndx2stateMx))
+    >>> print(np.ravel(final_state.dot(bn.ndx2stateMx)))
     [ 0.          0.05664062  0.07373047  0.07373047  0.91503906  0.          0.
       0.          0.92236328  0.          0.        ]
 
