@@ -17,5 +17,6 @@ install:
   - python -c 'import scipy; print scipy.__version__'
 #  - pip install -e .
 script:
+  - python -c 'import scipy; print scipy.__version__'
  - "nosetests -v --with-doctest"
 
