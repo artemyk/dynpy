@@ -70,7 +70,7 @@ for more details. Using the previous example:
     initState[ 5 ] = 1
 
     trajectory = rwMC.getTrajectory(startState=initState, max_time=30)
-    plt.imshow(trajectory, interpolation='none') 
+    plt.imshow(trajectory, interpolation='none')
 
 
 The dynamical systems in dynpy can also be run as continuous-time systems.  This is usually implemented only for the 'Markov chain' versions (since then the continuous-time dynamics reduce to a continuous-time linear dynamical system).   This can be specified by passing in the ``discrete_time=False`` option when constructing the underlying dynamical system. Using the previous example:
@@ -99,11 +99,11 @@ It is also possible to get the equilibrium distribution by calling ``equilibrium
     import numpy as np
     import dynpy
 
-    rw = dynpy.graphdynamics.RandomWalker(graph=dynpy.sample_nets.karateclub_net, discrete_time = False )
+    rw = dynpy.graphdynamics.RandomWalker(graph=dynpy.sample_nets.karateclub_net, discrete_time = False)
     rwMC = dynpy.dynsys.MarkovChain(rw)
 
-    eqState = rwMC.equilibriumState())
-    plt.imshow(np.atleast_2d(dynpy.mx.todense(eqState), interpolation='none')    
+    eqState = rwMC.equilibriumState()
+    plt.imshow(np.atleast_2d(dynpy.mx.todense(eqState), interpolation='none'))
 
 
 
