@@ -1,9 +1,9 @@
-DynPy [![Build Status](https://travis-ci.org/artemyk/dynpy.svg?branch=master)](https://travis-ci.org/artemyk/dynpy)
+DynPy [![Build Status](https://travis-ci.org/artemyk/DynPy.svg?branch=master)](https://travis-ci.org/artemyk/DynPy)
 =====
 
 DynPy is a framework for building dynamical systems in Python.  So far, it has basic support for linear dynamical systems, random walkers, Boolean Networks, and Cellular Autamata.
 
-For documentation, see the GitHub pages at http://artemyk.github.io/DynPy/ .  The tutorial, at http://artemyk.github.io/DynPy/tutorial.html , may be particularly helpful.
+For documentation, see the GitHub pages at http://artemyk.github.io/DynPy/html/ .  The tutorial, at http://artemyk.github.io/DynPy/html/tutorial.html , may be particularly helpful.
 
 
 Installation
