@@ -3,7 +3,7 @@ DynPy
 
 DynPy is a framework for building dynamical systems in Python.  So far, it has basic support for linear dynamical systems, random walkers, Boolean Networks, and Cellular Autamata.
 
-For documentation, see the GitHub pages at https://github.iu.edu/pages/akolchin/DynPy/ .  The tutorial, at https://github.iu.edu/pages/akolchin/DynPy/tutorial.html , may be particularly helpful.
+For documentation, see the GitHub pages at http://artemyk.github.io/DynPy/ .  The tutorial, at http://artemyk.github.io/DynPy/tutorial.html , may be particularly helpful.
 
 
 Installation
@@ -14,7 +14,7 @@ Just download into a directory.  DynPy requires numpy, scipy, matplotlib, and th
 Building the documentation
 --------------------------
 
-The documentation is built using Sphinx from the ``docs/`` directory.  To build the HTML documentation locally, use ``make html``. To make the HTML documentation and push it to the GitHub pages repository, do ``./make_gh_pages.sh``.
+The documentation is built using Sphinx from the ``docs/`` directory.  To build the HTML documentation locally, use ``make html``.
 
 The docstrings should follow NumPy conventions, as specified in https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt .
 
