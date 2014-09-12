@@ -2,8 +2,12 @@
 This module implements several decorates that can help with caching/memoizing
 methods and properties.
 """
+from __future__ import division, print_function, absolute_import
+import sys
+if sys.version_info >= (3, 0):
+    xrange = range
 
-from collections import Counter, OrderedDict
+from collections import OrderedDict
 import functools
 
 class setup_cached_data_method(object):
@@ -27,10 +31,10 @@ class setup_cached_data_method(object):
                                    [getattr(obj, depended_attr) for depended_attr in self.depends_on_attributes]
                                    )
             except TypeError:
-                print "Can't hash for tuple:"
-                print " - func=%s\n - args=%s\n - kwds=%s" % (str(func), str(args), str(kwds.items()))
+                print("Can't hash for tuple:")
+                print(" - func=%s\n - args=%s\n - kwds=%s" % (str(func), str(args), str(kwds.items())))
                 for depended_attr in self.depends_on_attributes:
-                    print " - attr[%s]=%s" % [depended_attr, getattr(obj, depended_attr)]
+                    print(" - attr[%s]=%s" % [depended_attr, getattr(obj, depended_attr)])
                 raise
 
             key = hash(keyEntries)

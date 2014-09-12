@@ -1,5 +1,11 @@
 """Module implementing Boolean Network classes
 """
+from __future__ import division, print_function, absolute_import
+
+import sys
+if sys.version_info >= (3, 0):
+    xrange = range
+
 import inspect
 import collections
 import itertools
@@ -7,9 +13,9 @@ import itertools
 import scipy.sparse as ss
 import numpy as np
 
-import dynsys
-import mx
-import caching
+from . import dynsys
+from . import mx
+from . import caching
 
 
 def tuple2int(b):
@@ -180,12 +186,12 @@ class BooleanNetwork(dynsys.DiscreteStateSystemBase):
         basinAtts, basinStates = self.getAttractorsAndBasins()
         row_format = "{:>7}" * self.num_vars
         for cBasinNdx in range(len(basinAtts)):
-            print "* BASIN %d : %d States" % (cBasinNdx, len(basinStates[cBasinNdx]))
-            print "ATTRACTORS:"
-            print row_format.format(*self.var_names)
+            print("* BASIN %d : %d States" % (cBasinNdx, len(basinStates[cBasinNdx])))
+            print("ATTRACTORS:")
+            print(row_format.format(*self.var_names))
             for att in basinAtts[cBasinNdx]:
-                print row_format.format(*int2tuple(att, self.num_vars))
-            print "".join(['-', ] * 80)
+                print(row_format.format(*int2tuple(att, self.num_vars)))
+            print("".join(['-', ] * 80))
 
     def checkTransitionMatrix(self, trans):
         """
@@ -204,7 +210,7 @@ class BooleanNetwork(dynsys.DiscreteStateSystemBase):
 
     def _iterateOneStepDiscrete(self, startState):
         """ Run one interation of Boolean network.  Repointed in parent class constructor."""
-        return np.array([self.getVarNextState(i, startState[self._inputs[i]]) for i in xrange(self.num_vars)])
+        return np.array([self.getVarNextState(i, startState[self._inputs[i]]) for i in range(self.num_vars)])
 
     def getStructuralGraph(self):
         """ 

@@ -1,6 +1,11 @@
-"""Module which provides a consistent interface for working with both dense arrays and sparse matrices.
-Also constains some utility functions for working with matrices.
+"""Module which provides a consistent interface for working with both dense 
+arrays and sparse matrices. Also constains some utility functions for working 
+with matrices.
 """
+from __future__ import division, print_function, absolute_import
+import sys
+if sys.version_info >= (3, 0):
+    xrange = range
 
 import numpy as np
 import numpy.linalg
@@ -27,7 +32,8 @@ def todense(mx):
         return np.asarray(mx)
 
 def hash_np(mx):
-    """Provide a hash value for matrix or array (useful for using them as dictionary keys, for example)
+    """Provide a hash value for matrix or array (useful for using them as 
+    dictionary keys, for example)
     """
     return hashlib.sha1(mx).hexdigest()
 
@@ -38,16 +44,16 @@ class MxBase(object):
     """
     @classmethod
     def createEditableZerosMx(cls, shape):
-        """Create a blank transition matrix for editing, of size specified by `shape`
+        """Create blank editable transition matrix, of size specified by `shape`
         """
-        raise NotImplementedError  # this is a virtual class, sublcasses should implement
+        raise NotImplementedError  # virtual class, sublcasses should implement
 
     @classmethod
     def formatMx(cls,mx):
         """Format a matrix `mx` into the current class's preferred matrix type
-        (that is, convert a dense matrix to sparse, or vice-versa, as appropriate)
+        (i.e., convert a dense matrix to sparse, or vice-versa, as appropriate)
         """
-        raise NotImplementedError  # this is a virtual class, sublcasses should implement
+        raise NotImplementedError  # virtual class, sublcasses should implement
 
     @classmethod
     def finalizeMx(cls, mx):
@@ -57,13 +63,13 @@ class MxBase(object):
 
     @classmethod
     def getLargestRightEigs(cls, mx):
-        """Get largest right eigenvectors and eigenvalues of transition matrix  `mx`
+        """Get largest right eigenvectors and eigenvalues of matrix  `mx`
         """
-        raise NotImplementedError  # this is a virtual class, sublcasses should implement
+        raise NotImplementedError  # virtual class, sublcasses should implement
 
     @classmethod
     def getLargestLeftEigs(cls, mx):
-        """Get largest left eigenvectors and eigenvalues of transition matrix  `mx`
+        """Get largest left eigenvectors and eigenvalues of matrix  `mx`
 
         Returns
         -------
@@ -80,27 +86,28 @@ class MxBase(object):
         """Raise matrix `mx` to a power `exponent`
 
         """
-        raise NotImplementedError  # this is a virtual class, sublcasses should implement
+        raise NotImplementedError  # virtual class, sublcasses should implement
 
     @classmethod
     def expm(cls, mx):
         """Return matrix exponential of matrix `mx` """
-        raise NotImplementedError  # this is a virtual class, sublcasses should implement
+        raise NotImplementedError  # virtual class, sublcasses should implement
 
 
     @classmethod
     def make2d(cls, mx):
         """Transform matrix `mx` to be 2-dimensional"""
-        raise NotImplementedError  # this is a virtual class, sublcasses should implement
+        raise NotImplementedError  # virtual class, sublcasses should implement
 
     @classmethod
     def toDense(cls, mx):
         """Convert matrix `mx` to dense format"""
-        raise NotImplementedError  # this is a virtual class, sublcasses should implement
+        raise NotImplementedError  # virtual class, sublcasses should implement
 
 
 class SparseMatrix(MxBase):
-    """Class for sparse matrix operations.  See documentation for :class:`dynpy.mx.MxBase` for description of methods.
+    """Class for sparse matrix operations.  See documentation for 
+    :class:`dynpy.mx.MxBase` for description of methods.
     """
     @classmethod
     def createEditableZerosMx(cls, shape):
@@ -143,7 +150,8 @@ class SparseMatrix(MxBase):
 
 
 class DenseMatrix(MxBase):        
-    """Class for dense matrix operations.  See documentation for :class:`dynpy.mx.MxBase` for description of methods.
+    """Class for dense matrix operations.  See documentation for 
+    :class:`dynpy.mx.MxBase` for description of methods.
     """
     @classmethod
     def expm(cls, mx):
@@ -169,7 +177,7 @@ class DenseMatrix(MxBase):
     @classmethod
     def finalizeMx(cls, mx):
         #if ss.issparse(mx):
-        #    raise Exception('Transition matrix for this class should not be sparse')
+        #    raise Exception('Trans mx for this class should not be sparse')
         return cls.formatMx(mx)
 
     @classmethod

@@ -1,6 +1,6 @@
 """Module implementing some base classes useful for implementing dynamical systems"""
 
-# dynamic systems functions
+from __future__ import division, print_function, absolute_import
 
 import collections
 import operator
@@ -10,8 +10,8 @@ if sys.version_info < (3,):
 
 import numpy as np
 
-import mx
-import caching
+from . import mx
+from . import caching
 
 # Constants for finding attractors
 MAX_ATTRACTOR_LENGTH = 5
@@ -296,11 +296,12 @@ class MarkovChain(LinearSystem):
     If we wish to project the state of the Markov chain back onto the activations of the
     variables in the underlying system, we can use the `ndx2stateMx` matrix of the underlying system. For example:
 
+    >>> from __future__ import print_function
     >>> import dynpy
     >>> bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.yeast_cellcycle_bn)
     >>> bnEnsemble = dynpy.dynsys.MarkovChain(bn)
     >>> final_state = bnEnsemble.iterate(bnEnsemble.getUniformDistribution(), max_time=80)
-    >>> print final_state.dot(bn.ndx2stateMx)
+    >>> print(final_state.dot(bn.ndx2stateMx))
     [ 0.          0.05664062  0.07373047  0.07373047  0.91503906  0.          0.
       0.          0.92236328  0.          0.        ]
 

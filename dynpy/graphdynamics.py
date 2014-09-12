@@ -1,10 +1,15 @@
 """Module which implements dynamical systems on graph
 """
+from __future__ import division, print_function, absolute_import
+import sys
+if sys.version_info >= (3, 0):
+    xrange = range
 
 import numpy as np
 
+from . import dynsys
+from . import mx
 
-import dynsys, mx
 class RandomWalker(dynsys.DiscreteStateSystemBase):
     """
     This intializes a stochastic dynamical system representing a random walker on a graph.

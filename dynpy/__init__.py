@@ -1,10 +1,9 @@
 from .version import __version__
 
-import os
-import glob
-__all__ = [os.path.basename(f)[:-3] for f in glob.glob(os.path.dirname(__file__) + "/*.py")]
-__all__ = [f for f in __all__ if f != '__init__.py']
-
-for module in __all__:
-    __import__(module, locals(), globals())
-del module
+from . import bn
+from . import ca
+from . import caching
+from . import dynsys
+from . import graphdynamics
+from . import mx
+from . import sample_nets

@@ -10,8 +10,8 @@ def test_def_bns():
 	bn1 = dynpy.bn.BooleanNetwork(rules = r)
 
 	r2 = [ 
-		['x1', ['x1','x2'], lambda (x1,x2): (x1 and x2) ],
-		['x2', ['x1','x2'], lambda (x1,x2): (x1 or  x2) ],
+		['x1', ['x1','x2'], lambda x1,x2: (x1 and x2) ],
+		['x2', ['x1','x2'], lambda x1,x2: (x1 or  x2) ],
 	]
 	bn2 = dynpy.bn.BooleanNetwork(rules = r)
 

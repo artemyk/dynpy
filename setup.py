@@ -1,8 +1,7 @@
-#!/usr/bin/env python
+import os
+from setuptools import setup
 
 exec(open('dynpy/version.py').read())
-
-from distutils.core import setup
 
 setup(name='dynpy',
       version=__version__,
