@@ -59,8 +59,8 @@ class BooleanNetwork(dynsys.DiscreteStateSystemBase):
     The other way to pass in the dynamical update rules is to set the `mode` parameter to `'FUNCS'`,
     and specify the update rule of each variable as a Python function that takes in the inputs as arguments:
 
-    >>> r = [ ['x1', ['x1','x2'], lambda (x1,x2): (x1 and x2) ],
-    ...       ['x2', ['x1','x2'], lambda (x1,x2): (x1 or  x2) ] ]
+    >>> r = [ ['x1', ['x1','x2'], lambda x1,x2: (x1 and x2) ],
+    ...       ['x2', ['x1','x2'], lambda x1,x2: (x1 or  x2) ] ]
     >>> import dynpy
     >>> bn1 = dynpy.bn.BooleanNetwork(rules = r, mode='FUNCS')
 

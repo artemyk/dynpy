@@ -21,7 +21,7 @@ class CellularAutomaton(bn.BooleanNetwork):
     >>> initState = np.zeros(ca.num_vars)
     >>> initState[int(ca.num_vars/2)] = 1.0
     >>> for line in ca.getTrajectory(initState, 10):
-    ...   print "".join('#' if e == 1.0 else '-' for e in line)
+    ...   print("".join('#' if e == 1.0 else '-' for e in line))
     -------------------------#------------------------
     ------------------------##------------------------
     -----------------------###------------------------

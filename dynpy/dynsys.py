@@ -296,7 +296,6 @@ class MarkovChain(LinearSystem):
     If we wish to project the state of the Markov chain back onto the activations of the
     variables in the underlying system, we can use the `ndx2stateMx` matrix of the underlying system. For example:
 
-    >>> from __future__ import print_function
     >>> import dynpy
     >>> bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.yeast_cellcycle_bn)
     >>> bnEnsemble = dynpy.dynsys.MarkovChain(bn)
@@ -416,7 +415,7 @@ class DiscreteStateSystemBase(DynamicalSystemBase):
             The state transition graph, in the form of an igraph Graph object
         """
         import igraph
-        return igraph.Graph(zip(*self.trans.nonzero()), directed=True)
+        return igraph.Graph(list(zip(*self.trans.nonzero())), directed=True)
 
     def getAttractorsAndBasins(self):
         """
@@ -442,9 +441,9 @@ class DiscreteStateSystemBase(DynamicalSystemBase):
             cBasin = tuple(STG.subcomponent(attState, mode='IN'))
             basins[cBasin].append(attState)
 
-        basinAtts = basins.values()
-        basinStates = basins.keys()
-        bySizeOrder = np.argsort(map(len, basinStates))[::-1]
+        basinAtts = list(basins.values())
+        basinStates = list(basins.keys())
+        bySizeOrder = np.argsort(list(map(len, basinStates)))[::-1]
         return [basinAtts[b] for b in bySizeOrder], [basinStates[b] for b in bySizeOrder]
 
 
