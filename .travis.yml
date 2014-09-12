@@ -8,6 +8,7 @@ before_install:
  - sudo apt-get -qq update
  - sudo apt-get install -qq python-numpy python-scipy
 install:
-  - pip install -e .
+ - python -c 'import scipy; print(scipy.__version__)'
+ - pip install -e .
 script:
-  - "nosetests -v --with-doctest"
+ - "nosetests -v --with-doctest"
