@@ -7,8 +7,8 @@ install:
   - sudo pip install conda
   # install deps
   - sudo conda init
-  - sudo conda update conda --yes
-  - deps='pip numpy scipy networkx'
+  - sudo conda update --yes conda 
+  - deps='pip numpy scipy'
   - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
   - export PATH=$HOME/py/bin:$PATH
   # install your own package into the environment
