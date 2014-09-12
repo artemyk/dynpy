@@ -1,13 +1,13 @@
-DynPy tutorial
+dynpy tutorial
 ==============
 
 Introduction
 ------------
 
-DynPy is a package for defining and running dynamical systems in Python.  The goal is to support a wide-variety of
+dynpy is a package for defining and running dynamical systems in Python.  The goal is to support a wide-variety of
 continuous/discrete time and continuous/discrete space dynamical systems with easy extensibility + a clean interface.
 
-DynPy is organized into a hierarchy of classes, with each class representing a different kind of dynamical system.   
+dynpy is organized into a hierarchy of classes, with each class representing a different kind of dynamical system.   
 The base classes that are using by these systems are defined in :doc:`dynpy.dynsys`.  Some sample systems used in 
 this tutorial are defined in :doc:`dynpy.sample_nets`.
 
@@ -73,7 +73,7 @@ for more details. Using the previous example:
     plt.imshow(trajectory, interpolation='none') 
 
 
-The dynamical systems in DynPy can also be run as continuous-time systems.  This is usually implemented only for the 'Markov chain' versions (since then the continuous-time dynamics reduce to a continuous-time linear dynamical system).   This can be specified by passing in the ``discrete_time=False`` option when constructing the underlying dynamical system. Using the previous example:
+The dynamical systems in dynpy can also be run as continuous-time systems.  This is usually implemented only for the 'Markov chain' versions (since then the continuous-time dynamics reduce to a continuous-time linear dynamical system).   This can be specified by passing in the ``discrete_time=False`` option when constructing the underlying dynamical system. Using the previous example:
 
 .. plot::
     :include-source:

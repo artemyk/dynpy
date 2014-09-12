@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# DynPy documentation build configuration file, created by
+# dynpy documentation build configuration file, created by
 # sphinx-quickstart on Sun Nov 10 02:28:05 2013.
 #
 # This file is execfile()d with the current directory set to its
@@ -41,7 +41,12 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
+    'sphinxcontrib.googleanalytics',
 ]
+
+googleanalytics_id = 'UA-43700499-2'
+googleanalytics_enabled = True
+
 # 'sphinx.ext.autosummary',
 numpydoc_show_class_members = False
 autodoc_member_order = 'bysource'
@@ -74,7 +79,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'DynPy'
+project = u'dynpy'
 copyright = u'2013, Artemy'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -207,7 +212,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'DynPydoc'
+htmlhelp_basename = 'dynpydoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -227,7 +232,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'DynPy.tex', u'DynPy Documentation',
+  ('index', 'dynpy.tex', u'dynpy Documentation',
    u'Artemy', 'manual'),
 ]
 
@@ -257,7 +262,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'dynpy', u'DynPy Documentation',
+    ('index', 'dynpy', u'dynpy Documentation',
      [u'Artemy'], 1)
 ]
 
@@ -271,8 +276,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'DynPy', u'DynPy Documentation',
-   u'Artemy', 'DynPy', 'One line description of project.',
+  ('index', 'dynpy', u'dynpy Documentation',
+   u'Artemy', 'dynpy', 'One line description of project.',
    'Miscellaneous'),
 ]
 
