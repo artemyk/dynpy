@@ -1,22 +1,18 @@
 language: python
 python:
-  - 2.7
-# Setup anaconda
-before_install:
-  - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh; else wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh; fi
-  - chmod +x miniconda.sh
-  - ./miniconda.sh -b
-  - export PATH=/home/travis/miniconda/bin:$PATH
-  - conda update --yes conda
-# Install packages
+  - "2.7"
+  - "3.3"
 install:
-  - conda create --yes -n testenv python=$TRAVIS_PYTHON_VERSION 
-  - source activate testenv
-  - conda install --yes pip numpy scipy
-  - pip install nose
-  - python -c 'import scipy; print scipy.__version__'
-#  - pip install -e .
+  # Install conda
+  - sudo pip install conda
+  # install deps
+  - sudo conda init
+  - sudo conda update conda --yes
+  - deps='pip numpy nose sphinx'
+  - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
+  - export PATH=$HOME/py/bin:$PATH
+  - pip install -e .
+  # install your own package into the environment
+  - python setup.py install
 script:
-  - python -c 'import scipy; print scipy.__version__'
   - "nosetests -v --with-doctest"
-
