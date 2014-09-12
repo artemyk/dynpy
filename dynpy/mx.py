@@ -126,7 +126,7 @@ class SparseMatrix(MxBase):
 
     @classmethod
     def pow(cls, mx, exponent):
-        rMx = ss.eye(m=mx.shape[0])
+        rMx = ss.eye(mx.shape[0], mx.shape[0])
         for i in range(exponent):
           rMx = rMx.dot(mx)
         return rMx
