@@ -15,4 +15,6 @@ before_install:
 install:
   - conda install --yes python=$TRAVIS_PYTHON_VERSION atlas numpy scipy
 #  - pip install -e .
-
+script:
+ - "nosetests -v --with-doctest"
+ 
