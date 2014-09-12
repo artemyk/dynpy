@@ -9,8 +9,9 @@ install:
   - sudo conda init
   - sudo conda update conda --yes
   - deps='pip numpy nose sphinx'
-  - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
-  - export PATH=$HOME/py/bin:$PATH
+  - conda create --yes -n testenv python=$TRAVIS_PYTHON_VERSION
+  - source activate testenv
+  - conda install --yes $deps
   - pip install -e .
   # install your own package into the environment
   - python setup.py install
