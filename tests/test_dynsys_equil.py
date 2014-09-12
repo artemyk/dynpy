@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.sparse as ss
 import dynpy
 
 
@@ -7,7 +8,9 @@ initState = np.zeros(kc_net.shape[0], 'float')
 initState[ 5 ] = 1
 
 def veryClose(mx1, mx2):
-        return (mx1-mx2).max() < 1e-5 and (mx1-mx2).min() > -1e-5
+        fmax = (lambda x: x.max()) if ss.issparse(mx1) else np.max
+        fmin = (lambda x: x.min()) if ss.issparse(mx1) else np.min
+        return fmax(mx1-mx2) < 1e-5 and fmin(mx1-mx2) > -1e-5
 
 def test_dense_discrete_equil_vs_iter():
         # Dense discrete time
