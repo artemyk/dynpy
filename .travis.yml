@@ -10,7 +10,6 @@ before_install:
  - sudo apt-get -qq update
  - sudo apt-get install -qq python-numpy python-scipy python3-numpy python3-scipy
 install:
- - python -c 'import scipy; print(scipy.__version__)'
  - pip install -e .
 script:
  - "nosetests -v --with-doctest"
