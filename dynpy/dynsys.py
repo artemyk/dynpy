@@ -207,6 +207,8 @@ class LinearSystem(DynamicalSystemBase):
         super(LinearSystem, self).__init__(num_vars=updateOperator.shape[
                                            0], var_names=var_names, discrete_time=discrete_time, state_dtypes=state_dtypes)
         self.updateOperator = updateOperator
+        if updateCls is None:
+            updateCls = DEFAULT_TRANSMX_CLASS
         self.updateCls = updateCls
         if discrete_time:
             self.stableEigenvalue = 1.0

@@ -5,11 +5,12 @@ Introduction
 ------------
 
 dynpy is a package for defining and running dynamical systems in Python.  The goal is to support a wide-variety of
-continuous/discrete time and continuous/discrete space dynamical systems with easy extensibility + a clean interface.
+dynamical systems, both continuous and discrete time as well as continuous and discrete state, with easy extensibility
+and a clean programming interface.
 
 dynpy is organized into a hierarchy of classes, with each class representing a different kind of dynamical system.   
-The base classes that are using by these systems are defined in :doc:`dynpy.dynsys`.  Some sample systems used in 
-this tutorial are defined in :doc:`dynpy.sample_nets`.
+The base classes are defined in :doc:`dynpy.dynsys`.  Some sample systems used in this tutorial are defined in 
+:doc:`dynpy.sample_nets`.
 
 
 Random walkers
@@ -27,17 +28,21 @@ Random walkers
     num_steps = 30
     rw = dynpy.graphdynamics.RandomWalker(graph=dynpy.sample_nets.karateclub_net)
 
+    # Initialize with a single random walker on node id=5
     cState = np.zeros(rw.num_vars)
     cState[ 5 ] = 1
+
     spacetime = np.zeros((num_steps,rw.num_vars))
     for i in range(num_steps):
         spacetime[i,:] = cState
         cState = rw.iterate(cState)
 
-    # Also possible, instead of the for loop, to do:
+    # Also possible, instead of for loop:
     # spacetime = rw.getTrajectory(startState=cState, max_time=num_steps) 
 
     plt.spy(spacetime)
+    plt.xlabel('Node')
+    plt.ylabel('Time')
 
 
 Notice how it's possible to get the spacetime trajectory more succinctly using the 
@@ -48,11 +53,11 @@ Dynamics over state distributions
 ---------------------------------
 
 The above example of the random walker is a stochastic dynamical system.  It is
-also possible to define a dynamical system over a distribution of state of such a system, which then becomes a deterministic linear
-dynamical system over the space of distributions.   Basically, this uses the state-transition 
+also possible to define a dynamical system over the state-distribution of such a system, which is deterministic linear
+dynamical system over the space of distributions.   To do so, we use the state-transition 
 graph of the underlying system to generate a Markov chain (or, in the continuous-time case, master 
 equation) over the states of the underlying system. Each state of the underlying system
-is now assigned to a separate variable in the Markov chain system; the value of each variable
+is assigned to a separate variable in the Markov chain system; the value of each variable
 is the probability mass on the corresponding state of the underlying system. 
 See the documentation for :class:`dynpy.dynsys.MarkovChain` 
 for more details. Using the previous example:
@@ -71,9 +76,11 @@ for more details. Using the previous example:
 
     trajectory = rwMC.getTrajectory(startState=initState, max_time=30)
     plt.imshow(trajectory, interpolation='none')
+    plt.xlabel('Node')
+    plt.ylabel('Time')
 
 
-The dynamical systems in dynpy can also be run as continuous-time systems.  This is usually implemented only for the 'Markov chain' versions (since then the continuous-time dynamics reduce to a continuous-time linear dynamical system).   This can be specified by passing in the ``discrete_time=False`` option when constructing the underlying dynamical system. Using the previous example:
+Dynamical systems in dynpy can also be run in continuous-time.  This is usually implemented only for the 'Markov chain' versions (since then the continuous-time dynamics reduce to a continuous-time linear dynamical system).   This can be specified by passing in the ``discrete_time=False`` option when constructing the underlying dynamical system. Using the previous example:
 
 .. plot::
     :include-source:
@@ -88,7 +95,8 @@ The dynamical systems in dynpy can also be run as continuous-time systems.  This
     initState[ 5 ] = 1
     trajectory = rwMC.getTrajectory(startState=initState, max_time=30)
     plt.imshow(trajectory, interpolation='none') 
-
+    plt.xlabel('Node')
+    plt.ylabel('Time')
 
 It is also possible to get the equilibrium distribution by calling ``equilibriumState()``, which uses eigenspace decomposition:
 
@@ -125,6 +133,8 @@ Boolean Networks
     initState = np.zeros(bn.num_vars, 'int')
     initState[ [1,3,6] ] = 1
     plt.spy(bn.getTrajectory(startState=initState, max_time=15))
+    plt.xlabel('Node')
+    plt.ylabel('Time')
 
 
 We can also get the network's attractors, by doing:
@@ -179,7 +189,7 @@ ATTRACTORS:
 
 
 
-Just to demonstrate, it is possible to turn any dynamical system that can provide a state-transition graph (by subclassing  :class:`dynpy.dynsys.DiscreteStateSystemBase` and implementing a `trans` property).  For example, to create a dynamical system over a distribution of states of the yeast-cell cycle networks, we can do the following:
+Just to demonstrate, it is possible to turn any dynamical system that provides a state-transition graph (by subclassing  :class:`dynpy.dynsys.DiscreteStateSystemBase` and implementing a `trans` property) in a linear system over state distributions.  For example, to create a dynamical system over a distribution of states of the yeast-cell cycle networks, we can do the following:
 
 .. plot::
     :include-source:
@@ -197,13 +207,16 @@ Just to demonstrate, it is possible to turn any dynamical system that can provid
     bnProbs = t.dot(bn.ndx2stateMx)
 
     # plot
-    plt.imshow(bnProbs, interpolation='none')   
+    plt.imshow(bnProbs, interpolation='none') 
+    plt.xlabel('Node')
+    plt.ylabel('Time')
+
 
 
 Cellular Automata
 -----------------
 
-The cellular automata class :class:`dynpy.ca.CellularAutomaton` is defined in :doc:`dynpy.ca`.  It is a subclass of :class:`dynpy.bn.BooleanNetwork`.  Effectively, it constructs a Boolean network on a lattice with a homogenous update function.  Here is an example of how to use it:
+The cellular automata class :class:`dynpy.ca.CellularAutomaton` is defined in :doc:`dynpy.ca`.  It is a subclass of :class:`dynpy.bn.BooleanNetwork`.  Effectively, it constructs a Boolean network with a lattice connectivity topology and a homogenous update function.  Here is an example of how to use it:
 
 .. plot::
    :include-source:
@@ -216,4 +229,6 @@ The cellular automata class :class:`dynpy.ca.CellularAutomaton` is defined in :d
     initState = np.zeros(ca.num_vars, 'int')
     initState[int(ca.num_vars/2)] = 1
     plt.spy(ca.getTrajectory(startState=initState, max_time=50))
+    plt.xlabel('Node')
+    plt.ylabel('Time')
 
