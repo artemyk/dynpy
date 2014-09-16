@@ -18,9 +18,9 @@ different kind of dynamical system.    The base classes are defined in
 Random walkers
 --------------
 
-:doc`dynpy.graphdynamics` provides tools to study dynamics on graphs.  Here is a
-:simple example of how to initialize and plot several steps of a random walker
-:on Zachary's karate club network
+:doc:`dynpy.graphdynamics` provides tools to study dynamics on graphs.  Here is a
+simple example of how to initialize and plot several steps of a random walker
+on Zachary's karate club network
 
 .. plot::
     :include-source:
