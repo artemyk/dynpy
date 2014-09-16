@@ -5,7 +5,7 @@ from dynpy.mx import DenseMatrix, SparseMatrix
 from dynpy.graphdynamics import RandomWalker
 
 kc = dynpy.sample_nets.karateclub_net 
-initState = np.zeros(kc_net.shape[0], 'float')
+initState = np.zeros(kc.shape[0], 'float')
 initState[ 5 ] = 1
 
 def veryClose(mx1, mx2):
