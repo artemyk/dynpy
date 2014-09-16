@@ -4,19 +4,23 @@ dynpy tutorial
 Introduction
 ------------
 
-dynpy is a package for defining and running dynamical systems in Python.  The goal is to support a wide-variety of
-dynamical systems, both continuous and discrete time as well as continuous and discrete state, with easy extensibility
+dynpy is a package for defining and running dynamical systems in Python.  The
+goal is to support a wide-variety of dynamical systems, both continuous and
+discrete time as well as continuous and discrete state, with easy extensibility
 and a clean programming interface.
 
-dynpy is organized into a hierarchy of classes, with each class representing a different kind of dynamical system.   
-The base classes are defined in :doc:`dynpy.dynsys`.  Some sample systems used in this tutorial are defined in 
+dynpy is organized into a hierarchy of classes, with each class representing a
+different kind of dynamical system.    The base classes are defined in
+:doc:`dynpy.dynsys`.  Some sample systems used in this tutorial are defined in
 :doc:`dynpy.sample_nets`.
 
 
 Random walkers
 --------------
 
-:doc:`dynpy.graphdynamics` provides tools to study dynamics on graphs.  Here is a simple example of how to initialize and plot several steps of a random walker on Zachary's karate club network:
+:doc`dynpy.graphdynamics` provides tools to study dynamics on graphs.  Here is a
+:simple example of how to initialize and plot several steps of a random walker
+:on Zachary's karate club network
 
 .. plot::
     :include-source:
@@ -45,21 +49,22 @@ Random walkers
     plt.ylabel('Time')
 
 
-Notice how it's possible to get the spacetime trajectory more succinctly using the 
-``getTrajectory`` method.
+Notice how it's possible to get the spacetime trajectory more succinctly using
+the  ``getTrajectory`` method.
 
 
 Dynamics over state distributions
 ---------------------------------
 
 The above example of the random walker is a stochastic dynamical system.  It is
-also possible to define a dynamical system over the state-distribution of such a system, which is deterministic linear
-dynamical system over the space of distributions.   To do so, we use the state-transition 
-graph of the underlying system to generate a Markov chain (or, in the continuous-time case, master 
-equation) over the states of the underlying system. Each state of the underlying system
-is assigned to a separate variable in the Markov chain system; the value of each variable
-is the probability mass on the corresponding state of the underlying system. 
-See the documentation for :class:`dynpy.dynsys.MarkovChain` 
+also possible to define a dynamical system over the state-distribution of such a
+system, which is deterministic linear dynamical system over the space of
+distributions.   To do so, we use the state-transition  graph of the underlying
+system to generate a Markov chain (or, in the continuous-time case, master
+equation) over the states of the underlying system. Each state of the underlying
+system is assigned to a separate variable in the Markov chain system; the value
+of each variable is the probability mass on the corresponding state of the
+underlying system.  See the documentation for :class:`dynpy.dynsys.MarkovChain`
 for more details. Using the previous example:
 
 .. plot::
@@ -80,7 +85,11 @@ for more details. Using the previous example:
     plt.ylabel('Time')
 
 
-Dynamical systems in dynpy can also be run in continuous-time.  This is usually implemented only for the 'Markov chain' versions (since then the continuous-time dynamics reduce to a continuous-time linear dynamical system).   This can be specified by passing in the ``discrete_time=False`` option when constructing the underlying dynamical system. Using the previous example:
+Dynamical systems in dynpy can also be run in continuous-time.  This is usually
+implemented only for the 'Markov chain' versions (since then the continuous-time
+dynamics reduce to a continuous-time linear dynamical system).   This can be
+specified by passing in the ``discrete_time=False`` option when constructing the
+underlying dynamical system. Using the previous example:
 
 .. plot::
     :include-source:
@@ -88,7 +97,8 @@ Dynamical systems in dynpy can also be run in continuous-time.  This is usually 
     import matplotlib.pyplot as plt
     import dynpy
 
-    rw = dynpy.graphdynamics.RandomWalker(graph=dynpy.sample_nets.karateclub_net, discrete_time = False )
+    kc = dynpy.sample_nets.karateclub_net
+    rw = dynpy.graphdynamics.RandomWalker(graph=kc, discrete_time=False)
     rwMC = dynpy.dynsys.MarkovChain(rw)
 
     initState = np.zeros(rw.num_vars, 'float')
@@ -98,7 +108,8 @@ Dynamical systems in dynpy can also be run in continuous-time.  This is usually 
     plt.xlabel('Node')
     plt.ylabel('Time')
 
-It is also possible to get the equilibrium distribution by calling ``equilibriumState()``, which uses eigenspace decomposition:
+It is also possible to get the equilibrium distribution by calling
+``equilibriumState()``, which uses eigenspace decomposition:
 
 .. plot::
     :include-source:
@@ -107,7 +118,8 @@ It is also possible to get the equilibrium distribution by calling ``equilibrium
     import numpy as np
     import dynpy
 
-    rw = dynpy.graphdynamics.RandomWalker(graph=dynpy.sample_nets.karateclub_net, discrete_time = False)
+    kc = dynpy.sample_nets.karateclub_net
+    rw = dynpy.graphdynamics.RandomWalker(graph=kc, discrete_time=False)
     rwMC = dynpy.dynsys.MarkovChain(rw)
 
     eqState = rwMC.equilibriumState()
@@ -118,8 +130,10 @@ It is also possible to get the equilibrium distribution by calling ``equilibrium
 Boolean Networks
 ----------------
 
-:doc:`dynpy.bn` contains tools to run Boolean network dynamics. Let's try to get space time diagram of the 11-node yeast cell-cycle network, as described in:
-    Li et al, The yeast cell-cycle network is robustly designed, PNAS, 2004. http://www.pnas.org/content/101/14/4781.full.pdf
+:doc:`dynpy.bn` contains tools to run Boolean network dynamics. Let's try to get
+space time diagram of the 11-node yeast cell-cycle network, as described in:
+Li et al, The yeast cell-cycle network is robustly designed, PNAS, 2004.
+http://www.pnas.org/content/101/14/4781.full.pdf
 
 
 .. plot:: 
@@ -189,7 +203,12 @@ ATTRACTORS:
 
 
 
-Just to demonstrate, it is possible to turn any dynamical system that provides a state-transition graph (by subclassing  :class:`dynpy.dynsys.DiscreteStateSystemBase` and implementing a `trans` property) in a linear system over state distributions.  For example, to create a dynamical system over a distribution of states of the yeast-cell cycle networks, we can do the following:
+Just to demonstrate, it is possible to turn any dynamical system that provides a
+state-transition graph (by subclassing
+:class:`dynpy.dynsys.DiscreteStateSystemBase` and implementing a `trans`
+property) in a linear system over state distributions.  For example, to create a
+dynamical system over a distribution of states of the yeast-cell cycle networks,
+we can do the following:
 
 .. plot::
     :include-source:
@@ -216,7 +235,10 @@ Just to demonstrate, it is possible to turn any dynamical system that provides a
 Cellular Automata
 -----------------
 
-The cellular automata class :class:`dynpy.ca.CellularAutomaton` is defined in :doc:`dynpy.ca`.  It is a subclass of :class:`dynpy.bn.BooleanNetwork`.  Effectively, it constructs a Boolean network with a lattice connectivity topology and a homogenous update function.  Here is an example of how to use it:
+The cellular automata class :class:`dynpy.ca.CellularAutomaton` is defined in
+:doc:`dynpy.ca`.  It is a subclass of :class:`dynpy.bn.BooleanNetwork`.
+Effectively, it constructs a Boolean network with a lattice connectivity
+topology and a homogenous update function.  Here is an example of how to use it:
 
 .. plot::
    :include-source:
