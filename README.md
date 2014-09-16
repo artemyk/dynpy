@@ -8,7 +8,12 @@ For documentation, see http://dynpy.readthedocs.org/ .  The tutorial, at http://
 
 Installation
 ------------
-Just download into a directory.  dynpy requires numpy, scipy, matplotlib, and the igraph library http://igraph.sourceforge.net/ .  (note that igraph cannot be installed using pip)
+Just download into a directory and do
+``
+python setup.py install
+``
+
+dynpy requires numpy, scipy, matplotlib, and python-igraph.
 
 
 Running tests
