@@ -13,7 +13,7 @@ Welcome to dynpy's documentation!
    todos
    modules
 
-dynpy is a package for defining and running dynamical systems in Python. Check out the :doc:`tutorial`.
+dynpy is a package for defining and running dynamical systems in Python. Check out the `GitHub repository <https://github.com/artemyk/dynpy>` or the :doc:`tutorial`.
 
 A list of :doc:`todos`.
 
