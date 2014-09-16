@@ -111,7 +111,7 @@ It is also possible to get the equilibrium distribution by calling ``equilibrium
     rwMC = dynpy.dynsys.MarkovChain(rw)
 
     eqState = rwMC.equilibriumState()
-    plt.imshow(np.atleast_2d(dynpy.mx.todense(eqState), interpolation='none'))
+    plt.imshow(np.atleast_2d(dynpy.mx.todense(eqState)), interpolation='none')
 
 
 
