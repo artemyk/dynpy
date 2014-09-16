@@ -41,11 +41,7 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
-    'sphinxcontrib.googleanalytics',
 ]
-
-googleanalytics_id = 'UA-43700499-2'
-googleanalytics_enabled = True
 
 # 'sphinx.ext.autosummary',
 numpydoc_show_class_members = False
