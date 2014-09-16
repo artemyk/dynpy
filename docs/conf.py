@@ -229,7 +229,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
   ('index', 'dynpy.tex', u'dynpy Documentation',
-   u'Artemy', 'manual'),
+   u'Artemy Kolchinsky', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -259,7 +259,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'dynpy', u'dynpy Documentation',
-     [u'Artemy'], 1)
+     [u'Artemy Kolchinsky'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -273,7 +273,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'dynpy', u'dynpy Documentation',
-   u'Artemy', 'dynpy', 'One line description of project.',
+   u'Artemy Kolchinsky', 'dynpy', 'One line description of project.',
    'Miscellaneous'),
 ]
 
