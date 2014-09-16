@@ -12,7 +12,7 @@ Welcome to dynpy's documentation!
    tutorial
    modules
 
-dynpy is a package for defining and running dynamical systems in Python. Check out the `GitHub repository <https://github.com/artemyk/dynpy>` or the :doc:`tutorial`.
+dynpy is a package for defining and running dynamical systems in Python. Check out the `GitHub repository <https://github.com/artemyk/dynpy>`_ or the :doc:`tutorial`.
 
 
 
