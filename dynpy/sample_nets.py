@@ -1,12 +1,15 @@
-"""
-This module provides several sample networks and dynamical systems for use in testing and development.
+"""This module provides several sample networks and dynamical systems for use
+in testing and development.
 
 Right now it includes:
 
-``yeast_cellcycle_bn``: A 11-node yeast-cell cycle Boolean network.  It is in the 'truthtable' format. For more details, see 
-	Li et al, The yeast cell-cycle network is robustly designed, PNAS, 2004. http://www.pnas.org/content/101/14/4781.full.pdf
+``yeast_cellcycle_bn``: A 11-node yeast-cell cycle Boolean network.  It is in 
+the 'truthtable' format. For more details, see 
+	Li et al, The yeast cell-cycle network is robustly designed, PNAS, 2004. 
+	http://www.pnas.org/content/101/14/4781.full.pdf
 
-``karateclub_net``: A 34-node graph representing Zachary's karate-club network. It is in numpy array format.
+``karateclub_net``: A 34-node graph representing Zachary's karate-club network.
+It is in numpy array format.
 
 ``test_bn``: A simple 4-node BN for testing
 
@@ -18,16 +21,41 @@ import numpy as np
 
 yeast_cellcycle_bn = [None]*11
 yeast_cellcycle_bn[0] = ['Cln3',  ['Cln3'], [0, 0]]
-yeast_cellcycle_bn[1] = ['MBF',   ['Cln3', 'Clb1,2', 'MBF'], [1, 0, 1, 1, 0, 0, 1, 0]]
-yeast_cellcycle_bn[2] = ['SBF',   ['Cln3', 'Clb1,2', 'SBF'], [1, 0, 1, 1, 0, 0, 1, 0]]
+yeast_cellcycle_bn[1] = ['MBF',   
+                         ['Cln3', 'Clb1,2', 'MBF'], 
+                         [1, 0, 1, 1, 0, 0, 1, 0]]
+yeast_cellcycle_bn[2] = ['SBF',   
+                         ['Cln3', 'Clb1,2', 'SBF'], 
+                         [1, 0, 1, 1, 0, 0, 1, 0]]
 yeast_cellcycle_bn[3] = ['Cln1,2',['SBF', 'Cln1,2'], [1, 1, 0, 0]]
-yeast_cellcycle_bn[4] = ['Sic1',  ['Cln1,2', 'Clb5,6', 'Clb1,2', 'Cdc20', 'Sic1'], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0]]
-yeast_cellcycle_bn[5] = ['Swi5',  ['Cdc20', 'Clb1,2', 'Mcm1', 'Swi5'], [1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0]]
-yeast_cellcycle_bn[6] = ['Cdc20', ['Clb1,2', 'Mcm1', 'Cdc20'], [1, 1, 1, 1, 1, 1, 0, 0]]
-yeast_cellcycle_bn[7] = ['Clb5,6',['MBF', 'Cdc20', 'Cdh1', 'Clb5,6'], [0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0]]
-yeast_cellcycle_bn[8] = ['Cdh1',  ['Cln1,2', 'Swi5', 'Cdc20', 'Clb5,6', 'Clb1,2', 'Cdh1'], [0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0]]
-yeast_cellcycle_bn[9] = ['Clb1,2',['Sic1', 'Cdc20', 'Clb5,6', 'Cdh1', 'Mcm1', 'Clb1,2'], [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0]]
-yeast_cellcycle_bn[10]= ['Mcm1',  ['Clb5,6', 'Clb1,2', 'Mcm1'], [1, 1, 1, 1, 1, 1, 0, 0]]
+yeast_cellcycle_bn[4] = ['Sic1',  
+                         ['Cln1,2', 'Clb5,6', 'Clb1,2', 'Cdc20', 'Sic1'], 
+                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 
+                          0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0]]
+yeast_cellcycle_bn[5] = ['Swi5',  
+                         ['Cdc20', 'Clb1,2', 'Mcm1', 'Swi5'], 
+                         [1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0]]
+yeast_cellcycle_bn[6] = ['Cdc20', 
+                         ['Clb1,2', 'Mcm1', 'Cdc20'], 
+                         [1, 1, 1, 1, 1, 1, 0, 0]]
+yeast_cellcycle_bn[7] = ['Clb5,6',
+                         ['MBF', 'Cdc20', 'Cdh1', 'Clb5,6'], 
+                         [0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0]]
+yeast_cellcycle_bn[8] = ['Cdh1',  
+                         ['Cln1,2','Swi5','Cdc20','Clb5,6','Clb1,2','Cdh1'],
+                         [0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 
+                          0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 
+                          1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 
+                          1, 1, 0, 0, 0, 0, 0, 0, 1, 0]]
+yeast_cellcycle_bn[9] = ['Clb1,2',
+                         ['Sic1', 'Cdc20', 'Clb5,6', 'Cdh1', 'Mcm1', 'Clb1,2'], 
+                         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 
+                          0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 
+                          1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 
+                          1, 1, 1, 0, 0, 0, 1, 1, 1, 0]]
+yeast_cellcycle_bn[10]= ['Mcm1',
+                         ['Clb5,6', 'Clb1,2', 'Mcm1'],
+                         [1, 1, 1, 1, 1, 1, 0, 0]]
 
 
 karateclub_net = np.array([
@@ -70,10 +98,18 @@ karateclub_net = np.array([
 
 
 test_bn = [ 
-['Node1', [ 'Node1','Node2','Node3','Node4' ] , [ 1, 1, 1, 1,   1, 1, 1, 1,   1, 1, 1, 1,   0, 0, 0, 0]],
-['Node2', [ 'Node1','Node2','Node3','Node4' ] , [ 1, 1, 1, 1,   0, 0, 0, 0,   0, 0, 0, 0,   0, 0, 0, 0]],
-['Node3', [ 'Node1','Node2','Node3','Node4' ] , [ 1, 1, 1, 0,   1, 0, 0, 0,   1, 1, 1, 0,   1, 0, 0, 0]],
-['Node4', [ 'Node1','Node2','Node3','Node4' ] , [ 1, 1, 1, 0,   1, 1, 1, 0,   1, 1, 1, 0,   1, 1, 1, 0]],
+  ['Node1', 
+    [ 'Node1','Node2','Node3','Node4' ] , 
+    [ 1, 1, 1, 1,   1, 1, 1, 1,   1, 1, 1, 1,   0, 0, 0, 0]],
+  ['Node2', 
+    [ 'Node1','Node2','Node3','Node4' ] , 
+    [ 1, 1, 1, 1,   0, 0, 0, 0,   0, 0, 0, 0,   0, 0, 0, 0]],
+  ['Node3', 
+    [ 'Node1','Node2','Node3','Node4' ] , 
+    [ 1, 1, 1, 0,   1, 0, 0, 0,   1, 1, 1, 0,   1, 0, 0, 0]],
+  ['Node4', 
+    [ 'Node1','Node2','Node3','Node4' ] , 
+    [ 1, 1, 1, 0,   1, 1, 1, 0,   1, 1, 1, 0,   1, 1, 1, 0]],
 ]
 
 test2_bn = [
