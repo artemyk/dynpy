@@ -2,11 +2,11 @@
 systems"""
 
 from __future__ import division, print_function, absolute_import
-
-import collections
 import sys
 if sys.version_info < (3,):
     range = xrange
+
+import collections
 
 import numpy as np
 
@@ -26,44 +26,16 @@ class DynamicalSystemBase(object):
 
     Parameters
     ----------
-    num_vars : int, optional
-        How many variables (i.e., how many 'dimensions' or 'nodes' are in the
-        dynamical system). Default is 1
-    var_names : list, optional
-        Names for the variables (optional).  Default is simply the numeric
-        indexes of the variables.
     discrete_time : bool, optional
         Whether updating should be done using discrete (default) or continuous
         time dynamics.
-    state_dtypes : str, optional
-        A name of a NumPy datatype which should be used to store the values of
-        each variable (default set by `DEFAULT_STATE_DTYPE`)
-
     """
-
-    #: The number of variables in the dynamical system
-    num_vars = None
-
-    #: The numpy data types of variable states in the dynamical system
-    state_dtypes = DEFAULT_STATE_DTYPE
 
     #: Whether the dynamical system obeys discrete- or continuous-time dynamics
     discrete_time = True
 
-    def __init__(self, num_vars=1, var_names=None, discrete_time=True,
-                 state_dtypes=None):
-
-        self.num_vars = num_vars
-
-        self.var_names = tuple(var_names if var_names is not None
-                               else range(self.num_vars))
-        """The names of the variables in the dynamical system"""
-
-        if state_dtypes is not None:
-            self.state_dtypes = state_dtypes
-
-        if discrete_time is not None:
-            self.discrete_time = discrete_time
+    def __init__(self, discrete_time=True):
+        self.discrete_time = discrete_time
 
         if self.discrete_time:
             self.iterate = self._iterateDiscrete
@@ -71,16 +43,10 @@ class DynamicalSystemBase(object):
         else:
             self.iterate = self._iterateContinuous
 
-    # Make this a cached property so its not necessarily run every time a
-    # dynamical systems object is created, whether we need it or not
-    @caching.cached_data_prop
-    def var_name_ndxs(self):
-        """A mapping from variables names to their indexes
-        """
-        return dict((l, ndx) for ndx, l in enumerate(self.var_names))
+    def states(self):
+        raise NotImplementedError
 
     def iterate(self, startState, max_time):
-
         """This method runs the dynamical system for `max_time` starting from
         `startState` and returns the result.  In fact, this method is set at
         run-time by the constructor to either `_iterateDiscrete` or
@@ -104,7 +70,6 @@ class DynamicalSystemBase(object):
             End state
         """
         raise NotImplementedError
-        # this method should be re-pointed in the construtor
 
     def iterateOneStep(self, startState):
         """
@@ -123,7 +88,7 @@ class DynamicalSystemBase(object):
         numpy array or scipy.sparse matrix
             Iterated state
         """
-        pass
+        raise NotImplementedError
 
     def _iterateOneStepDiscrete(self, startState, num_iters=1):
         raise NotImplementedError
@@ -151,7 +116,7 @@ class DynamicalSystemBase(object):
 
         Parameters
         ----------
-        startState : numpy array or scipy.sparse matrix
+        startState : object
             Which state to start from
         max_time : float
             Until which point to run the dynamical system (number of iterations
@@ -177,22 +142,114 @@ class DynamicalSystemBase(object):
         else:
             timepoints = np.linspace(0, max_time, num=num_points, endpoint=True)
 
-        returnTrajectory = np.zeros((len(timepoints), self.num_vars),
-                                    self.state_dtypes)
-
         cState = startState
-        returnTrajectory[0, :] = cState
+        trajectory = [cState,]
 
         for cNdx in range(1, len(timepoints)):
-            max_time = timepoints[cNdx]-timepoints[cNdx-1]
-            nextState = self.iterate(cState, max_time=max_time)
+            run_time = timepoints[cNdx]-timepoints[cNdx-1]
+            nextState = self.iterate(cState, max_time=run_time)
             cState = nextState
-            returnTrajectory[cNdx,:] = mx.toarray(cState)
+            trajectory.append( cState )
 
-        return returnTrajectory
+        return np.vstack(trajectory)
 
+    def state2ndx(self, state):
+        return state
 
-class LinearSystem(DynamicalSystemBase):
+    def ndx2state(self, ndx):
+        return ndx
+
+class MultivariateSystem(object):
+    """Class that should be mixed-in for dynamics over multivariate systems.
+
+    Parameters
+    ----------
+    num_vars : int, optional
+        How many variables (i.e., how many 'dimensions' or 'nodes' are in the
+        dynamical system). Default is 1
+    var_names : list, optional
+        Names for the variables (optional).  Default is simply the numeric
+        indexes of the variables.
+    """
+
+    #: The number of variables in the dynamical system
+    num_vars = None
+
+    #: ``(num_states, num_vars)``-shaped matrix which maps from integer state
+    #: indexes to their representations in terms of the values of the system
+    #: variables.  Any subclass needs to implement.
+    ndx2stateMx = None
+
+    def __init__(self, num_vars, var_names=None):
+        self.num_vars = num_vars
+
+        self.var_names = tuple(var_names if var_names is not None
+                               else range(self.num_vars))
+        """The names of the variables in the dynamical system"""
+
+        super(MultivariateSystem, self).__init__()
+
+    @caching.cached_data_prop
+    def _state2ndxDict(self):
+        d = dict( (mx.hash_np(state), ndx)
+                  for ndx, state in enumerate(self.states()))
+        return d
+
+    @caching.cached_data_prop
+    def _ndx2stateDict(self):
+        d = dict( enumerate(self.states()) )
+        return d
+
+    def state2ndx(self, state):
+        """Function which maps from multidimensional states of variables
+        (`state`) to single-integer state indexes.
+        """
+        # TODOTEST
+        h = mx.hash_np(state.astype(self.cDataType))
+        try:
+            return self._state2ndxDict[h]
+        except KeyError:
+            raise KeyError('%r (hash=%s)' % (state, h))
+
+    def ndx2StateMx(self):
+        raise NotImplementedError
+
+    def ndx2state(self, ndx):
+        print('called')
+        return self._ndx2stateDict[ndx]
+
+    # Make this a cached property so its not necessarily run every time a
+    # dynamical systems object is created, whether we need it or not
+    @caching.cached_data_prop
+    def var_name_ndxs(self):
+        """A mapping from variables names to their indexes
+        """
+        return dict((l, ndx) for ndx, l in enumerate(self.var_names))
+
+    def getVarNextState(self, state):
+        raise NotImplementedError
+
+"""
+class MarginalizedMultivariateSystem(MultivariateSystem):
+
+    def __init__(self, base_system, keep_vars):
+        self.base_system = base_system
+        self.keep_vars = keep_vars
+        super(MarginalizedMultivariateSystem, self).__init__(
+            len(keep_vars),
+            [base_system.var_names[i] for i in keep_vars]
+            )
+
+    def states(self):
+        done_states = set()
+        for state in self.base_system:
+            m_state = state[self.keep_vars]
+            if m_state not in done_states:
+                done_states.add(m_state)
+                yield m_state
+"""
+
+class LinearSystemBase(DynamicalSystemBase):
     # TODOTESTS
     """This class implements linear dynamical systems, whether continuous or
     discrete-time.  It is also used by :class:`dynpy.dynsys.MarkovChain` to
@@ -204,33 +261,19 @@ class LinearSystem(DynamicalSystemBase):
 
     Parameters
     ----------
-    updateOperator : numpy array or scipy.sparse matrix
-        Matrix defining the evolution of the dynamical system, i.e. the
-        :math:`\\mathbf{A}` in
-        :math:`\\mathbf{x_{t+1}} = \\mathbf{x_{t}}\\mathbf{A}` (in the
-        discrete-time case) or
-        :math:`\\dot{\\mathbf{x}} = \\mathbf{x}\\mathbf{A}` (in the
-        continuous-time case)
     updateCls : {:class:`dynpy.mx.DenseMatrix`, :class:`dynpy.mx.SparseMatrix`}, optional
         Whether to use sparse or dense matrices for the update operator matrix.
         Default set by `dynpy.dynsys.DEFAULT_TRANSMX_CLASS`
-    var_names : list, optional
-        Names for the variables (optional).  Default is simply the numeric
-        indexes of the variables.
     discrete_time : bool, optional
         Whether updating should be done using discrete (default) or continuous
         time dynamics.
-    state_dtypes : str, optional
-        A name of a NumPy datatype which should be used to store the values of
-        each variable (default set by `DEFAULT_STATE_DTYPE`)
     """
 
-    def __init__(self, updateOperator, updateCls=None, var_names=None,
-                 discrete_time=True, state_dtypes=None):
-        super(LinearSystem, self).__init__(
-            num_vars=updateOperator.shape[0], var_names=var_names,
-            discrete_time=discrete_time, state_dtypes=state_dtypes)
-        self.updateOperator = updateOperator
+    updateOperator = None
+
+    def __init__(self, updateCls=None, discrete_time=True):
+        super(LinearSystemBase, self).__init__(discrete_time=discrete_time)
+        # self.updateOperator = updateOperator
         if updateCls is None:
             updateCls = DEFAULT_TRANSMX_CLASS
         self.updateCls = updateCls
@@ -285,8 +328,23 @@ class LinearSystem(DynamicalSystemBase):
     #     rObj.trans = self.updateOperatorCls.pow(self.updateOperator, num_iters)
     #     return rObj
 
+class LinearSystem(LinearSystemBase):
+    """
+    Parameters
+    ----------
+    updateOperator : numpy array or scipy.sparse matrix
+        Matrix defining the evolution of the dynamical system, i.e. the
+        :math:`\\mathbf{A}` in
+        :math:`\\mathbf{x_{t+1}} = \\mathbf{x_{t}}\\mathbf{A}` (in the
+        discrete-time case) or
+        :math:`\\dot{\\mathbf{x}} = \\mathbf{x}\\mathbf{A}` (in the
+        continuous-time case)
+    """
+    def __init__(self, updateOperator, updateCls=None, discrete_time=True):
+        super(LinearSystem,self).__init__(updateCls=updateCls, discrete_time=discrete_time)
+        self.updateOperator = updateOperator
 
-class MarkovChain(LinearSystem):
+class MarkovChain(LinearSystemBase):
     """This class implements a Markov Chain over the state-transition graph of
     an underlying dynamical system, specified by the `baseDynamicalSystem`
     parameter.  It maintains properties of the underlying system, such as the
@@ -294,12 +352,6 @@ class MarkovChain(LinearSystem):
     or continuous-time.  The underlying system must be an instance of
     :class:`dynpy.dynsys.DiscreteStateSystemBase` and provide a transition
     matrix in the form of a `trans` property.
-
-    It generates a Markov chain (or, in the continuous-time case, master
-    equation) over the states of the underlying system. Each state of the
-    underlying system is now assigned to a separate variable in the Markov chain
-    system; the value of each variable is the probability mass on the
-    corresponding state of the underlying system.
 
     For example, we can use this to derivate the dynamics of a probability of
     an ensemble of random walkers on the karate club network (this results in a
@@ -349,15 +401,24 @@ class MarkovChain(LinearSystem):
 
     """
 
-    def __init__(self, baseDynamicalSystem):
-        if not isinstance(baseDynamicalSystem, DiscreteStateSystemBase):
-            raise Exception('Base dynamical system must be discrete state ' +
-                            'and have a trans transition matrix property')
-        self.baseDynamicalSystem = baseDynamicalSystem
-        super(MarkovChain, self).__init__(
-            updateOperator=baseDynamicalSystem.trans,
-            updateCls=baseDynamicalSystem.transCls,
-            discrete_time=baseDynamicalSystem.discrete_time)
+    """This is a base class for discrete-state dynamical systems.  It provides
+    a transition matrix indicating transitions between system states.
+
+    Parameters
+    ----------
+    transCls : {:class:`dynpy.mx.DenseMatrix`, :class:`dynpy.mx.SparseMatrix`}, optional
+        Whether to use sparse or dense matrices for the transition matrix.
+        Default set by `dynpy.dynsys.DEFAULT_TRANSMX_CLASS`
+    discrete_time : bool, optional
+        Whether updating should be done using discrete (default) or continuous
+        time dynamics.
+    """
+
+
+    def __init__(self, updateCls=None, discrete_time=True, underlyingstates=None):
+        super(MarkovChain, self).__init__(updateCls=updateCls, 
+                                          discrete_time=discrete_time)
+        self.underlyingstates = underlyingstates
 
     def equilibriumState(self):
         """Get equilibrium state (i.e. the stable, equilibrium distribution)
@@ -378,72 +439,8 @@ class MarkovChain(LinearSystem):
 
     def getUniformDistribution(self):
         """Gets uniform starting distribution over all system states"""
-        return np.ones(self.num_vars) / float(self.num_vars)
-
-
-class DiscreteStateSystemBase(DynamicalSystemBase):
-    """This is a base class for discrete-state dynamical systems.  It provides
-    a transition matrix indicating transitions between system states.
-
-    Parameters
-    ----------
-    num_vars : int, optional
-        How many variables (i.e., how many 'dimensions' or 'nodes' are in the
-        dynamical system). Default is 1
-    var_names : list, optional
-        Names for the variables (optional).  Default is simply the numeric
-        indexes of the variables.
-    transCls : {:class:`dynpy.mx.DenseMatrix`, :class:`dynpy.mx.SparseMatrix`}, optional
-        Whether to use sparse or dense matrices for the transition matrix.
-        Default set by `dynpy.dynsys.DEFAULT_TRANSMX_CLASS`
-    discrete_time : bool, optional
-        Whether updating should be done using discrete (default) or continuous
-        time dynamics.
-    state_dtypes : str, optional
-        A name of a NumPy datatype which should be used to store the values of
-        each variable (default set by `DEFAULT_STATE_DTYPE`)
-
-    """
-
-    #: The transition matrix, either as a ``numpy.array`` (for dense
-    #: representations) or ``scipy.sparse`` matrix (for sparse representations).
-    #: Any subclass needs to implement.
-    trans = None   #: Transition matrix of dynamical system.
-
-    #: One of {:class:`dynpy.mx.DenseMatrix`, :class:`dynpy.mx.SparseMatrix`},
-    #: indicates whether to use sparse or dense matrices for the transition
-    #: matrix.  Default set by `dynpy.dynsys.DEFAULT_TRANSMX_CLASS`
-    transCls = DEFAULT_TRANSMX_CLASS
-
-    #: ``(num_states, num_vars)``-shaped matrix which maps from integer state
-    #: indexes to their representations in terms of the values of the system
-    #: variables.  Any subclass needs to implement.
-    ndx2stateMx = None
-
-    def __init__(self, num_vars, var_names=None, transCls=None,
-                 discrete_time=True, state_dtypes=None):
-        super(DiscreteStateSystemBase, self).__init__(
-            num_vars=num_vars, var_names=var_names, discrete_time=discrete_time,
-            state_dtypes=state_dtypes)
-        if transCls is not None:
-            self.transCls = transCls
-        self._state2ndxDict = None
-
-    def state2ndx(self, state):
-        """Function which maps from multidimensional states of variables
-        (`state`) to single-integer state indexes.
-        """
-        # TODOTEST
-        if self._state2ndxDict is None:
-            self._state2ndxDict = dict(
-                (mx.hash_np(row), ndx)
-                for ndx, row in enumerate(self.ndx2stateMx))
-
-        h = mx.hash_np(state.astype(self.cDataType))
-        try:
-            return self._state2ndxDict[h]
-        except KeyError:
-            raise KeyError('%r (hash=%s)' % (state, h))
+        N = self.updateOperator.shape[0]
+        return np.ones(N) / float(N)
 
     def checkTransitionMatrix(self, trans):
         """Internally used function that checks the integrity/format of
@@ -470,7 +467,7 @@ class DiscreteStateSystemBase(DynamicalSystemBase):
             The state transition graph, in the form of an igraph Graph object
         """
         import igraph
-        return igraph.Graph(list(zip(*self.trans.nonzero())), directed=True)
+        return igraph.Graph(list(zip(*self.updateOperator.nonzero())), directed=True)
 
     def getAttractorsAndBasins(self):
         """Computes the attractors and basins of the current discrete-state
@@ -490,9 +487,9 @@ class DiscreteStateSystemBase(DynamicalSystemBase):
 
         STG = self.stgIgraph()
 
-        multistepDyn = self.transCls.pow(self.trans, TRANSIENT_LENGTH)
+        multistepDyn = self.updateCls.pow(self.updateOperator, TRANSIENT_LENGTH)
         attractorStates = np.ravel(
-            self.transCls.make2d(multistepDyn.sum(axis=0)).nonzero()[1])
+            self.updateCls.make2d(multistepDyn.sum(axis=0)).nonzero()[1])
 
         basins = collections.defaultdict(list)
         for attState in attractorStates:
@@ -505,3 +502,34 @@ class DiscreteStateSystemBase(DynamicalSystemBase):
         return [basinAtts[b]   for b in bySizeOrder], \
                [list(basinStates[b]) for b in bySizeOrder]
 
+class MarkovChainSampler(DynamicalSystemBase):
+    def __init__(self, markov_chain):
+        if markov_chain.discrete_time == False:
+            raise Exception('Can only sample from discrete-time MCs')
+        self.markov_chain = markov_chain
+        print(self.markov_chain.underlyingstates)
+        super(MarkovChainSampler, self).__init__(discrete_time=True)
+
+    def states(self):
+        raise xrange(self.markov_chain.updateOperator.shape[0])
+
+    def _iterateOneStepDiscrete(self, startState):
+        mc = self.markov_chain
+        initStateDist = np.zeros(mc.updateOperator.shape[0], 'float')
+        initStateDist[ startState ] = 1
+
+
+        probs = mc.iterateOneStep(initStateDist)
+        probs = np.ravel(mc.updateCls.toDense(probs))
+        num_states = self.markov_chain.updateOperator.shape[0]
+        r = np.random.choice(np.arange(num_states), None, replace=True, p=probs)
+        print(r)
+        print(list(self.markov_chain.underlyingstates())[r])
+        return self.markov_chain.ndx2state(r)
+
+    def _iterateContinuous(self, startState, max_time = 1.0):
+        raise NotImplementedError
+
+
+
+    

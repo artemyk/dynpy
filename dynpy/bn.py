@@ -30,8 +30,7 @@ def int2tuple(i, num_places):
     """
     return np.array(list(bin(i)[2:].rjust(num_places, '0')), dtype='uint8')
 
-
-class BooleanNetwork(dynsys.DiscreteStateSystemBase):
+class BooleanNetwork(dynsys.MultivariateSystem, dynsys.MarkovChain):
 
     """
     A class for Boolean Network dynamical systems.
@@ -87,11 +86,12 @@ class BooleanNetwork(dynsys.DiscreteStateSystemBase):
         self.rules = rules
         num_vars = len(self.rules)
 
-        super(BooleanNetwork, self).__init__(num_vars=num_vars,
-                                             var_names=var_names,
-                                             transCls=transCls,
-                                             discrete_time=True,
-                                             state_dtypes='uint8')
+        dynsys.MarkovChain.__init__(self,
+                                                transCls=transCls,
+                                                discrete_time=True)
+        dynsys.MultivariateSystem.__init__(self, 
+                                           num_vars=num_vars, 
+                                           var_names=var_names)
 
         ALLOWED_MODES = ['TRUTHTABLES', 'FUNCS']
         if mode not in ALLOWED_MODES:
@@ -113,6 +113,16 @@ class BooleanNetwork(dynsys.DiscreteStateSystemBase):
 
         self.state2ndx = tuple2int
 
+    @caching.cached_data_prop
+    def ndx2stateMx(self):
+        """``(num_states, num_vars)``-shaped matrix that maps from state indexes
+        to representations in terms of activations of the Boolean variables.
+        """
+        num_states = 2**self.num_vars
+        state_iter = itertools.chain(*self.statespace_iter())
+        ndx2stateMx = np.fromiter(state_iter, dtype='u1')
+        return np.reshape(ndx2stateMx, newshape=(num_states, self.num_vars))        
+
     def _getVarNextStateTT(self, varIndex, inputs):
         """Execute update rule when network is specified using truthtables.
         Repointed in constructor."""
@@ -123,16 +133,9 @@ class BooleanNetwork(dynsys.DiscreteStateSystemBase):
         Repointed in constructor."""
         return self.rules[varIndex][2](*inputs)
 
-    @caching.cached_data_prop
-    def ndx2stateMx(self):
-        """``(num_states, num_vars)``-shaped matrix that maps from state indexes
-        to representations in terms of activations of the Boolean variables.
-        """
+    def statespace_iter(self):
         num_states = 2**self.num_vars
-        state_iter = itertools.chain(* (int2tuple(s, self.num_vars)
-                                        for s in range(num_states)) )
-        ndx2stateMx = np.fromiter(state_iter, dtype='u1')
-        return np.reshape(ndx2stateMx, newshape=(num_states, self.num_vars))
+        return (int2tuple(s, self.num_vars) for s in xrange(num_states))
 
     @caching.cached_data_prop
     def trans(self):
@@ -236,5 +239,4 @@ class BooleanNetwork(dynsys.DiscreteStateSystemBase):
             ix1 = self.var_name_ndxs[var]
             for i in inputs:
                 mx[self.var_name_ndxs[self.rules[i][0]]][ix1] = 1.0
-
 

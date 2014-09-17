@@ -9,7 +9,7 @@ import numpy as np
 
 from . import dynsys
 
-class RandomWalker(dynsys.DiscreteStateSystemBase):
+class RandomWalker(dynsys.MultivariateSystem, dynsys.MarkovChain):
     """This intializes a stochastic dynamical system representing a random
     walker on a graph.
 
@@ -37,27 +37,27 @@ class RandomWalker(dynsys.DiscreteStateSystemBase):
     #: variables.
     ndx2stateMx  = None
 
+    def underlyingstates(self):
+        print('called')
+        for startState in xrange(self.num_vars):
+            i = np.zeros(self.updateOperator.shape[0], 'float')
+            i[ startState ] = 1
+            yield i
+
     def __init__(self, graph, discrete_time=True, transCls=None):
         self.cDataType = 'uint8'
         num_vars = graph.shape[0]
-        super(RandomWalker, self).__init__(num_vars,
-            discrete_time=discrete_time, transCls=transCls,
-            state_dtypes=self.cDataType)
         graph = np.asarray(graph).astype('double')
         trans = graph / np.atleast_2d( graph.sum(axis=1) ).T
+        dynsys.MarkovChain.__init__(self,
+            discrete_time=discrete_time, updateCls=transCls)
+        dynsys.MultivariateSystem.__init__(self, num_vars=num_vars)
 
         if not discrete_time:
             trans = trans - np.eye(*trans.shape)
 
-        self.trans      = self.transCls.finalizeMx( trans )
-        self.checkTransitionMatrix(self.trans)
-        self.denseTrans = self.transCls.toDense(self.trans)
+        self.updateOperator = self.updateCls.finalizeMx( trans )
+        self.checkTransitionMatrix(self.updateOperator)
+        self.denseTrans = self.updateCls.toDense(self.updateOperator)
         self.ndx2stateMx = np.eye(num_vars).astype(self.cDataType)
 
-    def _iterateOneStepDiscrete(self, startState):
-        probs = np.ravel( self.denseTrans[self.state2ndx(startState),:] )
-        nextState = np.random.choice(self.num_vars, None, replace=True, p=probs)
-        return self.ndx2stateMx[nextState, :]
-
-    def _iterateContinuous(self, startState, max_time = 1.0):
-        raise NotImplementedError
