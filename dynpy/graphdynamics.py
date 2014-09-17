@@ -8,41 +8,40 @@ if sys.version_info >= (3, 0):
 import numpy as np
 
 from . import dynsys
-from . import mx
 
 class RandomWalker(dynsys.DiscreteStateSystemBase):
-    """This intializes a stochastic dynamical system representing a random 
+    """This intializes a stochastic dynamical system representing a random
     walker on a graph.
 
     Parameters
     ----------
     graph : numpy array
-        Matrix representing the adjacency or weighted connectivity of the 
+        Matrix representing the adjacency or weighted connectivity of the
         underlying graph
     discrete_time : bool, optional
-        Whether walker should follow discrete (default) or continuous time 
-        dynamics.  Only discrete time dynamics are supported for individual 
+        Whether walker should follow discrete (default) or continuous time
+        dynamics.  Only discrete time dynamics are supported for individual
         walkers, though a distribution of walkers created using the
         :class:`dynpy.dynsys.MarkovChain` supports both.
-    transCls : {:class:`dynpy.mx.DenseMatrix`, :class:`dynpy.mx.SparseMatrix`}, optional 
-        Wether to use sparse or dense matrices for the transition matrix.  
+    transCls : {:class:`dynpy.mx.DenseMatrix`, :class:`dynpy.mx.SparseMatrix`}, optional
+        Wether to use sparse or dense matrices for the transition matrix.
         Default set by `dynpy.dynsys.DEFAULT_TRANSMX_CLASS`
 
     """
 
     #: Transition matrix of random walker system
-    trans = None   
+    trans = None
 
-    #: ``(num_states, num_vars)``-shaped matrix which maps from integer state 
-    #: indexes to their representations in terms of the values of the system 
-    #: variables. 
+    #: ``(num_states, num_vars)``-shaped matrix which maps from integer state
+    #: indexes to their representations in terms of the values of the system
+    #: variables.
     ndx2stateMx  = None
 
     def __init__(self, graph, discrete_time=True, transCls=None):
         self.cDataType = 'uint8'
         num_vars = graph.shape[0]
-        super(RandomWalker, self).__init__(num_vars, 
-            discrete_time=discrete_time, transCls=transCls, 
+        super(RandomWalker, self).__init__(num_vars,
+            discrete_time=discrete_time, transCls=transCls,
             state_dtypes=self.cDataType)
         graph = np.asarray(graph).astype('double')
         trans = graph / np.atleast_2d( graph.sum(axis=1) ).T
@@ -52,7 +51,7 @@ class RandomWalker(dynsys.DiscreteStateSystemBase):
 
         self.trans      = self.transCls.finalizeMx( trans )
         self.checkTransitionMatrix(self.trans)
-        self.denseTrans = self.transCls.toDense(self.trans)        
+        self.denseTrans = self.transCls.toDense(self.trans)
         self.ndx2stateMx = np.eye(num_vars).astype(self.cDataType)
 
     def _iterateOneStepDiscrete(self, startState):

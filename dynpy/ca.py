@@ -6,10 +6,9 @@ if sys.version_info >= (3, 0):
     xrange = range
 
 from . import bn
-from . import dynsys
 
 class CellularAutomaton(bn.BooleanNetwork):
-    """Cellular automaton object.  Constructs an underlying 
+    """Cellular automaton object.  Constructs an underlying
     :class:`dynpy.bn.BooleanNetwork` on a lattice and with a homogenous update
     function.  Implements periodic boundary conditions.
 
@@ -40,10 +39,10 @@ class CellularAutomaton(bn.BooleanNetwork):
     num_neighbors : int
         Number of neighbors that the update rule depends on
     ca_rule_number : int
-        The update rule, specified as a number representing the truth table of 
+        The update rule, specified as a number representing the truth table of
         each node
-    transCls : {:class:`dynpy.mx.DenseMatrix`, :class:`dynpy.mx.SparseMatrix`}, optional 
-        Wether to use sparse or dense matrices for the transition matrix.  
+    transCls : {:class:`dynpy.mx.DenseMatrix`, :class:`dynpy.mx.SparseMatrix`}, optional
+        Wether to use sparse or dense matrices for the transition matrix.
         Default set by `dynpy.dynsys.DEFAULT_TRANSMX_CLASS`
 
     """
@@ -51,7 +50,7 @@ class CellularAutomaton(bn.BooleanNetwork):
         truth_table = bn.int2tuple(ca_rule_number, 2**(2*num_neighbors+1))
         rules = []
         for i in range(num_vars):
-            conns = [(i+n) % num_vars 
+            conns = [(i+n) % num_vars
                      for n in xrange(-num_neighbors, num_neighbors+1)]
             rules.append([i, conns, truth_table])
         super(CellularAutomaton,self).__init__(rules=rules, transCls=transCls)

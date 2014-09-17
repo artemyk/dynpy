@@ -1,5 +1,5 @@
-"""Module which provides a consistent interface for working with both dense 
-arrays and sparse matrices. Also constains some utility functions for working 
+"""Module which provides a consistent interface for working with both dense
+arrays and sparse matrices. Also constains some utility functions for working
 with matrices.
 """
 from __future__ import division, print_function, absolute_import
@@ -32,7 +32,7 @@ def todense(mx):
         return np.asarray(mx)
 
 def hash_np(mx):
-    """Provide a hash value for matrix or array (useful for using them as 
+    """Provide a hash value for matrix or array (useful for using them as
     dictionary keys, for example)
     """
     return hashlib.sha1(mx).hexdigest()
@@ -106,7 +106,7 @@ class MxBase(object):
 
 
 class SparseMatrix(MxBase):
-    """Class for sparse matrix operations.  See documentation for 
+    """Class for sparse matrix operations.  See documentation for
     :class:`dynpy.mx.MxBase` for description of methods.
     """
     @classmethod
@@ -149,8 +149,8 @@ class SparseMatrix(MxBase):
         return mx.todense()
 
 
-class DenseMatrix(MxBase):        
-    """Class for dense matrix operations.  See documentation for 
+class DenseMatrix(MxBase):
+    """Class for dense matrix operations.  See documentation for
     :class:`dynpy.mx.MxBase` for description of methods.
     """
     @classmethod
@@ -159,6 +159,7 @@ class DenseMatrix(MxBase):
 
     @classmethod
     def getLargestRightEigs(cls, mx):
+        vals, vecsR = scipy.linalg.eig(mx, right=True, left=False)
         vals, vecsR = scipy.linalg.eig(mx, right=True, left=False)
         return vals, vecsR
 
@@ -186,7 +187,7 @@ class DenseMatrix(MxBase):
 
     @classmethod
     def make2d(cls, mx):
-        return np.atleast_2d(mx) 
+        return np.atleast_2d(mx)
 
     @classmethod
     def toDense(cls, mx):

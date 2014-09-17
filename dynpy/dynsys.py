@@ -1,10 +1,9 @@
-"""Module implementing some base classes useful for implementing dynamical 
+"""Module implementing some base classes useful for implementing dynamical
 systems"""
 
 from __future__ import division, print_function, absolute_import
 
 import collections
-import operator
 import sys
 if sys.version_info < (3,):
     range = xrange
@@ -28,35 +27,35 @@ class DynamicalSystemBase(object):
     Parameters
     ----------
     num_vars : int, optional
-        How many variables (i.e., how many 'dimensions' or 'nodes' are in the 
+        How many variables (i.e., how many 'dimensions' or 'nodes' are in the
         dynamical system). Default is 1
     var_names : list, optional
-        Names for the variables (optional).  Default is simply the numeric 
+        Names for the variables (optional).  Default is simply the numeric
         indexes of the variables.
     discrete_time : bool, optional
-        Whether updating should be done using discrete (default) or continuous 
+        Whether updating should be done using discrete (default) or continuous
         time dynamics.
     state_dtypes : str, optional
-        A name of a NumPy datatype which should be used to store the values of 
+        A name of a NumPy datatype which should be used to store the values of
         each variable (default set by `DEFAULT_STATE_DTYPE`)
 
     """
 
     #: The number of variables in the dynamical system
-    num_vars = None  
+    num_vars = None
 
     #: The numpy data types of variable states in the dynamical system
-    state_dtypes = DEFAULT_STATE_DTYPE  
+    state_dtypes = DEFAULT_STATE_DTYPE
 
     #: Whether the dynamical system obeys discrete- or continuous-time dynamics
-    discrete_time = True 
+    discrete_time = True
 
-    def __init__(self, num_vars=1, var_names=None, discrete_time=True, 
+    def __init__(self, num_vars=1, var_names=None, discrete_time=True,
                  state_dtypes=None):
 
         self.num_vars = num_vars
 
-        self.var_names = tuple(var_names if var_names is not None 
+        self.var_names = tuple(var_names if var_names is not None
                                else range(self.num_vars))
         """The names of the variables in the dynamical system"""
 
@@ -72,23 +71,23 @@ class DynamicalSystemBase(object):
         else:
             self.iterate = self._iterateContinuous
 
-    # Make this a cached property so its not necessarily run every time a 
+    # Make this a cached property so its not necessarily run every time a
     # dynamical systems object is created, whether we need it or not
     @caching.cached_data_prop
     def var_name_ndxs(self):
         """A mapping from variables names to their indexes
         """
-        return dict((l, ndx) for ndx, l in enumerate(self.var_names)) 
+        return dict((l, ndx) for ndx, l in enumerate(self.var_names))
 
     def iterate(self, startState, max_time):
 
-        """This method runs the dynamical system for `max_time` starting from 
-        `startState` and returns the result.  In fact, this method is set at 
-        run-time by the constructor to either `_iterateDiscrete` or 
-        `_iterateContinuous` depending on whether the dynamical system object 
+        """This method runs the dynamical system for `max_time` starting from
+        `startState` and returns the result.  In fact, this method is set at
+        run-time by the constructor to either `_iterateDiscrete` or
+        `_iterateContinuous` depending on whether the dynamical system object
         is initialized with `discrete_time=True` or `discrete_time=False`. Thus,
         sub-classes should override `_iterateDiscrete` and `_iterateContinuous`
-        instead of this method.  See also 
+        instead of this method.  See also
         :meth:`dynpy.dynsys.DynamicalSystemBase.iterateOneStep`
 
         Parameters
@@ -96,7 +95,7 @@ class DynamicalSystemBase(object):
         startState : numpy array or scipy.sparse matrix
             Which state to start from
         max_time : float
-            Until which point to run the dynamical system (number of iterations 
+            Until which point to run the dynamical system (number of iterations
             for discrete-time systems or time limit for continuous-time systems)
 
         Returns
@@ -104,12 +103,12 @@ class DynamicalSystemBase(object):
         numpy array or scipy.sparse matrix
             End state
         """
-        raise NotImplementedError  
+        raise NotImplementedError
         # this method should be re-pointed in the construtor
 
     def iterateOneStep(self, startState):
         """
-        This method runs a discrete-time dynamical system for 1 timestep. At 
+        This method runs a discrete-time dynamical system for 1 timestep. At
         run-time, the construct either repoints this method to `_iterateOneStep`
         for discrete-time systems, or removes it for continuous time systems.
 
@@ -141,13 +140,13 @@ class DynamicalSystemBase(object):
                 cState = self.iterateOneStep(cState)
             return cState
 
-    def getTrajectory(self, startState, max_time, num_points=None, 
+    def getTrajectory(self, startState, max_time, num_points=None,
                       logscale=False):
-        """This method get a trajectory (i.e. matrix ) runs a discrete-time 
-        dynamical system for 1 timestep. 
+        """This method get a trajectory (i.e. matrix ) runs a discrete-time
+        dynamical system for 1 timestep.
 
-        At run-time, the construct either repoints this method to 
-        `_iterateOneStep` for discrete-time systems, or removes it for 
+        At run-time, the construct either repoints this method to
+        `_iterateOneStep` for discrete-time systems, or removes it for
         continuous time systems.
 
         Parameters
@@ -158,7 +157,7 @@ class DynamicalSystemBase(object):
             Until which point to run the dynamical system (number of iterations
             for discrete-time systems or time limit for continuous-time systems)
         num_timepoints : int, optional
-            How many timepoints to sample the trajectory at.  In other words, 
+            How many timepoints to sample the trajectory at.  In other words,
             how big each 'step size' is. By default, equal to ``int(max_time)``
         logscale : bool, optional
             Whether to sample the timepoints on a logscale or not (default)
@@ -173,12 +172,12 @@ class DynamicalSystemBase(object):
             num_points = int(max_time)
 
         if logscale:
-            timepoints = np.logspace(0, np.log10(max_time), num=num_points, 
+            timepoints = np.logspace(0, np.log10(max_time), num=num_points,
                                      endpoint=True, base=10.0)
         else:
             timepoints = np.linspace(0, max_time, num=num_points, endpoint=True)
 
-        returnTrajectory = np.zeros((len(timepoints), self.num_vars), 
+        returnTrajectory = np.zeros((len(timepoints), self.num_vars),
                                     self.state_dtypes)
 
         cState = startState
@@ -195,24 +194,24 @@ class DynamicalSystemBase(object):
 
 class LinearSystem(DynamicalSystemBase):
     # TODOTESTS
-    """This class implements linear dynamical systems, whether continuous or 
-    discrete-time.  It is also used by :class:`dynpy.dynsys.MarkovChain` to 
+    """This class implements linear dynamical systems, whether continuous or
+    discrete-time.  It is also used by :class:`dynpy.dynsys.MarkovChain` to
     implement Markov Chain (discrete-case) or  master equation (continuous-case)
     dynamics.
 
-    For attribute definitions, see documentation of 
+    For attribute definitions, see documentation of
     :class:`dynpy.dynsys.DynamicalSystemBase`.
 
     Parameters
     ----------
     updateOperator : numpy array or scipy.sparse matrix
-        Matrix defining the evolution of the dynamical system, i.e. the 
-        :math:`\\mathbf{A}` in 
-        :math:`\\mathbf{x_{t+1}} = \\mathbf{x_{t}}\\mathbf{A}` (in the 
-        discrete-time case) or 
-        :math:`\\dot{\\mathbf{x}} = \\mathbf{x}\\mathbf{A}` (in the 
-        continuous-time case) 
-    updateCls : {:class:`dynpy.mx.DenseMatrix`, :class:`dynpy.mx.SparseMatrix`}, optional 
+        Matrix defining the evolution of the dynamical system, i.e. the
+        :math:`\\mathbf{A}` in
+        :math:`\\mathbf{x_{t+1}} = \\mathbf{x_{t}}\\mathbf{A}` (in the
+        discrete-time case) or
+        :math:`\\dot{\\mathbf{x}} = \\mathbf{x}\\mathbf{A}` (in the
+        continuous-time case)
+    updateCls : {:class:`dynpy.mx.DenseMatrix`, :class:`dynpy.mx.SparseMatrix`}, optional
         Whether to use sparse or dense matrices for the update operator matrix.
         Default set by `dynpy.dynsys.DEFAULT_TRANSMX_CLASS`
     var_names : list, optional
@@ -226,10 +225,10 @@ class LinearSystem(DynamicalSystemBase):
         each variable (default set by `DEFAULT_STATE_DTYPE`)
     """
 
-    def __init__(self, updateOperator, updateCls=None, var_names=None, 
+    def __init__(self, updateOperator, updateCls=None, var_names=None,
                  discrete_time=True, state_dtypes=None):
         super(LinearSystem, self).__init__(
-            num_vars=updateOperator.shape[0], var_names=var_names, 
+            num_vars=updateOperator.shape[0], var_names=var_names,
             discrete_time=discrete_time, state_dtypes=state_dtypes)
         self.updateOperator = updateOperator
         if updateCls is None:
@@ -252,12 +251,12 @@ class LinearSystem(DynamicalSystemBase):
         vals, vecs = self.updateCls.getLargestLeftEigs(self.updateOperator)
         equil_evals = np.flatnonzero(np.abs(vals-self.stableEigenvalue) < 1e-8)
         if len(equil_evals) != 1:
-            raise Exception("Expected one stable eigenvalue, but found " + 
+            raise Exception("Expected one stable eigenvalue, but found " +
                             "%d instead (%s)" % (len(equil_evals), equil_evals))
 
         equilibriumState = np.real_if_close(np.ravel(vecs[equil_evals, :]))
         if np.any(np.iscomplex(equil_evals)):
-            raise Exception("Expect equilibrium state to be real! %s" % 
+            raise Exception("Expect equilibrium state to be real! %s" %
                             equil_evals)
 
         return self.updateCls.formatMx(equilibriumState)
@@ -288,22 +287,22 @@ class LinearSystem(DynamicalSystemBase):
 
 
 class MarkovChain(LinearSystem):
-    """This class implements a Markov Chain over the state-transition graph of 
-    an underlying dynamical system, specified by the `baseDynamicalSystem` 
-    parameter.  It maintains properties of the underlying system, such as the 
-    sparsity of the state transition matrix, and whether the system is discrete 
+    """This class implements a Markov Chain over the state-transition graph of
+    an underlying dynamical system, specified by the `baseDynamicalSystem`
+    parameter.  It maintains properties of the underlying system, such as the
+    sparsity of the state transition matrix, and whether the system is discrete
     or continuous-time.  The underlying system must be an instance of
-    :class:`dynpy.dynsys.DiscreteStateSystemBase` and provide a transition 
+    :class:`dynpy.dynsys.DiscreteStateSystemBase` and provide a transition
     matrix in the form of a `trans` property.
 
-    It generates a Markov chain (or, in the continuous-time case, master 
-    equation) over the states of the underlying system. Each state of the 
+    It generates a Markov chain (or, in the continuous-time case, master
+    equation) over the states of the underlying system. Each state of the
     underlying system is now assigned to a separate variable in the Markov chain
-    system; the value of each variable is the probability mass on the 
+    system; the value of each variable is the probability mass on the
     corresponding state of the underlying system.
 
-    For example, we can use this to derivate the dynamics of a probability of 
-    an ensemble of random walkers on the karate club network (this results in a 
+    For example, we can use this to derivate the dynamics of a probability of
+    an ensemble of random walkers on the karate club network (this results in a
     heat-equation type system):
 
     >>> import dynpy
@@ -311,14 +310,14 @@ class MarkovChain(LinearSystem):
     >>> kc = dynpy.sample_nets.karateclub_net
     >>> rw = dynpy.graphdynamics.RandomWalker(graph=kc, transCls=dynpy.mx.DenseMatrix)
     >>> rwEnsemble = dynpy.dynsys.MarkovChain(rw)
-    >>> 
+    >>>
     >>> initState = np.zeros(rw.num_vars)
     >>> initState[ 5 ] = 1
-    >>> 
+    >>>
     >>> trajectory = rwEnsemble.getTrajectory(initState, max_time=2)[1,1]
 
     It can also be done for a Boolean network:
-    
+
     >>> import dynpy
     >>> yeast = dynpy.sample_nets.yeast_cellcycle_bn
     >>> bn = dynpy.bn.BooleanNetwork(rules=yeast, transCls=dynpy.mx.SparseMatrix)
@@ -326,8 +325,8 @@ class MarkovChain(LinearSystem):
     >>> init = bnEnsemble.getUniformDistribution()
     >>> trajectory = bnEnsemble.getTrajectory(init, max_time=80)
 
-    If we wish to project the state of the Markov chain back onto the 
-    activations of the variables in the underlying system, we can use the 
+    If we wish to project the state of the Markov chain back onto the
+    activations of the variables in the underlying system, we can use the
     `ndx2stateMx` matrix of the underlying system. For example:
 
     >>> import dynpy
@@ -345,8 +344,8 @@ class MarkovChain(LinearSystem):
     Parameters
     ----------
     baseDynamicalSystem : :class:`dynpy.dynsys.DiscreteStateSystemBase`
-        an object containing the underlying dynamical system over which an 
-        ensemble will be created.  
+        an object containing the underlying dynamical system over which an
+        ensemble will be created.
 
     """
 
@@ -356,12 +355,12 @@ class MarkovChain(LinearSystem):
                             'and have a trans transition matrix property')
         self.baseDynamicalSystem = baseDynamicalSystem
         super(MarkovChain, self).__init__(
-            updateOperator=baseDynamicalSystem.trans, 
-            updateCls=baseDynamicalSystem.transCls, 
+            updateOperator=baseDynamicalSystem.trans,
+            updateCls=baseDynamicalSystem.transCls,
             discrete_time=baseDynamicalSystem.discrete_time)
 
     def equilibriumState(self):
-        """Get equilibrium state (i.e. the stable, equilibrium distribution) 
+        """Get equilibrium state (i.e. the stable, equilibrium distribution)
         for this dynamical system.  Uses eigen-decomposition.
 
         Returns
@@ -389,30 +388,30 @@ class DiscreteStateSystemBase(DynamicalSystemBase):
     Parameters
     ----------
     num_vars : int, optional
-        How many variables (i.e., how many 'dimensions' or 'nodes' are in the 
+        How many variables (i.e., how many 'dimensions' or 'nodes' are in the
         dynamical system). Default is 1
     var_names : list, optional
-        Names for the variables (optional).  Default is simply the numeric 
+        Names for the variables (optional).  Default is simply the numeric
         indexes of the variables.
-    transCls : {:class:`dynpy.mx.DenseMatrix`, :class:`dynpy.mx.SparseMatrix`}, optional 
-        Whether to use sparse or dense matrices for the transition matrix.  
+    transCls : {:class:`dynpy.mx.DenseMatrix`, :class:`dynpy.mx.SparseMatrix`}, optional
+        Whether to use sparse or dense matrices for the transition matrix.
         Default set by `dynpy.dynsys.DEFAULT_TRANSMX_CLASS`
     discrete_time : bool, optional
-        Whether updating should be done using discrete (default) or continuous 
+        Whether updating should be done using discrete (default) or continuous
         time dynamics.
     state_dtypes : str, optional
-        A name of a NumPy datatype which should be used to store the values of 
+        A name of a NumPy datatype which should be used to store the values of
         each variable (default set by `DEFAULT_STATE_DTYPE`)
 
     """
 
-    #: The transition matrix, either as a ``numpy.array`` (for dense 
-    #: representations) or ``scipy.sparse`` matrix (for sparse representations). 
+    #: The transition matrix, either as a ``numpy.array`` (for dense
+    #: representations) or ``scipy.sparse`` matrix (for sparse representations).
     #: Any subclass needs to implement.
     trans = None   #: Transition matrix of dynamical system.
 
-    #: One of {:class:`dynpy.mx.DenseMatrix`, :class:`dynpy.mx.SparseMatrix`}, 
-    #: indicates whether to use sparse or dense matrices for the transition 
+    #: One of {:class:`dynpy.mx.DenseMatrix`, :class:`dynpy.mx.SparseMatrix`},
+    #: indicates whether to use sparse or dense matrices for the transition
     #: matrix.  Default set by `dynpy.dynsys.DEFAULT_TRANSMX_CLASS`
     transCls = DEFAULT_TRANSMX_CLASS
 
@@ -421,7 +420,7 @@ class DiscreteStateSystemBase(DynamicalSystemBase):
     #: variables.  Any subclass needs to implement.
     ndx2stateMx = None
 
-    def __init__(self, num_vars, var_names=None, transCls=None, 
+    def __init__(self, num_vars, var_names=None, transCls=None,
                  discrete_time=True, state_dtypes=None):
         super(DiscreteStateSystemBase, self).__init__(
             num_vars=num_vars, var_names=var_names, discrete_time=discrete_time,
@@ -437,7 +436,7 @@ class DiscreteStateSystemBase(DynamicalSystemBase):
         # TODOTEST
         if self._state2ndxDict is None:
             self._state2ndxDict = dict(
-                (mx.hash_np(row), ndx) 
+                (mx.hash_np(row), ndx)
                 for ndx, row in enumerate(self.ndx2stateMx))
 
         h = mx.hash_np(state.astype(self.cDataType))
@@ -447,11 +446,11 @@ class DiscreteStateSystemBase(DynamicalSystemBase):
             raise KeyError('%r (hash=%s)' % (state, h))
 
     def checkTransitionMatrix(self, trans):
-        """Internally used function that checks the integrity/format of 
+        """Internally used function that checks the integrity/format of
         transition matrices.
         """
         if trans.shape[0] != trans.shape[1]:
-            raise Exception('Expect square transition matrix (got %s)' % 
+            raise Exception('Expect square transition matrix (got %s)' %
                             trans.shape)
         sums = mx.todense(trans.sum(axis=1))
         if self.discrete_time:
@@ -474,13 +473,13 @@ class DiscreteStateSystemBase(DynamicalSystemBase):
         return igraph.Graph(list(zip(*self.trans.nonzero())), directed=True)
 
     def getAttractorsAndBasins(self):
-        """Computes the attractors and basins of the current discrete-state 
-        dynamical system. 
+        """Computes the attractors and basins of the current discrete-state
+        dynamical system.
 
         Returns
-        ------- 
+        -------
         basinAtts : list of lists
-            A list of the the attractor states for each basin (basin order is 
+            A list of the the attractor states for each basin (basin order is
             from largest basin to smallest).
 
         basinStates : list of lists
@@ -503,7 +502,6 @@ class DiscreteStateSystemBase(DynamicalSystemBase):
         basinAtts = list(basins.values())
         basinStates = list(basins.keys())
         bySizeOrder = np.argsort(list(map(len, basinStates)))[::-1]
-        return [basinAtts[b] 
-                for b in bySizeOrder], [basinStates[b] 
-                for b in bySizeOrder]
+        return [basinAtts[b]   for b in bySizeOrder], \
+               [list(basinStates[b]) for b in bySizeOrder]
 

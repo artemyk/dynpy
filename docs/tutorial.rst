@@ -18,8 +18,8 @@ different kind of dynamical system.    The base classes are defined in
 Random walkers
 --------------
 
-:doc:`dynpy.graphdynamics` provides tools to study dynamics on graphs.  Here is a
-simple example of how to initialize and plot several steps of a random walker
+:doc:`dynpy.graphdynamics` provides tools to study dynamics on graphs.  Here is
+a simple example of how to initialize and plot several steps of a random walker
 on Zachary's karate club network
 
 .. plot::
@@ -42,7 +42,7 @@ on Zachary's karate club network
         cState = rw.iterate(cState)
 
     # Also possible, instead of for loop:
-    # spacetime = rw.getTrajectory(startState=cState, max_time=num_steps) 
+    # spacetime = rw.getTrajectory(startState=cState, max_time=num_steps)
 
     plt.spy(spacetime)
     plt.xlabel('Node')
@@ -104,7 +104,7 @@ underlying dynamical system. Using the previous example:
     initState = np.zeros(rw.num_vars, 'float')
     initState[ 5 ] = 1
     trajectory = rwMC.getTrajectory(startState=initState, max_time=30)
-    plt.imshow(trajectory, interpolation='none') 
+    plt.imshow(trajectory, interpolation='none')
     plt.xlabel('Node')
     plt.ylabel('Time')
 
@@ -136,7 +136,7 @@ Li et al, The yeast cell-cycle network is robustly designed, PNAS, 2004.
 http://www.pnas.org/content/101/14/4781.full.pdf
 
 
-.. plot:: 
+.. plot::
    :include-source:
 
     import numpy as np, matplotlib.pyplot as plt
@@ -226,7 +226,7 @@ we can do the following:
     bnProbs = t.dot(bn.ndx2stateMx)
 
     # plot
-    plt.imshow(bnProbs, interpolation='none') 
+    plt.imshow(bnProbs, interpolation='none')
     plt.xlabel('Node')
     plt.ylabel('Time')
 
