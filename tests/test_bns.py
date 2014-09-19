@@ -6,13 +6,15 @@ def test_def_bns():
 		['x1', ['x1','x2'], [1,0,0,0]],
 		['x2', ['x1','x2'], [1,1,1,0]],
 	]
-	bn1 = dynpy.bn.BooleanNetwork(rules=r)
+	bn1base = dynpy.bn.BooleanNetwork(rules=r)
+	bn1 = dynpy.dynsys.MarkovChainFromDeterministicSystem(bn1base)
 
 	r2 = [
 		['x1', ['x1','x2'], lambda x1,x2: (x1 and x2) ],
 		['x2', ['x1','x2'], lambda x1,x2: (x1 or  x2) ],
 	]
-	bn2 = dynpy.bn.BooleanNetwork(rules=r)
+	bn2base = dynpy.bn.BooleanNetwork(rules=r)
+	bn2 = dynpy.dynsys.MarkovChainFromDeterministicSystem(bn2base)
 
 	assert((bn1.trans-bn2.trans).max() == 0.0 )
 	assert((bn1.trans-bn2.trans).min() == 0.0 )

@@ -9,7 +9,7 @@ import numpy as np
 
 from . import dynsys
 
-class RandomWalker(dynsys.MultivariateSystem, dynsys.MarkovChain):
+class RandomWalker(dynsys.MarkovChain):
     """This intializes a stochastic dynamical system representing a random
     walker on a graph.
 
@@ -37,21 +37,13 @@ class RandomWalker(dynsys.MultivariateSystem, dynsys.MarkovChain):
     #: variables.
     ndx2stateMx  = None
 
-    def underlyingstates(self):
-        print('called')
-        for startState in xrange(self.num_vars):
-            i = np.zeros(self.updateOperator.shape[0], 'float')
-            i[ startState ] = 1
-            yield i
-
     def __init__(self, graph, discrete_time=True, transCls=None):
         self.cDataType = 'uint8'
         num_vars = graph.shape[0]
         graph = np.asarray(graph).astype('double')
         trans = graph / np.atleast_2d( graph.sum(axis=1) ).T
-        dynsys.MarkovChain.__init__(self,
+        super(RandomWalker, self).__init__(updateOperator=trans,
             discrete_time=discrete_time, updateCls=transCls)
-        dynsys.MultivariateSystem.__init__(self, num_vars=num_vars)
 
         if not discrete_time:
             trans = trans - np.eye(*trans.shape)
@@ -61,3 +53,6 @@ class RandomWalker(dynsys.MultivariateSystem, dynsys.MarkovChain):
         self.denseTrans = self.updateCls.toDense(self.updateOperator)
         self.ndx2stateMx = np.eye(num_vars).astype(self.cDataType)
 
+    def underlyingstates(self):
+        for startState in xrange(self.num_vars):
+            yield tuple(0 if i != startState else 1 for i in xrange(self.num_vars))

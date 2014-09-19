@@ -30,7 +30,7 @@ def int2tuple(i, num_places):
     """
     return np.array(list(bin(i)[2:].rjust(num_places, '0')), dtype='uint8')
 
-class BooleanNetwork(dynsys.MultivariateSystem, dynsys.MarkovChain):
+class BooleanNetwork(dynsys.VectorDynamicalSystem):
 
     """
     A class for Boolean Network dynamical systems.
@@ -72,26 +72,18 @@ class BooleanNetwork(dynsys.MultivariateSystem, dynsys.MarkovChain):
         The definition of the Boolean network, as described above
     mode : {'TRUTHTABLES','FUNCS'}, optional
         Specifies how the update functions are defined, 'TRUTHTABLES' is default
-    transCls : {:class:`dynpy.mx.DenseMatrix`, :class:`dynpy.mx.SparseMatrix`}, optional
-        Whether to use sparse or dense matrices for the transition matrix.
-        Default set by `dynpy.dynsys.DEFAULT_TRANSMX_CLASS`
-
     """
 
     rules = None #: The provided definition of the Boolean network
 
-    def __init__(self, rules, mode='TRUTHTABLES', transCls=None):
+    def __init__(self, rules, mode='TRUTHTABLES'):
 
         var_names = [lbl for (lbl, inputs, table) in rules]
         self.rules = rules
         num_vars = len(self.rules)
 
-        dynsys.MarkovChain.__init__(self,
-                                                transCls=transCls,
-                                                discrete_time=True)
-        dynsys.MultivariateSystem.__init__(self, 
-                                           num_vars=num_vars, 
-                                           var_names=var_names)
+        super(BooleanNetwork, self).__init__(
+            num_vars, var_names, discrete_time=True)
 
         ALLOWED_MODES = ['TRUTHTABLES', 'FUNCS']
         if mode not in ALLOWED_MODES:
@@ -119,7 +111,7 @@ class BooleanNetwork(dynsys.MultivariateSystem, dynsys.MarkovChain):
         to representations in terms of activations of the Boolean variables.
         """
         num_states = 2**self.num_vars
-        state_iter = itertools.chain(*self.statespace_iter())
+        state_iter = itertools.chain(*self.states())
         ndx2stateMx = np.fromiter(state_iter, dtype='u1')
         return np.reshape(ndx2stateMx, newshape=(num_states, self.num_vars))        
 
@@ -133,15 +125,16 @@ class BooleanNetwork(dynsys.MultivariateSystem, dynsys.MarkovChain):
         Repointed in constructor."""
         return self.rules[varIndex][2](*inputs)
 
-    def statespace_iter(self):
+    def states(self):
         num_states = 2**self.num_vars
         return (int2tuple(s, self.num_vars) for s in xrange(num_states))
 
+    """
     @caching.cached_data_prop
     def trans(self):
-        """The transition matrix, either as a numpy array (for dense
-        representations) or scipy.sparse matrix (for sparse representations)
-        """
+        #: The transition matrix, either as a numpy array (for dense
+        #: representations) or scipy.sparse matrix (for sparse representations)
+        
         if self.num_vars > 20:
             raise Exception('Computing transition matrix for a %d-variable BN '+
                             'will take too long' % self.num_vars)
@@ -149,14 +142,15 @@ class BooleanNetwork(dynsys.MultivariateSystem, dynsys.MarkovChain):
         N = 2 ** self.num_vars
         # Builds the actual state transition graph
 
-        trans = self.transCls.createEditableZerosMx(shape=(N, N))
+        trans = self.updateCls.createEditableZerosMx(shape=(N, N))
 
         for s, curS in enumerate(self.ndx2stateMx):
             trans[s, self.state2ndx(self.iterateOneStep(curS))] = 1.
 
-        trans = self.transCls.finalizeMx(trans)
+        trans = self.updateCls.finalizeMx(trans)
         self.checkTransitionMatrix(trans)
         return trans
+    """
 
     @caching.cached_data_prop
     def _inputs(self):

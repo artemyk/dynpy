@@ -14,29 +14,19 @@ import scipy.sparse as ss
 import scipy.sparse.linalg
 import hashlib
 
-
+"""
 def toarray(mx):
-    """Convert `mx` to np.ndarray type if it is not that already
-    """
+    #: Convert `mx` to np.ndarray type if it is not that already
     if isinstance(mx, np.ndarray):
         return mx
     else:
         return mx.toarray()
 
-def todense(mx):
-    """Convert `mx` to a dense format, if it is not that already
-    """
-    if ss.issparse(mx):
-        return np.asarray(mx.todense())
-    else:
-        return np.asarray(mx)
-
 def hash_np(mx):
-    """Provide a hash value for matrix or array (useful for using them as
-    dictionary keys, for example)
-    """
+    #: Provide a hash value for matrix or array (useful for using them as
+    #: dictionary keys, for example)
     return hashlib.sha1(mx).hexdigest()
-
+"""
 
 
 class MxBase(object):
@@ -100,7 +90,7 @@ class MxBase(object):
         raise NotImplementedError  # virtual class, sublcasses should implement
 
     @classmethod
-    def toDense(cls, mx):
+    def todense(cls, mx):
         """Convert matrix `mx` to dense format"""
         raise NotImplementedError  # virtual class, sublcasses should implement
 
@@ -114,12 +104,12 @@ class SparseMatrix(MxBase):
         return ss.lil_matrix(shape)
 
     @classmethod
-    def formatMx(cls,mx):
+    def formatMx(cls, mx):
         mx = ss.csc_matrix(mx)
         return mx
 
     @classmethod
-    def finalizeMx(cls,mx):
+    def finalizeMx(cls, mx):
         #if not ss.issparse(mx):
         #    raise Exception('Transition matrix for this class should be sparse')
         return cls.formatMx(mx)
@@ -190,6 +180,37 @@ class DenseMatrix(MxBase):
         return np.atleast_2d(mx)
 
     @classmethod
-    def toDense(cls, mx):
+    def todense(cls, mx):
         return mx
+
+
+def get_cls(mx):
+    if ss.issparse(mx):
+        return SparseMatrix
+    else:
+        return DenseMatrix
+
+def formatMx(mx):
+    return get_cls(mx).formatMx(mx)
+
+def finalizeMx(mx):
+    return get_cls(mx).finalizeMx(mx)
+
+def pow(mx, exponent):
+    return get_cls(mx).pow(mx, exponent)
+
+def expm(mx):
+    return get_cls(mx).expm(mx)
+
+def make2d(mx):
+    return get_cls(mx).make2d(mx)
+
+def todense(mx):
+    return get_cls(mx).todense(mx)
+
+def getLargestRightEigs(mx):
+    return get_cls(mx).getLargestRightEigs(mx)
+
+def getLargestLeftEigs(mx):
+    return get_cls(mx).getLargestLeftEigs(mx)
 
