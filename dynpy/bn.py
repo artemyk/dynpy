@@ -2,9 +2,8 @@
 """
 from __future__ import division, print_function, absolute_import
 
-import sys
-if sys.version_info >= (3, 0):
-    xrange = range
+import six
+range = six.moves.range
 
 import inspect
 import collections
@@ -28,7 +27,7 @@ def int2tuple(i, num_places):
     be `num_places` long, with extra places padded with 0s.
     """
     return dynsys.VectorDynamicalSystem.vector_state_class(
-        map(int,bin(i)[2:].rjust(num_places, '0')))
+        list(map(int,bin(i)[2:].rjust(num_places, '0'))))
 
 class BooleanNetwork(dynsys.DiscreteStateDynamicalSystem, 
     dynsys.VectorDynamicalSystem,
@@ -130,7 +129,7 @@ class BooleanNetwork(dynsys.DiscreteStateDynamicalSystem,
 
     def states(self):
         num_states = 2**self.num_vars
-        return (int2tuple(s, self.num_vars) for s in xrange(num_states))
+        return (int2tuple(s, self.num_vars) for s in range(num_states))
 
     @caching.cached_data_prop
     def _inputs(self):

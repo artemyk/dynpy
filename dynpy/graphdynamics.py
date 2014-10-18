@@ -1,9 +1,8 @@
 """Module which implements dynamical systems on graph
 """
 from __future__ import division, print_function, absolute_import
-import sys
-if sys.version_info >= (3, 0):
-    xrange = range
+import six
+range = six.moves.range
 
 import numpy as np
 

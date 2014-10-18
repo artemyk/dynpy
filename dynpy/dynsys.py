@@ -2,9 +2,8 @@
 systems"""
 
 from __future__ import division, print_function, absolute_import
-import sys
-if sys.version_info < (3,):
-    range = xrange
+import six
+range = six.moves.range
 
 import collections
 
@@ -246,8 +245,8 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
                         state_basins[s] = state_basins[cstate]
                     break
 
-        basins = [ [] for i in xrange(len(attractors))]
-        for state, basin in state_basins.iteritems():
+        basins = [ [] for i in range(len(attractors))]
+        for state, basin in six.iteritems(state_basins):
             basins[basin].append(state)
 
         keyfunc = lambda k: (-len(basins[attractors[k]]),k)
