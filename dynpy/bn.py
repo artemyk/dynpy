@@ -15,7 +15,6 @@ import numpy as np
 from . import dynsys
 from . import caching
 
-
 def tuple2int(b):
     """Helper function which converts a binary representation (e.g.,
         ``[1,0,1]``) into an integer
@@ -28,7 +27,8 @@ def int2tuple(i, num_places):
     (in the form of a numpy array of 0s and 1s). The binary representation will
     be `num_places` long, with extra places padded with 0s.
     """
-    return np.array(map(int,bin(i)[2:].rjust(num_places, '0')))
+    return dynsys.VectorDynamicalSystem.vector_state_class(
+        map(int,bin(i)[2:].rjust(num_places, '0')))
 
 class BooleanNetwork(dynsys.DiscreteStateDynamicalSystem, 
     dynsys.VectorDynamicalSystem,
@@ -145,11 +145,9 @@ class BooleanNetwork(dynsys.DiscreteStateDynamicalSystem,
     def _iterateOneStepDiscrete(self, startState):
         """Run one interation of Boolean network.  iterate is pointed to this
         in parent class constructor."""
-        return np.array([self.getVarNextState(v, 
-                                              [startState[i] 
-                                               for i in self._inputs[v]]
-                                             )
-                         for v in range(self.num_vars)])
+        return self.vector_state_class(
+            [self.getVarNextState(v, startState[self._inputs[v]])
+             for v in range(self.num_vars)])
 
     def getStructuralGraph(self):
         """

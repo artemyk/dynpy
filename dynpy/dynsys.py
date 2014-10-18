@@ -12,6 +12,7 @@ import numpy as np
 
 from . import mx
 from . import caching
+from . import hashable
 
 # Constants for finding attractors
 MAX_ATTRACTOR_LENGTH = 5
@@ -145,7 +146,7 @@ class DynamicalSystem(object):
             cState = nextState
             trajectory.append( cState )
 
-        return np.array(trajectory)
+        return trajectory
 
 class DeterministicDynamicalSystem(DynamicalSystem):
     pass
@@ -158,6 +159,7 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
     def states(self):
         NotImplementedError
 
+    """
     @caching.cached_data_prop
     def _state2ndxDict(self):
         d = dict( (state, ndx)
@@ -185,7 +187,6 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
     def ndx2state(self, ndx):
         return self._ndx2stateDict[ndx]
 
-    """
     def ndx_trans(self):
         for ndx, state in self._ndx2stateDict.iteritems():
             nextstate = self.state2ndx(self.iterate(state))
@@ -211,11 +212,9 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
         state_basins = {}
         attractors   = {}
 
-        #iteratefunc = self.iterate
-        def iteratefunc(ndx):
-            return self.state2ndx(self.iterate(self.ndx2state(ndx)))
+        iteratefunc = self.iterate
 
-        for startstate in map(self.state2ndx, self.states()):
+        for startstate in self.states():
             if startstate in state_basins:
                 continue
 
@@ -249,18 +248,22 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
 
         basins = [ [] for i in xrange(len(attractors))]
         for state, basin in state_basins.iteritems():
-            basins[basin].append(self.ndx2state(state))
+            basins[basin].append(state)
 
         keyfunc = lambda k: (-len(basins[attractors[k]]),k)
         attractors_sorted = sorted(attractors.keys(), key=keyfunc)
 
         basins_sorted = []
         for att in attractors_sorted:
-            basins_sorted.append(basins[attractors[att]])
+            basins_sorted.append(sorted(basins[attractors[att]]))
 
+        """
         # remap back to states
         attractors_sorted = [ [self.ndx2state(s) for s in att] 
                               for att in attractors_sorted]
+        basins_sorted     = [ [self.ndx2state(s) for s in b] 
+                              for b in basins_sorted]
+        """
                               
         return attractors_sorted, basins_sorted
 
@@ -299,7 +302,6 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
                 print(row_format.format(*att))
             print("".join(['-', ] * 80))
 
-
 class VectorDynamicalSystem(DynamicalSystem):
     """Mix-in for classes implementing dynamics over multivariate systems.
 
@@ -335,6 +337,7 @@ class VectorDynamicalSystem(DynamicalSystem):
     def getVarNextState(self, state):
         raise NotImplementedError
 
+    vector_state_class = hashable.hashable_array
 
 class LinearSystem(VectorDynamicalSystem):
     # TODO: TESTS
@@ -414,5 +417,6 @@ class LinearSystem(VectorDynamicalSystem):
     #     rObj = copy.copy(self)
     #     rObj.trans = self.updateOperatorCls.pow(self.updateOperator, num_iters)
     #     return rObj
+
 
 
