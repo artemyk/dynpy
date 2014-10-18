@@ -21,7 +21,7 @@ install:
   # Useful for debugging any issues with conda
   - conda info -a
 
-  - deps='pip numpy nose sphinx coverage'
+  - deps='pip atlas numpy nose sphinx coverage'
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION $deps
   - source activate test-environment
   - python setup.py install
