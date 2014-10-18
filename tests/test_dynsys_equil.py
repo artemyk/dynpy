@@ -15,7 +15,7 @@ def veryClose(mx1, mx2):
 
 def test_dense_discrete_equil_vs_iter():
         # Dense discrete time
-        rw = RandomWalker(graph=kc, transCls=DenseMatrix)
+        rw = RandomWalker(graph=kc, issparse=False)
 
         e1 = rw.iterate(initState, max_time = 100)
         e2 = rw.equilibriumState()
@@ -23,8 +23,8 @@ def test_dense_discrete_equil_vs_iter():
 
 def test_dense_continuous_vs_discrete():
         # Dense continuous time
-        rw1 = RandomWalker(graph=kc, transCls=DenseMatrix)
-        rw2 = RandomWalker(graph=kc, discrete_time=False, transCls=DenseMatrix)
+        rw1 = RandomWalker(graph=kc, issparse=False)
+        rw2 = RandomWalker(graph=kc, discrete_time=False, issparse=False)
         e2 = rw1.equilibriumState()
         e2ct = rw2.equilibriumState()
         assert( veryClose(e2ct , e2) )
@@ -32,7 +32,7 @@ def test_dense_continuous_vs_discrete():
 
 def test_dense_continuous_equil_vs_iter():
         # Dense continuous time
-        rw = RandomWalker(graph=kc, discrete_time=False, transCls=DenseMatrix)
+        rw = RandomWalker(graph=kc, discrete_time=False, issparse=False)
         e1 = rw.iterate(initState, max_time = 100)
         e2ct = rw.equilibriumState()
         assert( veryClose(e2ct , e1) )
@@ -40,7 +40,7 @@ def test_dense_continuous_equil_vs_iter():
 
 def test_sparse_discrete_equil_vs_iter():
         # Sparse discrete time
-        rw = RandomWalker(graph=kc, transCls=SparseMatrix)
+        rw = RandomWalker(graph=kc, issparse=True)
 
         e1 = rw.iterate(initState, max_time = 100)
         e2 = rw.equilibriumState()
@@ -48,8 +48,8 @@ def test_sparse_discrete_equil_vs_iter():
 
 def test_sparse_continuous_vs_discrete():
         # Sparse continuous time
-        rw1 = RandomWalker(graph=kc, transCls=DenseMatrix)
-        rw2 = RandomWalker(graph=kc, discrete_time=False, transCls=SparseMatrix)
+        rw1 = RandomWalker(graph=kc, issparse=False)
+        rw2 = RandomWalker(graph=kc, discrete_time=False, issparse=True)
         e2 = rw1.equilibriumState()
         e2ct = rw2.equilibriumState()
         assert( veryClose(e2ct , e2) )
@@ -57,7 +57,7 @@ def test_sparse_continuous_vs_discrete():
 
 def test_sparse_continuous_equil_vs_iter():
         # Sparse continuous time
-        rw = RandomWalker(graph=kc, discrete_time=False, transCls=SparseMatrix)
+        rw = RandomWalker(graph=kc, discrete_time=False, issparse=True)
         e1 = rw.iterate(initState, max_time = 100)
         e2ct = rw.equilibriumState()
         assert( veryClose(e2ct , e1) )

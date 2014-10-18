@@ -7,9 +7,19 @@ if sys.version_info >= (3, 0):
 
 import numpy as np
 
-from . import dynsys
+from . import markov, mx, dynsys
 
-class RandomWalker(dynsys.MarkovChain):
+"""
+class StochasticWalker(dynsys.DiscreteStateDynamicalSystem):
+    def __init__(self, num_vars):
+        self.num_vars = num_vars
+
+    def states(self):
+        for startState in xrange(self.num_vars):
+            yield tuple(0 if i != startState else 1 for i in xrange(self.num_vars))
+"""
+
+class RandomWalker(markov.MarkovChain):
     """This intializes a stochastic dynamical system representing a random
     walker on a graph.
 
@@ -23,36 +33,39 @@ class RandomWalker(dynsys.MarkovChain):
         dynamics.  Only discrete time dynamics are supported for individual
         walkers, though a distribution of walkers created using the
         :class:`dynpy.dynsys.MarkovChain` supports both.
-    transCls : {:class:`dynpy.mx.DenseMatrix`, :class:`dynpy.mx.SparseMatrix`}, optional
-        Wether to use sparse or dense matrices for the transition matrix.
-        Default set by `dynpy.dynsys.DEFAULT_TRANSMX_CLASS`
+    TODO issparse
 
     """
-
-    #: Transition matrix of random walker system
-    trans = None
 
     #: ``(num_states, num_vars)``-shaped matrix which maps from integer state
     #: indexes to their representations in terms of the values of the system
     #: variables.
     ndx2stateMx  = None
 
-    def __init__(self, graph, discrete_time=True, transCls=None):
+    def __init__(self, graph, discrete_time=True, issparse=False):
         self.cDataType = 'uint8'
-        num_vars = graph.shape[0]
+        self.num_vars = graph.shape[0]
         graph = np.asarray(graph).astype('double')
+
+        cls = mx.SparseMatrix if issparse else mx.DenseMatrix
+
         trans = graph / np.atleast_2d( graph.sum(axis=1) ).T
-        super(RandomWalker, self).__init__(updateOperator=trans,
-            discrete_time=discrete_time, updateCls=transCls)
+
+        self.checkTransitionMatrix(trans)
 
         if not discrete_time:
             trans = trans - np.eye(*trans.shape)
 
-        self.updateOperator = self.updateCls.finalizeMx( trans )
-        self.checkTransitionMatrix(self.updateOperator)
-        self.denseTrans = self.updateCls.toDense(self.updateOperator)
-        self.ndx2stateMx = np.eye(num_vars).astype(self.cDataType)
+        trans = cls.formatMx( trans )
 
-    def underlyingstates(self):
-        for startState in xrange(self.num_vars):
-            yield tuple(0 if i != startState else 1 for i in xrange(self.num_vars))
+        super(RandomWalker, self).__init__(updateOperator=trans,
+            discrete_time=discrete_time)
+
+        #self.denseTrans = mx.todense(self.updateOperator)
+        #self.ndx2stateMx = np.eye(num_vars).astype(self.cDataType)
+
+        #self.base_dynsys = 
+
+    #def underlyingstates(self):
+    #    for startState in xrange(self.num_vars):
+    #        yield tuple(0 if i != startState else 1 for i in xrange(self.num_vars))

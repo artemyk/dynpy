@@ -13,14 +13,4 @@ Just download into a directory and do
 python setup.py install
 ```
 
-dynpy requires numpy, scipy, matplotlib, and python-igraph.
-
-
-Running tests
--------------
-
-Run the following from the root directory in order to run tests (including doctests extracted from the documentation):
-
-``nosetests -v --with-doctest``
-
-
+dynpy requires numpy and scipy.  Testing requires nose and coverage.  Building the documentation requires matplotlib.

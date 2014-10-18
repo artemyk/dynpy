@@ -1,3 +1,5 @@
+from __future__ import division, print_function, absolute_import
+
 import dynpy
 import numpy as np
 
@@ -7,17 +9,17 @@ def test_def_bns():
 		['x2', ['x1','x2'], [1,1,1,0]],
 	]
 	bn1base = dynpy.bn.BooleanNetwork(rules=r)
-	bn1 = dynpy.dynsys.MarkovChainFromDeterministicSystem(bn1base)
+	bn1 = dynpy.markov.MarkovChain.from_deterministic_system(bn1base)
 
 	r2 = [
 		['x1', ['x1','x2'], lambda x1,x2: (x1 and x2) ],
 		['x2', ['x1','x2'], lambda x1,x2: (x1 or  x2) ],
 	]
-	bn2base = dynpy.bn.BooleanNetwork(rules=r)
-	bn2 = dynpy.dynsys.MarkovChainFromDeterministicSystem(bn2base)
+	bn2base = dynpy.bn.BooleanNetwork(rules=r2, mode='FUNCS')
+	bn2 = dynpy.markov.MarkovChain.from_deterministic_system(bn2base)
 
-	assert((bn1.trans-bn2.trans).max() == 0.0 )
-	assert((bn1.trans-bn2.trans).min() == 0.0 )
+	assert((bn1.updateOperator-bn2.updateOperator).max() == 0.0 )
+	assert((bn1.updateOperator-bn2.updateOperator).min() == 0.0 )
 
 def test_ndx2state_mx():
 	bn2 = dynpy.bn.BooleanNetwork(dynpy.sample_nets.yeast_cellcycle_bn)
@@ -31,6 +33,8 @@ def test_attractor_basin():
 	]
 	test_bn = dynpy.bn.BooleanNetwork(rules=r)
 	atts, basins = test_bn.getAttractorsAndBasins()
+	atts = [ list(tuple(i.tolist()) for i in att) for att in atts]
+	basins = [ list(tuple(i.tolist()) for i in b) for b in basins]
 
-	assert(atts == [[1], [3], [0]])
-	assert(basins == [[1, 2], [3], [0]])
+	assert(atts == [[(0,1),],[(0,0),],[(1,1),],])
+	assert(basins == [[(0, 1), (1, 0)], [(0, 0)], [(1, 1)]])

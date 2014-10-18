@@ -28,9 +28,11 @@ def int2tuple(i, num_places):
     (in the form of a numpy array of 0s and 1s). The binary representation will
     be `num_places` long, with extra places padded with 0s.
     """
-    return np.array(list(bin(i)[2:].rjust(num_places, '0')), dtype='uint8')
+    return np.array(map(int,bin(i)[2:].rjust(num_places, '0')))
 
-class BooleanNetwork(dynsys.VectorDynamicalSystem):
+class BooleanNetwork(dynsys.DiscreteStateDynamicalSystem, 
+    dynsys.VectorDynamicalSystem,
+    dynsys.DeterministicDynamicalSystem):
 
     """
     A class for Boolean Network dynamical systems.
@@ -64,7 +66,7 @@ class BooleanNetwork(dynsys.VectorDynamicalSystem):
     >>> r = [ ['x1', ['x1','x2'], lambda x1,x2: (x1 and x2) ],
     ...       ['x2', ['x1','x2'], lambda x1,x2: (x1 or  x2) ] ]
     >>> import dynpy
-    >>> bn1 = dynpy.bn.BooleanNetwork(rules = r, mode='FUNCS')
+    >>> bn1 = dynpy.bn.BooleanNetwork(rules=r, mode='FUNCS')
 
     Parameters
     ----------
@@ -105,15 +107,16 @@ class BooleanNetwork(dynsys.VectorDynamicalSystem):
 
         self.state2ndx = tuple2int
 
+    """
     @caching.cached_data_prop
     def ndx2stateMx(self):
-        """``(num_states, num_vars)``-shaped matrix that maps from state indexes
-        to representations in terms of activations of the Boolean variables.
-        """
+        #: ``(num_states, num_vars)``-shaped matrix that maps from state indexes
+        #: to representations in terms of activations of the Boolean variables.
         num_states = 2**self.num_vars
         state_iter = itertools.chain(*self.states())
         ndx2stateMx = np.fromiter(state_iter, dtype='u1')
-        return np.reshape(ndx2stateMx, newshape=(num_states, self.num_vars))        
+        return np.reshape(ndx2stateMx, newshape=(num_states, self.num_vars))
+    """
 
     def _getVarNextStateTT(self, varIndex, inputs):
         """Execute update rule when network is specified using truthtables.
@@ -129,29 +132,6 @@ class BooleanNetwork(dynsys.VectorDynamicalSystem):
         num_states = 2**self.num_vars
         return (int2tuple(s, self.num_vars) for s in xrange(num_states))
 
-    """
-    @caching.cached_data_prop
-    def trans(self):
-        #: The transition matrix, either as a numpy array (for dense
-        #: representations) or scipy.sparse matrix (for sparse representations)
-        
-        if self.num_vars > 20:
-            raise Exception('Computing transition matrix for a %d-variable BN '+
-                            'will take too long' % self.num_vars)
-
-        N = 2 ** self.num_vars
-        # Builds the actual state transition graph
-
-        trans = self.updateCls.createEditableZerosMx(shape=(N, N))
-
-        for s, curS in enumerate(self.ndx2stateMx):
-            trans[s, self.state2ndx(self.iterateOneStep(curS))] = 1.
-
-        trans = self.updateCls.finalizeMx(trans)
-        self.checkTransitionMatrix(trans)
-        return trans
-    """
-
     @caching.cached_data_prop
     def _inputs(self):
         """Remaps inputs from being specified by variable names to being
@@ -162,61 +142,14 @@ class BooleanNetwork(dynsys.VectorDynamicalSystem):
             for i in range(self.num_vars)
         ]
 
-    def printAttractorsAndBasins(self):
-        """Prints the attractors and basin of the Boolean Network object
-
-        >>> import dynpy
-        >>> rules = [ ['a',['a','b'],[1,1,1,0]],['b',['a','b'],[1,0,0,0]]]
-        >>> bn = dynpy.bn.BooleanNetwork(rules=rules)
-        >>> bn.printAttractorsAndBasins()
-        * BASIN 0 : 2 States
-        ATTRACTORS:
-              a      b
-              1      0
-        --------------------------------------------------------------------------------
-        * BASIN 1 : 1 States
-        ATTRACTORS:
-              a      b
-              1      1
-        --------------------------------------------------------------------------------
-        * BASIN 2 : 1 States
-        ATTRACTORS:
-              a      b
-              0      0
-        --------------------------------------------------------------------------------
-
-        """
-        basinAtts, basinStates = self.getAttractorsAndBasins()
-        row_format = "{:>7}" * self.num_vars
-        for cBasinNdx in range(len(basinAtts)):
-            print("* BASIN %d : %d States" %
-                (cBasinNdx, len(basinStates[cBasinNdx])))
-            print("ATTRACTORS:")
-            print(row_format.format(*self.var_names))
-            for att in basinAtts[cBasinNdx]:
-                print(row_format.format(*int2tuple(att, self.num_vars)))
-            print("".join(['-', ] * 80))
-
-    def checkTransitionMatrix(self, trans):
-        """Internally used function that checks the integrity/format of the
-        generated transition matrix.
-        """
-        expected_shape = 2 ** self.num_vars
-        if trans.shape[0] != expected_shape:
-            raise Exception("transition matrix shape is %s, " +
-                "but expected first dimension to be 2^%d=%d" %
-                (trans.shape, self.num_vars, expected_shape))
-        if trans.shape[1] != expected_shape:
-            raise Exception( "transition matrix shape is %s, " +
-                "but expected second dimension to be 2^%d=%d" %
-                (trans.shape, self.num_vars, expected_shape))
-        super(BooleanNetwork, self).checkTransitionMatrix(trans)
-
     def _iterateOneStepDiscrete(self, startState):
-        """Run one interation of Boolean network.  Repointed in parent class
-        constructor."""
-        return np.array([self.getVarNextState(i, startState[self._inputs[i]])
-                         for i in range(self.num_vars)])
+        """Run one interation of Boolean network.  iterate is pointed to this
+        in parent class constructor."""
+        return np.array([self.getVarNextState(v, 
+                                              [startState[i] 
+                                               for i in self._inputs[v]]
+                                             )
+                         for v in range(self.num_vars)])
 
     def getStructuralGraph(self):
         """
