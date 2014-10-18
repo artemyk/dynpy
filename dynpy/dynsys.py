@@ -11,7 +11,6 @@ import numpy as np
 
 from . import mx
 from . import caching
-from . import hashable
 
 # Constants for finding attractors
 MAX_ATTRACTOR_LENGTH = 5
@@ -336,7 +335,7 @@ class VectorDynamicalSystem(DynamicalSystem):
     def getVarNextState(self, state):
         raise NotImplementedError
 
-    vector_state_class = hashable.hashable_array
+    vector_state_class = mx.hashable_array
 
 class LinearSystem(VectorDynamicalSystem):
     # TODO: TESTS

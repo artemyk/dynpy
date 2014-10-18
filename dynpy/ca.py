@@ -1,9 +1,8 @@
 """Module implementing Cellular automaton dynamical system
 """
 from __future__ import division, print_function, absolute_import
-import sys
-if sys.version_info >= (3, 0):
-    xrange = range
+import six
+range = six.moves.range
 
 from . import bn
 
@@ -48,7 +47,7 @@ class CellularAutomaton(bn.BooleanNetwork):
         rules = []
         for i in range(num_vars):
             conns = [(i+n) % num_vars
-                     for n in xrange(-num_neighbors, num_neighbors+1)]
+                     for n in range(-num_neighbors, num_neighbors+1)]
             rules.append([i, conns, truth_table])
         super(CellularAutomaton,self).__init__(rules=rules)
 

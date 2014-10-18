@@ -3,9 +3,8 @@ This module implements several decorates that can help with caching/memoizing
 methods and properties.
 """
 from __future__ import division, print_function, absolute_import
-import sys
-if sys.version_info >= (3, 0):
-    xrange = range
+import six
+range = six.moves.range
 
 from collections import OrderedDict
 import functools
@@ -59,7 +58,7 @@ class setup_cached_data_method(object):
             else:
                 returnValue, sideEffects = obj._cache[key]
 
-            for n in xrange(len(sideEffects)):
+            for n in range(len(sideEffects)):
                 setattr(obj, self.sideeffect_attributes[n], sideEffects[n])
 
             return returnValue

@@ -3,16 +3,36 @@ arrays and sparse matrices. Also constains some utility functions for working
 with matrices.
 """
 from __future__ import division, print_function, absolute_import
-import sys
-if sys.version_info >= (3, 0):
-    xrange = range
+import six
+range = six.moves.range
 
 import numpy as np
 import numpy.linalg
 import scipy.linalg
 import scipy.sparse as ss
 import scipy.sparse.linalg
+
 import hashlib
+import functools
+
+# !!!! Notice that changes default == behavior
+# before for numpy arrays, == does element-wise equal, now it does array-wise
+
+@functools.total_ordering
+class hashable_array(np.ndarray):
+    # def __new__(cls, data) : r = np.array(data, copy=False).view(type=cls); print "__new__ called", cls.__name__,cls, type(r); return r
+    # def __init__(self, values): self.__hash = int(hashlib.sha1(self).hexdigest(), 16) ; print "__init__ called", self.__hash
+    def __new__(cls, data) : return np.array(data, copy=False).view(type=cls)
+    def __init__(self, values): self.__hash = int(hashlib.sha1(self).hexdigest(), 16)
+    def __hash__(self)     : return self.__hash
+    def __eq__(self, other): return np.array_equal(self, other)
+    def __lt__(self, other):
+        if self.size < other.size:
+            return True
+        if self == other:
+            return False
+        nonequal = ~np.equal(self, other)
+        return np.less(self[nonequal], other[nonequal])[0]
 
 """
 def toarray(mx):
