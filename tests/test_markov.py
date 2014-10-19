@@ -12,8 +12,8 @@ def test_from_deterministic():
 	mc = dynpy.markov.MarkovChain.from_deterministic_system(bn)
 
 	expected = np.array([[ 1.,  0.,  0.,  0.],
-						       [ 0.,  1.,  0.,  0.],
-						       [ 0.,  1.,  0.,  0.],
-						       [ 0.,  0.,  0.,  1.]])
+						 [ 0.,  1.,  0.,  0.],
+						 [ 0.,  1.,  0.,  0.],
+						 [ 0.,  0.,  0.,  1.]])
 
 	assert(np.array_equal(mc.updateOperator, expected))
