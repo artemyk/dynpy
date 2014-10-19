@@ -107,37 +107,15 @@ class MarkovChain(dynsys.LinearSystem):
                                 'entries should add up to 0.0 (%s)' % sums)
 
 
-    """
-    Alternative constructor that creates a Markov chain from the transitions
-    of a deterministic system.
-
-
-    !!! Parameters
-    ----------
-    issparse : bool, optional
-        Whether transition matrix should be in sparse or dense matrix format
-
-
-    >>> r = [['x1', ['x1','x2'], lambda x1,x2: (x1 and x2) ],
-    ...      ['x2', ['x1','x2'], lambda x1,x2: (x1 or  x2) ]]
-    >>> bn = dynpy.bn.BooleanNetwork(rules=r, mode='FUNCS')
-    >>> mc = dynpy.markov.MarkovChain.from_deterministic_system(bn)    
-    array([[ 1.,  0.,  0.,  0.],
-           [ 0.,  1.,  0.,  0.],
-           [ 0.,  1.,  0.,  0.],
-           [ 0.,  0.,  0.,  1.]])
-
-   """
     @classmethod
     def from_deterministic_system(cls, base_sys, issparse=False):
-        # ALSO MUST BE DiscreteStateDynamicalSystem TODO, not just deterministic
-        """This alternative constructor creates a a Markov Chain from the
-        transitions of an underlying deterministic system.
-        It maintains properties of the underlying system, such as the
-        sparsity of the state transition matrix, and whether the system is discrete
-        or continuous-time.  The underlying system must be an instance of
-        :class:`dynpy.dynsys.DiscreteStateSystemBase` and provide a transition
-        matrix in the form of a `trans` property.
+        """Alternative constructor creates a a Markov Chain from the transitions
+        of an underlying deterministic system. It maintains properties of the 
+        underlying system, such as the sparsity of the state transition matrix,
+        and whether the system is discrete or continuous-time.  The underlying 
+        system must be an instance of
+        :class:`dynpy.dynsys.DeterministicDynamicalSystem` and
+        :class:`dynpy.dynsys.DiscreteStateDynamicalSystem`.
 
         For example, for a Boolean network:
 
@@ -166,18 +144,19 @@ class MarkovChain(dynsys.LinearSystem):
 
         Parameters
         ----------
-        base_sys : :class:`dynpy.dynsys.DeterministicDynamicalSystem`
-            an object containing the underlying dynamical system over which an
-            ensemble will be created.
+        base_sys : object
+            Dynamical system over whose states the Markov chain will be defined
+        issparse : bool, optional
+            Whether transition matrix should be in sparse or dense matrix format
 
         """
-
-        # TODO issparse
-        #self.base_dynsys = base_dynsys
 
         if not isinstance(base_sys, dynsys.DeterministicDynamicalSystem):
             raise ValueError('dynsys should be instance of '
                              'DeterministicDynamicalSystem')
+        if not isinstance(base_sys, dynsys.DiscreteStateDynamicalSystem):
+            raise ValueError('dynsys should be instance of '
+                             'DiscreteStateDynamicalSystem')
 
         if not base_sys.discrete_time:
             raise ValueError('dynsys should be a discrete-time system')
@@ -190,8 +169,6 @@ class MarkovChain(dynsys.LinearSystem):
         mxcls = mx.SparseMatrix if issparse else mx.DenseMatrix
         trans = mxcls.createEditableZerosMx(shape=(N, N))
 
-        #for statendx, nextstatendx in base_sys.ndx_trans():
-        #    trans[statendx, nextstatendx] = 1.
         for state in base_sys.states():
             nextstate = base_sys.iterate(state)
             trans[state2ndxMap[state], state2ndxMap[nextstate]] = 1.
@@ -204,10 +181,11 @@ class MarkovChain(dynsys.LinearSystem):
 
     @classmethod
     def marginalize(cls, markov_chain, keep_vars, initial_dist=None):
-        # TODO doc, alternative constructor
-        # TODO --- test that base markov chain is multivariate
-        """
-        Example:
+        """Alternative constructor that creates a Markov chain by marginalizing
+        a Markov chain over a multivariate dynamical system onto a subset of 
+        those variables.
+
+        For example:
 
         >>> import dynpy
         >>> r = [
@@ -221,7 +199,18 @@ class MarkovChain(dynsys.LinearSystem):
         [[ 1.   0. ]
          [ 0.5  0.5]]
 
+
+        Parameters
+        ----------
+        markov_chain : class:`dynpy.markov.MarkovChain`
+            Markov chain to marginalize
+        keep_vars : list 
+            List of variables to keep 
+        initial_dist : optional
+            Marginalize using this distribution for starting conditions
+
         """
+
         def marginalize_state(state):
             return dynsys.VectorDynamicalSystem.vector_state_class(
                 [state[i] for i in keep_vars])

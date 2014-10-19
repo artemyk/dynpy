@@ -16,10 +16,6 @@ from . import caching
 MAX_ATTRACTOR_LENGTH = 5
 TRANSIENT_LENGTH = 30
 
-DEFAULT_TRANSMX_CLASS = mx.DenseMatrix
-DEFAULT_STATE_DTYPE = 'float64'
-
-
 class DynamicalSystem(object):
     """Base class for dynamical systems.
 
@@ -290,6 +286,7 @@ class VectorDynamicalSystem(DynamicalSystem):
         raise NotImplementedError
 
     vector_state_class = mx.hashable_array
+
 
 class LinearSystem(VectorDynamicalSystem):
     # TODO: TESTS
