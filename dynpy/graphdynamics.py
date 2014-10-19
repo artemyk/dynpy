@@ -8,15 +8,6 @@ import numpy as np
 
 from . import markov, mx, dynsys
 
-"""
-class StochasticWalker(dynsys.DiscreteStateDynamicalSystem):
-    def __init__(self, num_vars):
-        self.num_vars = num_vars
-
-    def states(self):
-        for startState in xrange(self.num_vars):
-            yield tuple(0 if i != startState else 1 for i in xrange(self.num_vars))
-"""
 
 class RandomWalker(markov.MarkovChain):
     """This intializes a stochastic dynamical system representing a random
@@ -35,11 +26,6 @@ class RandomWalker(markov.MarkovChain):
     TODO issparse
 
     """
-
-    #: ``(num_states, num_vars)``-shaped matrix which maps from integer state
-    #: indexes to their representations in terms of the values of the system
-    #: variables.
-    ndx2stateMx  = None
 
     def __init__(self, graph, discrete_time=True, issparse=False):
         self.cDataType = 'uint8'
@@ -60,11 +46,3 @@ class RandomWalker(markov.MarkovChain):
         super(RandomWalker, self).__init__(updateOperator=trans,
             discrete_time=discrete_time)
 
-        #self.denseTrans = mx.todense(self.updateOperator)
-        #self.ndx2stateMx = np.eye(num_vars).astype(self.cDataType)
-
-        #self.base_dynsys = 
-
-    #def underlyingstates(self):
-    #    for startState in xrange(self.num_vars):
-    #        yield tuple(0 if i != startState else 1 for i in xrange(self.num_vars))

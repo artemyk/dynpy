@@ -90,7 +90,6 @@ class DynamicalSystem(object):
         raise NotImplementedError
 
     def _iterateDiscrete(self, startState, max_time=1.0):
-        # TODO: Use this to generate fast weave code, or at least make faster
         if max_time == 1.0:
             return self.iterateOneStep(startState)
         elif max_time == 0.0:
@@ -157,40 +156,6 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
     def states(self):
         NotImplementedError
 
-    """
-    @caching.cached_data_prop
-    def _state2ndxDict(self):
-        d = dict( (state, ndx)
-                  for ndx, state in enumerate(self.states()))
-        return d
-
-    @caching.cached_data_prop
-    def _ndx2stateDict(self):
-        d = dict( enumerate(self.states()) )
-        return d
-
-    def state2ndx(self, state):
-        #: Function which maps from multidimensional states of variables
-        #: (`state`) to single-integer state indexes.
-        # TODOTEST
-        h = state
-        try:
-            return self._state2ndxDict[h]
-        except KeyError:
-            raise KeyError('%r' % state)
-
-    #def ndx2stateMx(self):
-    #    raise NotImplementedError
-
-    def ndx2state(self, ndx):
-        return self._ndx2stateDict[ndx]
-
-    def ndx_trans(self):
-        for ndx, state in self._ndx2stateDict.iteritems():
-            nextstate = self.state2ndx(self.iterate(state))
-            yield (ndx, nextstate)
-    """
-
     def getAttractorsAndBasins(self):
         """Computes the attractors and basins of the current discrete-state
         dynamical system.
@@ -218,10 +183,7 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
 
             traj = set()
             cstate = startstate
-            while True:
-                # use state ndx instead of state because state might not be
-                # hashable (and hence not usable as dictionary key)
-                
+            while True:                
                 traj.add(cstate)
                 cstate = iteratefunc(cstate)
 
@@ -254,15 +216,7 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
         basins_sorted = []
         for att in attractors_sorted:
             basins_sorted.append(sorted(basins[attractors[att]]))
-
-        """
-        # remap back to states
-        attractors_sorted = [ [self.ndx2state(s) for s in att] 
-                              for att in attractors_sorted]
-        basins_sorted     = [ [self.ndx2state(s) for s in b] 
-                              for b in basins_sorted]
-        """
-                              
+            
         return attractors_sorted, basins_sorted
 
     def printAttractorsAndBasins(self):

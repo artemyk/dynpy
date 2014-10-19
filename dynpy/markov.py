@@ -18,61 +18,7 @@ class MarkovChain(dynsys.LinearSystem):
     # dynamical system.  
     # Here it referes to the first sense.
 
-
-    """This class implements a Markov Chain over the state-transition graph of
-    an underlying dynamical system, specified by the `baseDynamicalSystem`
-    parameter.  It maintains properties of the underlying system, such as the
-    sparsity of the state transition matrix, and whether the system is discrete
-    or continuous-time.  The underlying system must be an instance of
-    :class:`dynpy.dynsys.DiscreteStateSystemBase` and provide a transition
-    matrix in the form of a `trans` property.
-
-    For example, we can use this to derivate the dynamics of a probability of
-    an ensemble of random walkers on the karate club network (this results in a
-    heat-equation type system):
-
-    >>> import dynpy
-    >>> import numpy as np
-    >>> kc = dynpy.sample_nets.karateclub_net
-    >>> rw = dynpy.graphdynamics.RandomWalker(graph=kc)
-    >>>
-    >>> initState = np.zeros(rw.num_vars)
-    >>> initState[ 5 ] = 1
-    >>>
-    >>> trajectory = rw.getTrajectory(initState, max_time=2)
-
-    It can also be done for a Boolean network:
-
-    >>> import dynpy
-    >>> yeast = dynpy.sample_nets.yeast_cellcycle_bn
-    >>> bn = dynpy.bn.BooleanNetwork(rules=yeast)
-    >>> bnEnsemble = dynpy.markov.MarkovChain.from_deterministic_system(bn, issparse=True)
-    >>> init = bnEnsemble.getUniformDistribution()
-    >>> trajectory = bnEnsemble.getTrajectory(init, max_time=80)
-
-    If we wish to project the state of the Markov chain back onto the
-    activations of the variables in the underlying system, we can use the
-    `ndx2stateMx` matrix. For example:
-
-    >>> import dynpy
-    >>> import numpy as np
-    >>> yeast = dynpy.sample_nets.yeast_cellcycle_bn
-    >>> bn = dynpy.bn.BooleanNetwork(rules=yeast)
-    >>> bnEnsemble = dynpy.markov.MarkovChain.from_deterministic_system(bn, issparse=True)
-    >>> init = bnEnsemble.getUniformDistribution()
-    >>> final_state = bnEnsemble.iterate(init, max_time=80)
-    >>> print(np.ravel(final_state.dot(bnEnsemble.ndx2stateMx)))
-    [ 0.          0.05664062  0.07373047  0.07373047  0.91503906  0.          0.
-      0.          0.92236328  0.          0.        ]
-
-
-    Parameters
-    ----------
-    baseDynamicalSystem : :class:`dynpy.dynsys.DiscreteStateSystemBase`
-        an object containing the underlying dynamical system over which an
-        ensemble will be created.
-
-    """
+    # TODO FIX DOCUMENTATION
 
     """This is a base class for discrete-state dynamical systems.  It provides
     a transition matrix indicating transitions between system states.
@@ -138,7 +84,8 @@ class MarkovChain(dynsys.LinearSystem):
         return equilibriumDist
 
     def getUniformDistribution(self):
-        """Gets uniform starting distribution over all system states"""
+        """Gets uniform starting distribution over all system states.
+        """
         N = self.updateOperator.shape[0]
         return np.ones(N) / float(N)
 
@@ -160,24 +107,71 @@ class MarkovChain(dynsys.LinearSystem):
                                 'entries should add up to 0.0 (%s)' % sums)
 
 
-    #def underlyingstates(self):
-    #    return self.base_dynsys.states()
     """
-    def state2ndx(self, state):
-        return self._state2ndxDict[state]
+    Alternative constructor that creates a Markov chain from the transitions
+    of a deterministic system.
 
-    def ndx2state(self, ndx):
-        return self._ndx2stateDict[ndx]
-    """
 
-    """
     !!! Parameters
     ----------
     issparse : bool, optional
         Whether transition matrix should be in sparse or dense matrix format
-    """
+
+
+    >>> r = [['x1', ['x1','x2'], lambda x1,x2: (x1 and x2) ],
+    ...      ['x2', ['x1','x2'], lambda x1,x2: (x1 or  x2) ]]
+    >>> bn = dynpy.bn.BooleanNetwork(rules=r, mode='FUNCS')
+    >>> mc = dynpy.markov.MarkovChain.from_deterministic_system(bn)    
+    array([[ 1.,  0.,  0.,  0.],
+           [ 0.,  1.,  0.,  0.],
+           [ 0.,  1.,  0.,  0.],
+           [ 0.,  0.,  0.,  1.]])
+
+   """
     @classmethod
     def from_deterministic_system(cls, base_sys, issparse=False):
+        # ALSO MUST BE DiscreteStateDynamicalSystem TODO, not just deterministic
+        """This alternative constructor creates a a Markov Chain from the
+        transitions of an underlying deterministic system.
+        It maintains properties of the underlying system, such as the
+        sparsity of the state transition matrix, and whether the system is discrete
+        or continuous-time.  The underlying system must be an instance of
+        :class:`dynpy.dynsys.DiscreteStateSystemBase` and provide a transition
+        matrix in the form of a `trans` property.
+
+        For example, for a Boolean network:
+
+        >>> import dynpy
+        >>> yeast = dynpy.sample_nets.yeast_cellcycle_bn
+        >>> bn = dynpy.bn.BooleanNetwork(rules=yeast)
+        >>> bnEnsemble = dynpy.markov.MarkovChain.from_deterministic_system(bn, issparse=True)
+        >>> init = bnEnsemble.getUniformDistribution()
+        >>> trajectory = bnEnsemble.getTrajectory(init, max_time=80)
+
+        If we wish to project the state of the Markov chain back onto the
+        activations of the variables in the underlying system, we can use the
+        `ndx2stateMx` matrix. For example:
+
+        >>> import dynpy
+        >>> import numpy as np
+        >>> yeast = dynpy.sample_nets.yeast_cellcycle_bn
+        >>> bn = dynpy.bn.BooleanNetwork(rules=yeast)
+        >>> bnEnsemble = dynpy.markov.MarkovChain.from_deterministic_system(bn, issparse=True)
+        >>> init = bnEnsemble.getUniformDistribution()
+        >>> final_state = bnEnsemble.iterate(init, max_time=80)
+        >>> print(np.ravel(final_state.dot(bnEnsemble.ndx2stateMx)))
+        [ 0.          0.05664062  0.07373047  0.07373047  0.91503906  0.          0.
+          0.          0.92236328  0.          0.        ]
+
+
+        Parameters
+        ----------
+        base_sys : :class:`dynpy.dynsys.DeterministicDynamicalSystem`
+            an object containing the underlying dynamical system over which an
+            ensemble will be created.
+
+        """
+
         # TODO issparse
         #self.base_dynsys = base_dynsys
 
@@ -208,76 +202,34 @@ class MarkovChain(dynsys.LinearSystem):
             discrete_time=base_sys.discrete_time)
 
 
-"""
-class MarginalizedDiscreteStateSystem(dynsys.DiscreteStateDynamicalSystem):
-    def __init__(self, base_dynsys, keep_vars):
-        self.keep_vars = keep_vars
-        self.base_dynsys = base_dynsys
-        super(MarginalizedDiscreteStateSystem, self).__init__()
-
-    def states(self):
-        done = set()
-        for s in self.base_dynsys.states():
-            c = self.marginalize_state(s)
-            if c not in done:
-                done.add(c)
-                yield c
-"""
-
-class MarginalizedMarkovChain(MarkovChain):
-    """
-    Example:
-
-    >>> import dynpy
-    >>> r = [
-    ...     ['x1', ['x1','x2'], lambda x1,x2: (x1 and x2) ],
-    ...     ['x2', ['x1','x2'], lambda x1,x2: (x1 or  x2) ],
-    ... ]
-    >>> bn = dynpy.bn.BooleanNetwork(rules=r, mode='FUNCS')
-    >>> bnensemble = dynpy.markov.MarkovChain.from_deterministic_system(bn)
-    >>> marg = dynpy.markov.MarginalizedMarkovChain(bnensemble, [0])
-    >>> print(marg.updateOperator)
-    [[ 1.   0. ]
-     [ 0.5  0.5]]
-
-    """
-
-    def marginalize_state(self, state):
-        return dynsys.VectorDynamicalSystem.vector_state_class(
-            [state[i] for i in self.keep_vars])
-
-    """
-    @caching.cached_data_prop
-    def _state2ndxDict(self):
-        def states():
-            done = set()
-            for fullstate in self.base_markov_chain._state2ndxDict:
-                c = self.marginalize_state(fullstate)
-                if c not in done:
-                    done.add(c)
-                    yield c
-
-        d = dict( (state, ndx)
-                  for ndx, state in enumerate(states()))
-        return d
-
-    @caching.cached_data_prop
-    def _ndx2stateDict(self):
-        return dict( (v,k) for k, v in self._state2ndxDict.iteritems() )
-    """
-
-    def __init__(self, markov_chain, keep_vars, initial_dist=None):
+    @classmethod
+    def marginalize(cls, markov_chain, keep_vars, initial_dist=None):
+        # TODO doc, alternative constructor
         # TODO --- test that base markov chain is multivariate
+        """
+        Example:
 
-        self.base_markov_chain = markov_chain
-        #marginalizer = MarginalizedDiscreteStateSystem(mc.base_dynsys, keep_vars)
+        >>> import dynpy
+        >>> r = [
+        ...     ['x1', ['x1','x2'], lambda x1,x2: (x1 and x2) ],
+        ...     ['x2', ['x1','x2'], lambda x1,x2: (x1 or  x2) ],
+        ... ]
+        >>> bn = dynpy.bn.BooleanNetwork(rules=r, mode='FUNCS')
+        >>> bnensemble = dynpy.markov.MarkovChain.from_deterministic_system(bn)
+        >>> marg = dynpy.markov.MarkovChain.marginalize(bnensemble, [0])
+        >>> print(marg.updateOperator)
+        [[ 1.   0. ]
+         [ 0.5  0.5]]
 
-        self.keep_vars = keep_vars
+        """
+        def marginalize_state(state):
+            return dynsys.VectorDynamicalSystem.vector_state_class(
+                [state[i] for i in keep_vars])
 
         def states():
             done = set()
-            for fullstate in self.base_markov_chain.state2ndxMap:
-                c = self.marginalize_state(fullstate)
+            for fullstate in markov_chain.state2ndxMap:
+                c = marginalize_state(fullstate)
                 if c not in done:
                     done.add(c)
                     yield c
@@ -294,29 +246,27 @@ class MarginalizedMarkovChain(MarkovChain):
         trans = mxcls.createEditableZerosMx(shape=(N, N))
         for i, sstate in six.iteritems(markov_chain.ndx2stateMap):
             initial_p = initial_dist[i]
-            mI = state2ndxMap[self.marginalize_state(sstate)]
+            mI = state2ndxMap[marginalize_state(sstate)]
             for j, estate in six.iteritems(markov_chain.ndx2stateMap):
-                mJ = state2ndxMap[self.marginalize_state(estate)]
+                mJ = state2ndxMap[marginalize_state(estate)]
                 trans[mI, mJ] += initial_p * markov_chain.updateOperator[i,j]
 
         trans = trans/trans.sum(axis=1)[:,np.newaxis]
         trans = mxcls.finalizeMx(trans)
-        self.checkTransitionMatrix(trans)
 
-        super(MarginalizedMarkovChain, self).__init__(updateOperator=trans)
+        return cls(updateOperator=trans, state2ndxMap=state2ndxMap)
 
 
 
 class MarkovChainSampler(dynsys.StochasticDynamicalSystem):
+    # TODO document
+    # TODO change in tutorial example with random walker
+
     def __init__(self, markov_chain):
         if markov_chain.discrete_time == False:
             raise Exception('Can only sample from discrete-time MCs')
         self.markov_chain = markov_chain
         super(MarkovChainSampler, self).__init__(discrete_time=True)
-
-    #def states(self):
-    #    raise xrange(self.markov_chain.updateOperator.shape[0])
-    #
 
     def _iterateOneStepDiscrete(self, startState):
         mc = self.markov_chain

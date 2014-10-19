@@ -15,39 +15,35 @@ import scipy.sparse.linalg
 import hashlib
 import functools
 
-# !!!! Notice that changes default == behavior
-# before for numpy arrays, == does element-wise equal, now it does array-wise
-
 @functools.total_ordering
 class hashable_array(np.ndarray):
-    # def __new__(cls, data) : r = np.array(data, copy=False).view(type=cls); print "__new__ called", cls.__name__,cls, type(r); return r
-    # def __init__(self, values): self.__hash = int(hashlib.sha1(self).hexdigest(), 16) ; print "__init__ called", self.__hash
-    def __new__(cls, data) : return np.array(data, copy=False).view(type=cls)
-    def __init__(self, values): self.__hash = int(hashlib.sha1(self).hexdigest(), 16)
-    def __hash__(self)     : return self.__hash
-    def __eq__(self, other): return np.array_equal(self, other)
-    def __lt__(self, other):
+    """This class provides a hashable and sortable np.array.  This is useful for 
+    using np.array as dicitionary keys, for example.
+
+    Notice that hashable arrays change the default behavior of numpy arrays for 
+    equality and comparison operators.  Instead of performing element-wise
+    tests, hashable arrays return a value for the array as a whole
+    """
+
+    def __new__(cls, data): 
+        return np.array(data, copy=False).view(type=cls)
+
+    def __init__(self, values): 
+        self.__hash = int(hashlib.sha1(self).hexdigest(), 16)
+
+    def __hash__(self):
+        return self.__hash
+
+    def __eq__(self, other): # equality test
+        return np.array_equal(self, other)
+
+    def __lt__(self, other):  # comparison test
         if self.size < other.size:
             return True
         if self == other:
             return False
         nonequal = ~np.equal(self, other)
         return np.less(self[nonequal], other[nonequal])[0]
-
-"""
-def toarray(mx):
-    #: Convert `mx` to np.ndarray type if it is not that already
-    if isinstance(mx, np.ndarray):
-        return mx
-    else:
-        return mx.toarray()
-
-def hash_np(mx):
-    #: Provide a hash value for matrix or array (useful for using them as
-    #: dictionary keys, for example)
-    return hashlib.sha1(mx).hexdigest()
-"""
-
 
 class MxBase(object):
     """Base class from which sparse and dense matrix operation classes inherit

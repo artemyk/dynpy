@@ -78,9 +78,3 @@ def cached_data_prop(f):
     Decorator for caching an object's property
     """
     return property( functools.wraps(f)( cached_data_method(f) ) )
-
-
-"""
-def get_noncached_attr_dict(obj):
-    return dict([(k, v) for k, v in obj.__dict__.iteritems() if k != '_cache'])
-"""

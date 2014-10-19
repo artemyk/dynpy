@@ -106,17 +106,6 @@ class BooleanNetwork(dynsys.DiscreteStateDynamicalSystem,
 
         self.state2ndx = tuple2int
 
-    """
-    @caching.cached_data_prop
-    def ndx2stateMx(self):
-        #: ``(num_states, num_vars)``-shaped matrix that maps from state indexes
-        #: to representations in terms of activations of the Boolean variables.
-        num_states = 2**self.num_vars
-        state_iter = itertools.chain(*self.states())
-        ndx2stateMx = np.fromiter(state_iter, dtype='u1')
-        return np.reshape(ndx2stateMx, newshape=(num_states, self.num_vars))
-    """
-
     def _getVarNextStateTT(self, varIndex, inputs):
         """Execute update rule when network is specified using truthtables.
         Repointed in constructor."""
@@ -128,6 +117,8 @@ class BooleanNetwork(dynsys.DiscreteStateDynamicalSystem,
         return self.rules[varIndex][2](*inputs)
 
     def states(self):
+        """Returns list of all possible states occupied by system.
+        """
         num_states = 2**self.num_vars
         return (int2tuple(s, self.num_vars) for s in range(num_states))
 
@@ -162,5 +153,5 @@ class BooleanNetwork(dynsys.DiscreteStateDynamicalSystem,
         for ndx, (var, inputs, table) in enumerate(self.rules):
             ix1 = self.var_name_ndxs[var]
             for i in inputs:
-                mx[self.var_name_ndxs[self.rules[i][0]]][ix1] = 1.0
-
+                mx[self.var_name_ndxs[i],ix1] = 1.0
+        return mx
