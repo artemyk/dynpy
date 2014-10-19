@@ -11,6 +11,7 @@ from . import caching
 
 # TODO FIX TUTORIAL
 # TODO DOCUMENT and write tests for markovchainsampler
+# MERGE
 
 class MarkovChain(dynsys.LinearSystem):
 
