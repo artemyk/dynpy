@@ -9,19 +9,20 @@ from . import mx
 
 from . import caching
 
+# TODO FIX TUTORIAL
+# TODO DOCUMENT and write tests for markovchainsampler
+
 class MarkovChain(dynsys.LinearSystem):
-
-    # POSSIBILITY FOR CONFUSION!!!!
-    # MarkovChain can be understood as deterministic, vector-valued dynamical 
-    # system each of whose 'states' is a probability distribution.
-    # Alternatively, it can be seen as stochastic vector-or-non-vector valued 
-    # dynamical system.  
-    # Here it referes to the first sense.
-
-    # TODO FIX DOCUMENTATION
 
     """This is a base class for discrete-state dynamical systems.  It provides
     a transition matrix indicating transitions between system states.
+
+    There is some potential for confusion regarding the term 'markov chain'. It 
+    may be used to indicate a stochastic dynamical system, which transitions 
+    from state to state with different probabilities.  Alternatively, and in the 
+    sense used in `dynpy`, a markov chain refers to a deterministic, 
+    multivariate dynamical that transforms probability distributions over some 
+    underlying to distributions into other probability distributions.
 
     Parameters
     ----------
@@ -32,22 +33,15 @@ class MarkovChain(dynsys.LinearSystem):
         discrete-time case) or
         :math:`\\dot{\\mathbf{x}} = \\mathbf{x}\\mathbf{A}` (in the
         continuous-time case)
+    state2ndxMap : dict, optional
+        Often a Markov chain will be defined over the states of another 
+        underlying dynamical system, possibly vector-valued.  This dictionary
+        maps from integer-valued states used by the Markov chain to another,
+        possibly multivariate state-space.
     discrete_time : bool, optional
         Whether updating should be done using discrete (default) or continuous
         time dynamics.
     """
-
-    @caching.cached_data_prop
-    def ndx2stateMx(self):
-        #: ``(num_states, num_vars)``-shaped matrix that maps from state indexes
-        #: to representations in terms of activations of the variables.
-        num_vars = len(next(six.iterkeys(self.state2ndxMap)))
-
-        mx = np.zeros(shape=(len(self.state2ndxMap),num_vars))
-        for state, ndx in six.iteritems(self.state2ndxMap):
-            mx[ndx,:] = state
-            
-        return mx
 
     def __init__(self, updateOperator, state2ndxMap=None, discrete_time=True):
         # !!! self.base_dynsys = base_dynsys
@@ -65,6 +59,18 @@ class MarkovChain(dynsys.LinearSystem):
             self.ndx2stateMap = dict((v,k) for k,v in six.iteritems(state2ndxMap))
             self.ndx2state = lambda x: state2ndxMap[x]
             self.state2ndx = lambda x: ndx2stateMap[x]
+
+    @caching.cached_data_prop
+    def ndx2stateMx(self):
+        #: ``(num_states, num_vars)``-shaped matrix that maps from state indexes
+        #: to representations in terms of activations of the variables.
+        num_vars = len(next(six.iterkeys(self.state2ndxMap)))
+
+        mx = np.zeros(shape=(len(self.state2ndxMap),num_vars))
+        for state, ndx in six.iteritems(self.state2ndxMap):
+            mx[ndx,:] = state
+            
+        return mx
 
     def equilibriumState(self):
         """Get equilibrium state (i.e. the stable, equilibrium distribution)
@@ -248,8 +254,6 @@ class MarkovChain(dynsys.LinearSystem):
 
 
 class MarkovChainSampler(dynsys.StochasticDynamicalSystem):
-    # TODO document
-    # TODO change in tutorial example with random walker
 
     def __init__(self, markov_chain):
         if markov_chain.discrete_time == False:
