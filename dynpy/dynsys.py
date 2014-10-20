@@ -16,6 +16,12 @@ from . import caching
 MAX_ATTRACTOR_LENGTH = 5
 TRANSIENT_LENGTH = 30
 
+def hashable_state(x):
+    if not isinstance(x, np.ndarray):
+        return x
+    else:
+        return mx.hashable_array(x)
+
 class DynamicalSystem(object):
     """Base class for dynamical systems.
 
@@ -33,14 +39,14 @@ class DynamicalSystem(object):
         self.discrete_time = discrete_time
 
         if self.discrete_time:
-            self.iterate = self._iterateDiscrete
-            self.iterateOneStep = self._iterateOneStepDiscrete
+            self.iterate = self._iterate_discrete
+            self.iterate_1step = self._iterate_1step_discrete
         else:
-            self.iterate = self._iterateContinuous
+            self.iterate = self._iterate_continuous
 
-    def iterate(self, startState, max_time):
+    def iterate(self, start_state, max_time):
         """This method runs the dynamical system for `max_time` starting from
-        `startState` and returns the result.  In fact, this method is set at
+        `start_state` and returns the result.  In fact, this method is set at
         run-time by the constructor to either `_iterateDiscrete` or
         `_iterateContinuous` depending on whether the dynamical system object
         is initialized with `discrete_time=True` or `discrete_time=False`. Thus,
@@ -50,7 +56,7 @@ class DynamicalSystem(object):
 
         Parameters
         ----------
-        startState : numpy array or scipy.sparse matrix
+        start_state : numpy array or scipy.sparse matrix
             Which state to start from
         max_time : float
             Until which point to run the dynamical system (number of iterations
@@ -63,7 +69,7 @@ class DynamicalSystem(object):
         """
         raise NotImplementedError
 
-    def iterateOneStep(self, startState):
+    def iterate_1step(self, start_state):
         """
         This method runs a discrete-time dynamical system for 1 timestep. At
         run-time, the construct either repoints this method to `_iterateOneStep`
@@ -71,7 +77,7 @@ class DynamicalSystem(object):
 
         Parameters
         ----------
-        startState : numpy array or scipy.sparse matrix
+        start_state : numpy array or scipy.sparse matrix
             Which state to start from
 
 
@@ -82,28 +88,28 @@ class DynamicalSystem(object):
         """
         raise NotImplementedError
 
-    def _iterateOneStepDiscrete(self, startState, num_iters=1):
+    def _iterate_1step_discrete(self, start_state, num_iters=1):
         raise NotImplementedError
 
-    def _iterateDiscrete(self, startState, max_time=1.0):
+    def _iterate_discrete(self, start_state, max_time=1.0):
         if max_time == 1.0:
-            return self.iterateOneStep(startState)
+            return self.iterate_1step(start_state)
         elif max_time == 0.0:
-            return startState
+            return start_state
         else:
-            cState = startState
+            cur_state = start_state
             for i in range(int(max_time)):
-                cState = self.iterateOneStep(cState)
-            return cState
+                cur_state = self.iterate_1step(cur_state)
+            return cur_state
 
-    def getTrajectory(self, startState, max_time, num_points=None,
+    def get_trajectory(self, start_state, max_time, num_points=None,
                       logscale=False):
         """This method get a trajectory of a dynamical system starting from
         a particular starting state.
 
         Parameters
         ----------
-        startState : object
+        start_state : object
             Which state to start from
         max_time : float
             Until which point to run the dynamical system (number of iterations
@@ -130,16 +136,16 @@ class DynamicalSystem(object):
         else:
             timepoints = np.linspace(0, max_time, num=num_points, endpoint=True)
 
-        cState = startState
-        trajectory = [cState,]
+        cur_state = start_state
+        trajectory = [cur_state,]
 
-        for cNdx in range(1, len(timepoints)):
-            run_time = timepoints[cNdx]-timepoints[cNdx-1]
-            nextState = self.iterate(cState, max_time=run_time)
-            cState = nextState
-            trajectory.append( cState )
+        for t in range(1, len(timepoints)):
+            run_time = timepoints[t]-timepoints[t-1]
+            next_state = self.iterate(cur_state, max_time=run_time)
+            cur_state = next_state
+            trajectory.append( cur_state )
 
-        return trajectory
+        return np.array(trajectory)
 
 class DeterministicDynamicalSystem(DynamicalSystem):
     pass
@@ -152,17 +158,17 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
     def states(self):
         NotImplementedError
 
-    def getAttractorsAndBasins(self):
+    def get_attractor_basins(self):
         """Computes the attractors and basins of the current discrete-state
         dynamical system.
 
         Returns
         -------
-        basinAtts : list of lists
+        basin_atts : list of lists
             A list of the the attractor states for each basin (basin order is
             from largest basin to smallest).
 
-        basinStates : list of lists
+        basin_states : list of lists
             A list of all the states in each basin (basin order is from largest
             basin to smallest).
 
@@ -215,13 +221,13 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
             
         return attractors_sorted, basins_sorted
 
-    def printAttractorsAndBasins(self):
+    def print_attractor_basins(self):
         """Prints the attractors and basin of the dynamical system
 
         >>> import dynpy
         >>> rules = [ ['a',['a','b'],[1,1,1,0]],['b',['a','b'],[1,0,0,0]]]
         >>> bn = dynpy.bn.BooleanNetwork(rules=rules)
-        >>> bn.printAttractorsAndBasins()
+        >>> bn.print_attractor_basins()
         * BASIN 0 : 2 States
         ATTRACTORS:
               a      b
@@ -239,14 +245,14 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
         --------------------------------------------------------------------------------
 
         """
-        basinAtts, basinStates = self.getAttractorsAndBasins()
+        basin_atts, basin_states = self.get_attractor_basins()
         row_format = "{:>7}" * self.num_vars
-        for cBasinNdx in range(len(basinAtts)):
+        for cur_basin_ndx in range(len(basin_atts)):
             print("* BASIN %d : %d States" %
-                (cBasinNdx, len(basinStates[cBasinNdx])))
+                (cur_basin_ndx, len(basin_states[cur_basin_ndx])))
             print("ATTRACTORS:")
             print(row_format.format(*self.var_names))
-            for att in basinAtts[cBasinNdx]:
+            for att in basin_atts[cur_basin_ndx]:
                 print(row_format.format(*att))
             print("".join(['-', ] * 80))
 
@@ -282,10 +288,8 @@ class VectorDynamicalSystem(DynamicalSystem):
         """
         return dict((l, ndx) for ndx, l in enumerate(self.var_names))
 
-    def getVarNextState(self, state):
+    def get_var_next_state(self, state):
         raise NotImplementedError
-
-    vector_state_class = mx.hashable_array
 
 
 class LinearSystem(VectorDynamicalSystem):
@@ -300,7 +304,7 @@ class LinearSystem(VectorDynamicalSystem):
 
     Parameters
     ----------
-    updateOperator : numpy array or scipy.sparse matrix
+    transition_matrix : numpy array or scipy.sparse matrix
         Matrix defining the evolution of the dynamical system, i.e. the
         :math:`\\mathbf{A}` in
         :math:`\\mathbf{x_{t+1}} = \\mathbf{x_{t}}\\mathbf{A}` (in the
@@ -312,14 +316,14 @@ class LinearSystem(VectorDynamicalSystem):
         time dynamics.
     """
 
-    updateOperator = None
+    transition_matrix = None
 
-    def __init__(self, updateOperator, discrete_time=True):
-        super(LinearSystem, self).__init__(num_vars=updateOperator.shape[0], discrete_time=discrete_time)
-        self.updateOperator = updateOperator
-        self.stableEigenvalue = 1.0 if discrete_time else 0.0
+    def __init__(self, transition_matrix, discrete_time=True):
+        super(LinearSystem, self).__init__(num_vars=transition_matrix.shape[0], discrete_time=discrete_time)
+        self.transition_matrix = transition_matrix
+        self.stable_eigenvalue = 1.0 if discrete_time else 0.0
 
-    def equilibriumState(self):
+    def equilibrium_distribution(self):
         """Get equilibrium state of dynamical system using eigen-decomposition
 
         Returns
@@ -328,43 +332,43 @@ class LinearSystem(VectorDynamicalSystem):
             Equilibrium state
         """
 
-        vals, vecs = mx.getLargestLeftEigs(self.updateOperator)
-        equil_evals = np.flatnonzero(np.abs(vals-self.stableEigenvalue) < 1e-8)
+        vals, vecs = mx.get_largest_left_eigs(self.transition_matrix)
+        equil_evals = np.flatnonzero(np.abs(vals-self.stable_eigenvalue) < 1e-8)
         if len(equil_evals) != 1:
             raise Exception("Expected one stable eigenvalue, but found " +
                             "%d instead (%s)" % (len(equil_evals), equil_evals))
 
-        equilibriumState = np.real_if_close(np.ravel(vecs[equil_evals, :]))
+        equilibrium_distribution = np.real_if_close(np.ravel(vecs[equil_evals, :]))
         if np.any(np.iscomplex(equil_evals)):
             raise Exception("Expect equilibrium state to be real! %s" %
                             equil_evals)
 
-        return mx.formatMx(equilibriumState)
+        return mx.format_mx(equilibrium_distribution)
 
-    def _iterateOneStepDiscrete(self, startState):
+    def _iterate_1step_discrete(self, start_state):
         # For discrete time systems, one step
-        r = mx.formatMx(startState).dot(self.updateOperator)
+        r = mx.format_mx(start_state).dot(self.transition_matrix)
         return r
 
-    def _iterateDiscrete(self, startState, max_time=1.0):
+    def _iterate_discrete(self, start_state, max_time=1.0):
         # For discrete time systems
-        cls = mx.get_cls(self.updateOperator)
-        r = cls.formatMx(startState).dot(
-                cls.pow(self.updateOperator, int(max_time)))
+        cls = mx.get_cls(self.transition_matrix)
+        r = cls.format_mx(start_state).dot(
+                cls.pow(self.transition_matrix, int(max_time)))
         return r
 
-    def _iterateContinuous(self, startState, max_time=1.0):
-        cls = mx.get_cls(self.updateOperator)
-        curStartStates = cls.formatMx(startState)
+    def _iterate_continuous(self, start_state, max_time=1.0):
+        cls = mx.get_cls(self.transition_matrix)
+        curStartStates = cls.format_mx(start_state)
         r = curStartStates.dot(
-              cls.expm(max_time * (self.updateOperator)))
+              cls.expm(max_time * (self.transition_matrix)))
         return r
 
     # TODO
     # def getMultistepDynsys(self, num_iters):
     #     import copy
     #     rObj = copy.copy(self)
-    #     rObj.trans = self.updateOperatorCls.pow(self.updateOperator, num_iters)
+    #     rObj.trans = self.transition_matrixCls.pow(self.transition_matrix, num_iters)
     #     return rObj
 
 

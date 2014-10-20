@@ -16,9 +16,9 @@ class CellularAutomaton(bn.BooleanNetwork):
     >>> from dynpy.ca import CellularAutomaton
     >>> import numpy as np
     >>> ca = CellularAutomaton(num_vars=50, num_neighbors=1, ca_rule_number=110)
-    >>> initState = np.zeros(ca.num_vars)
-    >>> initState[int(ca.num_vars/2)] = 1.0
-    >>> for line in ca.getTrajectory(initState, 10):
+    >>> init_state = np.zeros(ca.num_vars)
+    >>> init_state[int(ca.num_vars/2)] = 1.0
+    >>> for line in ca.get_trajectory(init_state, 10):
     ...   print("".join('#' if e == 1.0 else '-' for e in line))
     -------------------------#------------------------
     ------------------------##------------------------

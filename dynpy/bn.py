@@ -26,8 +26,8 @@ def int2tuple(i, num_places):
     (in the form of a numpy array of 0s and 1s). The binary representation will
     be `num_places` long, with extra places padded with 0s.
     """
-    return dynsys.VectorDynamicalSystem.vector_state_class(
-        list(map(int,bin(i)[2:].rjust(num_places, '0'))))
+    return dynsys.hashable_state(
+        np.array(list(map(int,bin(i)[2:].rjust(num_places, '0')))))
 
 class BooleanNetwork(dynsys.DiscreteStateDynamicalSystem, 
     dynsys.VectorDynamicalSystem,
@@ -91,14 +91,14 @@ class BooleanNetwork(dynsys.DiscreteStateDynamicalSystem,
             raise Exception('Parameter mode should be one of %s'%ALLOWED_MODES)
 
         if mode == 'TRUTHTABLES':
-            self.getVarNextState = self._getVarNextStateTT
+            self.get_var_next_state = self._get_var_next_state_tt
             for r in self.rules:
                 if not isinstance(r[2], collections.Iterable):
                     raise Exception('Truth tables should be specified as ' +
                                     'iterable, not %s' % type(r[2]))
 
         elif mode == 'FUNCS':
-            self.getVarNextState = self._getVarNextStateFuncs
+            self.get_var_next_state = self._get_var_next_state_funcs
             for r in self.rules:
                 if not inspect.isfunction(r[2]):
                     raise Exception(
@@ -106,12 +106,12 @@ class BooleanNetwork(dynsys.DiscreteStateDynamicalSystem,
 
         self.state2ndx = tuple2int
 
-    def _getVarNextStateTT(self, varIndex, inputs):
+    def _get_var_next_state_tt(self, varIndex, inputs):
         """Execute update rule when network is specified using truthtables.
         Repointed in constructor."""
         return self.rules[varIndex][2][-1 - tuple2int(inputs)]
 
-    def _getVarNextStateFuncs(self, varIndex, inputs):
+    def _get_var_next_state_funcs(self, varIndex, inputs):
         """Execute update rule when network is specified using functions.
         Repointed in constructor."""
         return self.rules[varIndex][2](*inputs)
@@ -132,14 +132,14 @@ class BooleanNetwork(dynsys.DiscreteStateDynamicalSystem,
             for i in range(self.num_vars)
         ]
 
-    def _iterateOneStepDiscrete(self, startState):
+    def _iterate_1step_discrete(self, start_state):
         """Run one interation of Boolean network.  iterate is pointed to this
         in parent class constructor."""
-        return self.vector_state_class(
-            [self.getVarNextState(v, startState[self._inputs[v]])
-             for v in range(self.num_vars)])
+        return dynsys.hashable_state(np.array(
+            [self.get_var_next_state(v, start_state[self._inputs[v]])
+             for v in range(self.num_vars)]))
 
-    def getStructuralGraph(self):
+    def get_structural_graph(self):
         """
         Get graph of strutural connectivity
 

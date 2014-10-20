@@ -11,7 +11,7 @@ from . import markov, mx, dynsys
 
 class RandomWalker(markov.MarkovChain):
     """This intializes a stochastic dynamical system representing a random
-    walker on a graph.
+    walker on a graph.dynpy.sample_nets.karateclub_net
 
     Parameters
     ----------
@@ -23,26 +23,34 @@ class RandomWalker(markov.MarkovChain):
         dynamics.  Only discrete time dynamics are supported for individual
         walkers, though a distribution of walkers created using the
         :class:`dynpy.dynsys.MarkovChain` supports both.
-    TODO issparse
+    issparse : bool, optional
+        Whether to use a sparse or dense transition matrix.
 
     """
 
     def __init__(self, graph, discrete_time=True, issparse=False):
         self.cDataType = 'uint8'
-        self.num_vars = graph.shape[0]
+        N = graph.shape[0]
         graph = np.asarray(graph).astype('double')
 
-        cls = mx.SparseMatrix if issparse else mx.DenseMatrix
+        mxcls = mx.SparseMatrix if issparse else mx.DenseMatrix
 
         trans = graph / np.atleast_2d( graph.sum(axis=1) ).T
-
-        self.checkTransitionMatrix(trans)
 
         if not discrete_time:
             trans = trans - np.eye(*trans.shape)
 
-        trans = cls.formatMx( trans )
+        trans = mxcls.format_mx( trans )
 
-        super(RandomWalker, self).__init__(updateOperator=trans,
-            discrete_time=discrete_time)
+        def iter_states():
+            b = np.zeros(N)
+            for start_state in range(N):
+                r = b.copy()
+                r[start_state] = 1
+                yield mx.hashable_array(r)
+        state2ndx_map = dict( (state,ndx) for ndx, state in enumerate(iter_states()) )
+
+        super(RandomWalker, self).__init__(transition_matrix=trans,
+            discrete_time=discrete_time, state2ndx_map=state2ndx_map)
+
 

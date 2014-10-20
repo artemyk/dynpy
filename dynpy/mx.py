@@ -15,8 +15,14 @@ import scipy.sparse.linalg
 import hashlib
 import functools
 
+def hashable_array(data):
+    if isinstance(data, _hashable_array):
+        return data
+    else:
+        return _hashable_array(data)
+
 @functools.total_ordering
-class hashable_array(np.ndarray):
+class _hashable_array(np.ndarray):
     """This class provides a hashable and sortable np.array.  This is useful for 
     using np.array as dicitionary keys, for example.
 
@@ -26,10 +32,13 @@ class hashable_array(np.ndarray):
     """
 
     def __new__(cls, data): 
-        return np.array(data, copy=False).view(type=cls)
+        r = np.ascontiguousarray(np.array(data, copy=False)).view(type=cls)
+        r.flags.writeable = False
+        return r
 
     def __init__(self, values): 
         self.__hash = int(hashlib.sha1(self).hexdigest(), 16)
+        self.hhh = self.__hash
 
     def __hash__(self):
         return self.__hash
@@ -49,32 +58,32 @@ class MxBase(object):
     """Base class from which sparse and dense matrix operation classes inherit
     """
     @classmethod
-    def createEditableZerosMx(cls, shape):
+    def create_editable_zeros_mx(cls, shape):
         """Create blank editable transition matrix, of size specified by `shape`
         """
         raise NotImplementedError  # virtual class, sublcasses should implement
 
     @classmethod
-    def formatMx(cls,mx):
+    def format_mx(cls,mx):
         """Format a matrix `mx` into the current class's preferred matrix type
         (i.e., convert a dense matrix to sparse, or vice-versa, as appropriate)
         """
         raise NotImplementedError  # virtual class, sublcasses should implement
 
     @classmethod
-    def finalizeMx(cls, mx):
+    def finalize_mx(cls, mx):
         """Finalize processing of editable transition matrix `mx`
         """
         pass
 
     @classmethod
-    def getLargestRightEigs(cls, mx):
+    def get_largest_right_eigs(cls, mx):
         """Get largest right eigenvectors and eigenvalues of matrix  `mx`
         """
         raise NotImplementedError  # virtual class, sublcasses should implement
 
     @classmethod
-    def getLargestLeftEigs(cls, mx):
+    def get_largest_left_eigs(cls, mx):
         """Get largest left eigenvectors and eigenvalues of matrix  `mx`
 
         Returns
@@ -84,7 +93,7 @@ class MxBase(object):
         2-dimensional numpy array
             Eigenvectors
         """
-        vals, vecs = cls.getLargestRightEigs(mx.T)
+        vals, vecs = cls.get_largest_right_eigs(mx.T)
         return vals, vecs.T
 
     @classmethod
@@ -116,19 +125,19 @@ class SparseMatrix(MxBase):
     :class:`dynpy.mx.MxBase` for description of methods.
     """
     @classmethod
-    def createEditableZerosMx(cls, shape):
+    def create_editable_zeros_mx(cls, shape):
         return ss.lil_matrix(shape)
 
     @classmethod
-    def formatMx(cls, mx):
+    def format_mx(cls, mx):
         mx = ss.csc_matrix(mx)
         return mx
 
     @classmethod
-    def finalizeMx(cls, mx):
+    def finalize_mx(cls, mx):
         #if not ss.issparse(mx):
         #    raise Exception('Transition matrix for this class should be sparse')
-        return cls.formatMx(mx)
+        return cls.format_mx(mx)
 
     @classmethod
     def pow(cls, mx, exponent):
@@ -142,7 +151,7 @@ class SparseMatrix(MxBase):
         return scipy.sparse.linalg.expm(mx)
 
     @classmethod
-    def getLargestRightEigs(cls, mx):
+    def get_largest_right_eigs(cls, mx):
         vals, vecsR = scipy.sparse.linalg.eigs(mx, k=mx.shape[0]-2, which='LR')
         return vals, vecsR
 
@@ -151,7 +160,7 @@ class SparseMatrix(MxBase):
         return mx
 
     @classmethod
-    def toDense(cls, mx):
+    def to_dense(cls, mx):
         return mx.todense()
 
 
@@ -164,17 +173,17 @@ class DenseMatrix(MxBase):
         return scipy.linalg.expm(mx)
 
     @classmethod
-    def getLargestRightEigs(cls, mx):
+    def get_largest_right_eigs(cls, mx):
         vals, vecsR = scipy.linalg.eig(mx, right=True, left=False)
         vals, vecsR = scipy.linalg.eig(mx, right=True, left=False)
         return vals, vecsR
 
     @classmethod
-    def createEditableZerosMx(cls, shape):
+    def create_editable_zeros_mx(cls, shape):
         return np.zeros(shape)
 
     @classmethod
-    def formatMx(cls, mx):
+    def format_mx(cls, mx):
         if ss.issparse(mx):
             mx = mx.todense()
         mx = np.array(mx)
@@ -182,10 +191,10 @@ class DenseMatrix(MxBase):
 
     # Convert transition matrix to finalized format
     @classmethod
-    def finalizeMx(cls, mx):
+    def finalize_mx(cls, mx):
         #if ss.issparse(mx):
         #    raise Exception('Trans mx for this class should not be sparse')
-        return cls.formatMx(mx)
+        return cls.format_mx(mx)
 
     @classmethod
     def pow(cls, mx, exponent):
@@ -206,11 +215,11 @@ def get_cls(mx):
     else:
         return DenseMatrix
 
-def formatMx(mx):
-    return get_cls(mx).formatMx(mx)
+def format_mx(mx):
+    return get_cls(mx).format_mx(mx)
 
-def finalizeMx(mx):
-    return get_cls(mx).finalizeMx(mx)
+def finalize_mx(mx):
+    return get_cls(mx).finalize_mx(mx)
 
 def pow(mx, exponent):
     return get_cls(mx).pow(mx, exponent)
@@ -224,9 +233,9 @@ def make2d(mx):
 def todense(mx):
     return get_cls(mx).todense(mx)
 
-def getLargestRightEigs(mx):
-    return get_cls(mx).getLargestRightEigs(mx)
+def get_largest_right_eigs(mx):
+    return get_cls(mx).get_largest_right_eigs(mx)
 
-def getLargestLeftEigs(mx):
-    return get_cls(mx).getLargestLeftEigs(mx)
+def get_largest_left_eigs(mx):
+    return get_cls(mx).get_largest_left_eigs(mx)
 

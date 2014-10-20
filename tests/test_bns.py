@@ -24,11 +24,11 @@ class TestBNs:
 		bn2base = dynpy.bn.BooleanNetwork(rules=r2, mode='FUNCS')
 		bn2 = dynpy.markov.MarkovChain.from_deterministic_system(bn2base)
 
-		assert((bn1.updateOperator-bn2.updateOperator).max() == 0.0 )
-		assert((bn1.updateOperator-bn2.updateOperator).min() == 0.0 )
+		assert((bn1.transition_matrix-bn2.transition_matrix).max() == 0.0 )
+		assert((bn1.transition_matrix-bn2.transition_matrix).min() == 0.0 )
 
 	def test_attractor_basin(self):
-		atts, basins = self.testbn.getAttractorsAndBasins()
+		atts, basins = self.testbn.get_attractor_basins()
 		atts = [ list(tuple(i.tolist()) for i in att) for att in atts]
 		basins = [ list(tuple(i.tolist()) for i in b) for b in basins]
 
@@ -45,4 +45,6 @@ class TestBNs:
 		cur_bn = dynpy.bn.BooleanNetwork(rules=r, mode='FUNCS')
 
 		expected_graph = np.array([[0,0,1],[1,0,0],[0,1,0]])
-		assert(np.array_equal(cur_bn.getStructuralGraph(), expected_graph))
+
+		G = cur_bn.get_structural_graph()
+		assert(np.array_equal(G, expected_graph))

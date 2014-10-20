@@ -16,4 +16,12 @@ def test_from_deterministic():
 						 [ 0.,  1.,  0.,  0.],
 						 [ 0.,  0.,  0.,  1.]])
 
-	assert(np.array_equal(mc.updateOperator, expected))
+	assert(np.array_equal(mc.transition_matrix, expected))
+
+def test_sampler():
+	rw = dynpy.graphdynamics.RandomWalker(graph=dynpy.sample_nets.karateclub_net)
+	sampler = dynpy.markov.MarkovChainSampler(rw)
+
+	cur_state = np.zeros(rw.transition_matrix.shape[0])
+	cur_state[ 5 ] = 1
+	sampler.iterate(cur_state)
