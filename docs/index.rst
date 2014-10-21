@@ -25,8 +25,9 @@ dynpy module Index
    dynpy.dynsys
    dynpy.bn
    dynpy.ca
-   dynpy.sample_nets
+   dynpy.markov
    dynpy.graphdynamics
+   dynpy.sample_nets
    dynpy.mx
    dynpy.caching
 
