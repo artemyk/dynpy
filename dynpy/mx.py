@@ -15,14 +15,8 @@ import scipy.sparse.linalg
 import hashlib
 import functools
 
-def hashable_array(data):
-    if isinstance(data, _hashable_array):
-        return data
-    else:
-        return _hashable_array(data)
-
 @functools.total_ordering
-class _hashable_array(np.ndarray):
+class hashable_array(np.ndarray):
     """This class provides a hashable and sortable np.array.  This is useful for 
     using np.array as dicitionary keys, for example.
 
@@ -248,5 +242,5 @@ def get_largest_left_eigs(mx):
 
 def multiply(cls, mx, other_mx):
     return get_cls(mx).multiply(mx, other_mx)
-    
+
 

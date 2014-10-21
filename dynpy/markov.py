@@ -219,9 +219,11 @@ class MarkovChain(dynsys.LinearSystem):
 
         """
 
+        if not hasattr(keep_vars, '__len__'):
+            raise ValueError('keep_vars must be list-like')
+
         def marginalize_state(state):
-            return dynsys.hashable_state(np.array(
-                [state[i] for i in keep_vars]))
+            return dynsys.hashable_state(state[keep_vars])
 
         def states():
             done = set()
