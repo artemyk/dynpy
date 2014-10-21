@@ -4,6 +4,7 @@ range = six.moves.range
 
 import dynpy
 import numpy as np
+from numpy.testing import assert_array_equal
 
 class TestBNs:
 
@@ -47,4 +48,4 @@ class TestBNs:
 		expected_graph = np.array([[0,0,1],[1,0,0],[0,1,0]])
 
 		G = cur_bn.get_structural_graph()
-		assert(np.array_equal(G, expected_graph))
+		assert_array_equal(G, expected_graph)

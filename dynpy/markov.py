@@ -115,11 +115,11 @@ class MarkovChain(dynsys.LinearSystem):
         if self.discrete_time:
             if not np.logical_or(nancount == N, np.isclose(sums, 1.0)).all():
                 raise ValueError('For discrete system, state transitions ' +
-                                'entries should add up to 1.0 or (%s)' % sums)
+                                'entries should add up to 1.0 or nan (%s)' % sums)
         else:
             if not np.all(np.logical_or(np.isnan(sums), np.isclose(sums, 0.0))):
                 raise ValueError('For continuous system, state transitions ' +
-                                'entries should add up to 0.0 (%s)' % sums)
+                                'entries should add up to 0.0 or nan (%s)' % sums)
 
 
     @classmethod
@@ -253,7 +253,7 @@ class MarkovChain(dynsys.LinearSystem):
                 raise ValueError('initial_dist should add up to 1')
 
         state2ndx_map = dict( (state, ndx)
-                             for ndx, state in enumerate(states()))
+                              for ndx, state in enumerate(states()) )
 
         N = len(state2ndx_map)
 
@@ -272,11 +272,18 @@ class MarkovChain(dynsys.LinearSystem):
         trans = mxcls.from_coords(m_rows_ndxs, m_cols_ndxs, initial_p * data, 
                                   shape=(N,N))
 
-        sums = trans.sum(axis=1)
+        trans = trans.astype('float64')
+        sums = np.atleast_2d(trans.sum(axis=1)).T
         sums[sums == 0.] = np.nan
-        trans = mxcls.multiply(trans.T, 1.0/sums).T
-        trans = mxcls.finalize_mx(trans)
 
+        if mx.issparse(trans):
+            import scipy.sparse as ss
+            trans = mx.SparseMatrix.diag(1.0/sums, N).dot(trans)
+        else:
+            trans = np.multiply(trans, 1.0/sums)
+
+        trans = mxcls.finalize_mx(trans)
+        
         return cls(transition_matrix=trans, state2ndx_map=state2ndx_map)
 
 

@@ -35,7 +35,6 @@ class hashable_array(np.ndarray):
 
     def __init__(self, values): 
         self.__hash = int(hashlib.sha1(self).hexdigest(), 16)
-        self.hhh = self.__hash
 
     def __hash__(self):
         return self.__hash
@@ -125,11 +124,6 @@ class MxBase(object):
         raise NotImplementedError  # virtual class, sublcasses should implement
 
     @classmethod
-    def multiply(cls, mx, other_mx):
-        """Multiply two matrices element-wise"""
-        raise NotImplementedError  # virtual class, sublcasses should implement
-
-    @classmethod
     def array_equal(cls, mx, other_mx):
         """Return True if mx and other_mx are equal (including nan's, unlike
         numpy's array_equal
@@ -144,6 +138,11 @@ class MxBase(object):
     @classmethod
     def get_coords(cls, mx):
         """Return matrix in terms of data and row, column coordinates"""
+        raise NotImplementedError  # virtual class, sublcasses should implement
+
+    @classmethod
+    def diag(cls, data, shape):
+        """Returns matrix with diagonals set to data"""
         raise NotImplementedError  # virtual class, sublcasses should implement
 
 
@@ -197,10 +196,6 @@ class SparseMatrix(MxBase):
         return r
 
     @classmethod
-    def multiply(cls, mx, other_mx):
-        return mx.multiply(other_mx)
-
-    @classmethod
     def from_coords(cls, rows, cols, data, shape):
         return ss.coo_matrix((data, (rows, cols)), shape=shape)
 
@@ -208,6 +203,14 @@ class SparseMatrix(MxBase):
     def get_coords(cls, mx):
         mx = mx.tocoo()
         return mx.row, mx.col, mx.data
+
+    @classmethod
+    def diag(cls, data, shape):
+        if isinstance(shape, int):
+            N, M = shape, shape
+        else:
+            N, M = shape[0], shape[1]
+        return ss.spdiags(data, 0, N, M) 
 
 
 class DenseMatrix(MxBase):
@@ -259,10 +262,6 @@ class DenseMatrix(MxBase):
         return np.isnan(mx)
         
     @classmethod
-    def multiply(cls, mx, other_mx):
-        return np.multiply(mx, other_mx)
-
-    @classmethod
     def array_equal(cls, mx, other_mx):
         try:
             mx, other_mx = asarray(mx), asarray(other_mx)
@@ -285,7 +284,11 @@ class DenseMatrix(MxBase):
         mx = ss.coo_matrix(mx)
         return mx.row, mx.col, mx.data
 
-        
+    @classmethod
+    def diag(cls, data, shape):
+        return np.diag(data, shape=shape) 
+
+
 def issparse(mx):
     return ss.issparse(mx)
 
@@ -319,11 +322,12 @@ def get_largest_right_eigs(mx):
 def get_largest_left_eigs(mx):
     return get_cls(mx).get_largest_left_eigs(mx)
 
-def multiply(mx, other_mx):
-    return get_cls(mx).multiply(mx, other_mx)
-
 def isnan(mx):
     return get_cls(mx).isnan(mx)
 
 def array_equal(mx, other_mx):
-    bool(asarray(a1 == a2).all())
+    return get_cls(mx).array_equal(mx, other_mx)
+
+def diag(data, shape):
+    return get_cls(mx).diag(data, shape)
+    
