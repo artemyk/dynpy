@@ -104,23 +104,28 @@ class MarkovChain(dynsys.LinearSystem):
         """Internally used function that checks the integrity/format of
         transition matrices.
         """
-        N = self.transition_matrix.shape[0]
-        if N != self.transition_matrix.shape[1]:
+        trans = self.transition_matrix
+        N = trans.shape[0]
+        if N != trans.shape[1]:
             raise ValueError('Expect square transition matrix -- got %s:' %
-                            (self.transition_matrix.shape,) )
-        sums = mx.todense(self.transition_matrix.sum(axis=1))
-        nancount = mx.todense(mx.isnan(self.transition_matrix).sum(axis=1))
+                            (trans.shape,) )
+
+        sums = np.ravel(mx.todense(trans.sum(axis=1)))
+        nancount = np.ravel(mx.todense(mx.isnan(trans).sum(axis=1)))
+
+        ok_rows = np.zeros(sums.shape, dtype='bool')
+        target = 1.0 if self.discrete_time else 0.0
+        ok_rows[~np.isnan(sums)] = np.abs(sums[~np.isnan(sums)]-target) < 1e-6
 
         # We allow states to be nan in case their transitions are not defined
-        if self.discrete_time:
-            if not np.logical_or(nancount == N, np.isclose(sums, 1.0)).all():
-                raise ValueError('For discrete system, state transitions ' +
-                                'entries should add up to 1.0 or nan (%s)' % sums)
-        else:
-            if not np.all(np.logical_or(np.isnan(sums), np.isclose(sums, 0.0))):
-                raise ValueError('For continuous system, state transitions ' +
-                                'entries should add up to 0.0 or nan (%s)' % sums)
+        ok_rows[nancount == N] = True
 
+        if not ok_rows.all():
+            raise ValueError(
+                'For %s system trans matrix cols should add to '
+                '%d or be all nan (%s)' % 
+                ('discrete' if self.discrete_time else 'continuous', target, sums)
+            )
 
     @classmethod
     def from_deterministic_system(cls, base_sys, issparse=True):
