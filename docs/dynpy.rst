@@ -8,9 +8,11 @@ Submodules
 
 :doc:`dynpy.ca` - Cellular automata module
 
-:doc:`dynpy.sample_nets` - Module with sample networks and dynamical systems
+:doc:`dynpy.graphdynamics` - Dynamics on graphs
 
-:doc:`dynpy.graphdynamics` - Maxtrix utilities module
+:doc:`dynpy.markov` - Markov chains
+
+:doc:`dynpy.sample_nets` - Module with sample networks and dynamical systems
 
 :doc:`dynpy.mx` - Maxtrix utilities module
 
