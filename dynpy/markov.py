@@ -104,16 +104,20 @@ class MarkovChain(dynsys.LinearSystem):
         """Internally used function that checks the integrity/format of
         transition matrices.
         """
-        if self.transition_matrix.shape[0] != self.transition_matrix.shape[1]:
+        N = self.transition_matrix.shape[0]
+        if N != self.transition_matrix.shape[1]:
             raise ValueError('Expect square transition matrix -- got %s:' %
                             (self.transition_matrix.shape,) )
         sums = mx.todense(self.transition_matrix.sum(axis=1))
+        nancount = mx.todense(mx.isnan(self.transition_matrix).sum(axis=1))
+
+        # We allow states to be nan in case their transitions are not defined
         if self.discrete_time:
-            if not np.allclose(sums, 1.0):
+            if not np.logical_or(nancount == N, np.isclose(sums, 1.0)).all():
                 raise ValueError('For discrete system, state transitions ' +
-                                'entries should add up to 1.0 (%s)' % sums)
+                                'entries should add up to 1.0 or (%s)' % sums)
         else:
-            if not np.allclose(sums, 0.0):
+            if not np.all(np.logical_or(np.isnan(sums), np.isclose(sums, 0.0))):
                 raise ValueError('For continuous system, state transitions ' +
                                 'entries should add up to 0.0 (%s)' % sums)
 
@@ -223,9 +227,6 @@ class MarkovChain(dynsys.LinearSystem):
 
         """
 
-        if not hasattr(keep_vars, '__len__'):
-            raise ValueError('keep_vars must be list-like')
-
         def marginalize_state(state):
             return dynsys.hashable_state(state[keep_vars])
 
@@ -240,19 +241,26 @@ class MarkovChain(dynsys.LinearSystem):
         def s2n(x):
             return state2ndx_map[x]
 
+        if not hasattr(keep_vars, '__len__'):
+            raise ValueError('keep_vars must be list-like')
+
+        if initial_dist is None:
+            initial_dist = markov_chain.get_uniform_distribution()
+        else:
+            if initial_dist.ndim != 1:
+                raise ValueError('initial_dist should be 1-dimensional')
+            if initial_dist.sum() != 1.0:
+                raise ValueError('initial_dist should add up to 1')
+
         state2ndx_map = dict( (state, ndx)
                              for ndx, state in enumerate(states()))
 
         N = len(state2ndx_map)
 
-        if initial_dist is None:
-            initial_dist = markov_chain.get_uniform_distribution()
-
         mxcls = mx.get_cls(markov_chain.transition_matrix)
         trans = mxcls.create_editable_zeros_mx(shape=(N, N))
 
         rows, cols, data = mxcls.get_coords(markov_chain.transition_matrix)
-
         m_rows = marginalize_state(markov_chain.ndx2state_mx[rows,:].T).T
         m_rows_ndxs = list(map(s2n, map(dynsys.hashable_state, m_rows)))
 
@@ -264,7 +272,9 @@ class MarkovChain(dynsys.LinearSystem):
         trans = mxcls.from_coords(m_rows_ndxs, m_cols_ndxs, initial_p * data, 
                                   shape=(N,N))
 
-        trans = mxcls.multiply(trans.T, 1.0/trans.sum(axis=1)).T
+        sums = trans.sum(axis=1)
+        sums[sums == 0.] = np.nan
+        trans = mxcls.multiply(trans.T, 1.0/sums).T
         trans = mxcls.finalize_mx(trans)
 
         return cls(transition_matrix=trans, state2ndx_map=state2ndx_map)

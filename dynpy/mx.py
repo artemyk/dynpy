@@ -8,6 +8,8 @@ range = six.moves.range
 map   = six.moves.map
 
 import numpy as np
+from numpy.core import asarray
+
 import numpy.linalg
 import scipy.linalg
 import scipy.sparse as ss
@@ -39,7 +41,7 @@ class hashable_array(np.ndarray):
         return self.__hash
 
     def __eq__(self, other): # equality test
-        return np.array_equal(self, other)
+        return DenseMatrix.array_equal(self, other)
 
     def __lt__(self, other):  # comparison test
         if self.size < other.size:
@@ -118,8 +120,20 @@ class MxBase(object):
         raise NotImplementedError  # virtual class, sublcasses should implement
 
     @classmethod
+    def isnan(cls, mx):
+        """Element-wise isnan operation on matrix elements"""
+        raise NotImplementedError  # virtual class, sublcasses should implement
+
+    @classmethod
     def multiply(cls, mx, other_mx):
         """Multiply two matrices element-wise"""
+        raise NotImplementedError  # virtual class, sublcasses should implement
+
+    @classmethod
+    def array_equal(cls, mx, other_mx):
+        """Return True if mx and other_mx are equal (including nan's, unlike
+        numpy's array_equal
+        """
         raise NotImplementedError  # virtual class, sublcasses should implement
 
     @classmethod
@@ -175,6 +189,12 @@ class SparseMatrix(MxBase):
     @classmethod
     def todense(cls, mx):
         return mx.todense()
+
+    @classmethod
+    def isnan(cls, mx):
+        r = mx.copy()
+        r.data[:] = np.isnan(r.data)
+        return r
 
     @classmethod
     def multiply(cls, mx, other_mx):
@@ -235,8 +255,24 @@ class DenseMatrix(MxBase):
         return mx
 
     @classmethod
+    def isnan(cls, mx):
+        return np.isnan(mx)
+        
+    @classmethod
     def multiply(cls, mx, other_mx):
         return np.multiply(mx, other_mx)
+
+    @classmethod
+    def array_equal(cls, mx, other_mx):
+        try:
+            mx, other_mx = asarray(mx), asarray(other_mx)
+        except:
+            return False
+        if mx.shape != other_mx.shape:
+            return False
+        both_equal = np.equal(mx, other_mx)
+        both_nan   = np.equal(np.isnan(mx), np.isnan(other_mx))
+        return bool(np.logical_or(both_equal, both_nan).all())
 
     @classmethod
     def from_coords(cls, rows, cols, data, shape):
@@ -283,7 +319,11 @@ def get_largest_right_eigs(mx):
 def get_largest_left_eigs(mx):
     return get_cls(mx).get_largest_left_eigs(mx)
 
-def multiply(cls, mx, other_mx):
+def multiply(mx, other_mx):
     return get_cls(mx).multiply(mx, other_mx)
 
+def isnan(mx):
+    return get_cls(mx).isnan(mx)
 
+def array_equal(mx, other_mx):
+    bool(asarray(a1 == a2).all())
