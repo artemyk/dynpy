@@ -269,8 +269,8 @@ class VectorDynamicalSystem(DynamicalSystem):
         indexes of the variables.
     """
 
-    #: The number of variables in the dynamical system
     num_vars = None
+    #: The number of variables in the dynamical system
 
     def __init__(self, num_vars, var_names=None, discrete_time=True):
         super(VectorDynamicalSystem,self).__init__(discrete_time)
@@ -287,9 +287,6 @@ class VectorDynamicalSystem(DynamicalSystem):
         """A mapping from variables names to their indexes
         """
         return dict((l, ndx) for ndx, l in enumerate(self.var_names))
-
-    def get_var_next_state(self, state):
-        raise NotImplementedError
 
 
 class LinearSystem(VectorDynamicalSystem):

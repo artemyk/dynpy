@@ -91,14 +91,14 @@ class BooleanNetwork(dynsys.DiscreteStateDynamicalSystem,
             raise Exception('Parameter mode should be one of %s'%ALLOWED_MODES)
 
         if mode == 'TRUTHTABLES':
-            self.get_var_next_state = self._get_var_next_state_tt
+            self._get_var_next_state = self._get_var_next_state_tt
             for r in self.rules:
                 if not isinstance(r[2], collections.Iterable):
                     raise Exception('Truth tables should be specified as ' +
                                     'iterable, not %s' % type(r[2]))
 
         elif mode == 'FUNCS':
-            self.get_var_next_state = self._get_var_next_state_funcs
+            self._get_var_next_state = self._get_var_next_state_funcs
             for r in self.rules:
                 if not inspect.isfunction(r[2]):
                     raise Exception(
@@ -136,7 +136,7 @@ class BooleanNetwork(dynsys.DiscreteStateDynamicalSystem,
         """Run one interation of Boolean network.  iterate is pointed to this
         in parent class constructor."""
         return dynsys.hashable_state(np.array(
-            [self.get_var_next_state(v, start_state[self._inputs[v]])
+            [self._get_var_next_state(v, start_state[self._inputs[v]])
              for v in range(self.num_vars)]))
 
     def get_structural_graph(self):
