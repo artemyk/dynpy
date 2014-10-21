@@ -1,3 +1,6 @@
+"""Module implementing Markov chains.
+"""
+
 from __future__ import print_function
 
 import numpy as np
@@ -9,12 +12,7 @@ from . import mx
 
 from . import caching
 
-# TODO FIX TUTORIAL
-# TODO DOCUMENT and write tests for markovchainsampler
-# MERGE
-
 class MarkovChain(dynsys.LinearSystem):
-
     """This class implements Markov chains.
 
     There is some potential for confusion regarding the term 'Markov chain'. It 
@@ -258,6 +256,15 @@ class MarkovChain(dynsys.LinearSystem):
 
 
 class MarkovChainSampler(dynsys.StochasticDynamicalSystem):
+    """This class implements a stochastic dynamical system whose trajectory
+    represents a sample from a provided Markov chain.
+
+    Parameters
+    ----------
+    markov_chain : :class:`dynpy.markov.MarkovChain`
+        Markov chain from which to sample from.  For now, only discrete time 
+        is supported.
+    """
 
     def __init__(self, markov_chain):
         if markov_chain.discrete_time == False:

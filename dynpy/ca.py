@@ -1,5 +1,6 @@
-"""Module implementing Cellular automaton dynamical system
+"""Module implementing Cellular automaton dynamical systems.
 """
+
 from __future__ import division, print_function, absolute_import
 import six
 range = six.moves.range
