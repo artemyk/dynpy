@@ -5,6 +5,7 @@ with matrices.
 from __future__ import division, print_function, absolute_import
 import six
 range = six.moves.range
+map   = six.moves.map
 
 import numpy as np
 import numpy.linalg
@@ -43,10 +44,13 @@ class hashable_array(np.ndarray):
     def __lt__(self, other):  # comparison test
         if self.size < other.size:
             return True
-        if self == other:
-            return False
+        #if self == other:
+        #    return False
         nonequal = ~np.equal(self, other)
-        return np.less(self[nonequal], other[nonequal])[0]
+        if not len(nonequal):
+            return False
+        firstnonequal = np.flatnonzero(nonequal)[0]
+        return self[firstnonequal] < other[firstnonequal]
 
 class MxBase(object):
     """Base class from which sparse and dense matrix operation classes inherit
@@ -113,6 +117,21 @@ class MxBase(object):
         """Convert matrix `mx` to dense format"""
         raise NotImplementedError  # virtual class, sublcasses should implement
 
+    @classmethod
+    def multiply(cls, mx, other_mx):
+        """Multiply two matrices element-wise"""
+        raise NotImplementedError  # virtual class, sublcasses should implement
+
+    @classmethod
+    def from_coords(cls, rows, cols, data, shape):
+        """Initialize matrix using data and row, column coordinates"""
+        raise NotImplementedError  # virtual class, sublcasses should implement
+
+    @classmethod
+    def get_coords(cls, mx):
+        """Return matrix in terms of data and row, column coordinates"""
+        raise NotImplementedError  # virtual class, sublcasses should implement
+
 
 class SparseMatrix(MxBase):
     """Class for sparse matrix operations.  See documentation for
@@ -161,6 +180,16 @@ class SparseMatrix(MxBase):
     def multiply(cls, mx, other_mx):
         return mx.multiply(other_mx)
 
+    @classmethod
+    def from_coords(cls, rows, cols, data, shape):
+        return ss.coo_matrix((data, (rows, cols)), shape=shape)
+
+    @classmethod
+    def get_coords(cls, mx):
+        mx = mx.tocoo()
+        return mx.row, mx.col, mx.data
+
+
 class DenseMatrix(MxBase):
     """Class for dense matrix operations.  See documentation for
     :class:`dynpy.mx.MxBase` for description of methods.
@@ -176,8 +205,8 @@ class DenseMatrix(MxBase):
         return vals, vecsR
 
     @classmethod
-    def create_editable_zeros_mx(cls, shape):
-        return np.zeros(shape)
+    def create_editable_zeros_mx(cls, shape, dtype=None):
+        return np.zeros(shape, dtype=dtype)
 
     @classmethod
     def format_mx(cls, mx):
@@ -208,10 +237,24 @@ class DenseMatrix(MxBase):
     @classmethod
     def multiply(cls, mx, other_mx):
         return np.multiply(mx, other_mx)
+
+    @classmethod
+    def from_coords(cls, rows, cols, data, shape):
+        mx = cls.create_editable_zeros_mx(shape, data.dtype)
+        mx[rows, cols] = data
+        return mx
+
+    @classmethod
+    def get_coords(cls, mx):
+        mx = ss.coo_matrix(mx)
+        return mx.row, mx.col, mx.data
+
         
+def issparse(mx):
+    return ss.issparse(mx)
 
 def get_cls(mx):
-    if ss.issparse(mx):
+    if issparse(mx):
         return SparseMatrix
     else:
         return DenseMatrix

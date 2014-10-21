@@ -4,6 +4,7 @@ from __future__ import division, print_function, absolute_import
 
 import six
 range = six.moves.range
+map   = six.moves.map
 
 import inspect
 import collections
@@ -14,12 +15,16 @@ import numpy as np
 from . import dynsys
 from . import caching
 
-def tuple2int(b):
+
+def tuple2int(bitlist):
     """Helper function which converts a binary representation (e.g.,
         ``[1,0,1]``) into an integer
     """
-    return int("".join(map(str, map(int, b))), 2)
-
+    # return int("".join(map(str, map(int, bitlist))), 2)
+    out = 0
+    for bit in bitlist:
+        out = (out << 1) | bit
+    return out
 
 def int2tuple(i, num_places):
     """Helper function which converts an integer into a binary representation
@@ -90,6 +95,13 @@ class BooleanNetwork(dynsys.VectorDynamicalSystem,
         if mode not in ALLOWED_MODES:
             raise Exception('Parameter mode should be one of %s'%ALLOWED_MODES)
 
+        # Remap inputs from being specified by variable names to being
+        # specified by variable indexes. Makes update functions run faster.
+        self.input_ixs = [
+            [self.var_name_ndxs[cur_input] for cur_input in self.rules[i][1]]
+            for i in range(self.num_vars)
+        ]
+
         if mode == 'TRUTHTABLES':
             self._get_var_next_state = self._get_var_next_state_tt
             for r in self.rules:
@@ -104,17 +116,26 @@ class BooleanNetwork(dynsys.VectorDynamicalSystem,
                     raise Exception(
                         'Boolean functions should be specified as functions')
 
-        self.state2ndx = tuple2int
+            # # Convert functions to truth tables
+            # new_rules = []
+            # for v in range(self.num_vars):
+            #     var_rules = []
+            #     N = len(self.input_ixs[v])
+            #     for inputstate in range(2**N - 1, -1, -1):
+            #         var_rules.append(self._get_var_next_state_funcs(v, int2tuple(inputstate, N)))
+            #     new_rules.append((self.rules[v][0], self.rules[v][1], np.array(var_rules)))
+            # self.rules = new_rules
+            # self._get_var_next_state = self._get_var_next_state_tt
 
-    def _get_var_next_state_tt(self, varIndex, inputs):
+    def _get_var_next_state_tt(self, var_index, inputs):
         """Execute update rule when network is specified using truthtables.
         Repointed in constructor."""
-        return self.rules[varIndex][2][-1 - tuple2int(inputs)]
+        return self.rules[var_index][2][-1 - tuple2int(inputs)]
 
-    def _get_var_next_state_funcs(self, varIndex, inputs):
+    def _get_var_next_state_funcs(self, var_index, inputs):
         """Execute update rule when network is specified using functions.
         Repointed in constructor."""
-        return self.rules[varIndex][2](*inputs)
+        return self.rules[var_index][2](*inputs)
 
     def states(self):
         """Returns list of all possible states occupied by system.
@@ -122,21 +143,12 @@ class BooleanNetwork(dynsys.VectorDynamicalSystem,
         num_states = 2**self.num_vars
         return (int2tuple(s, self.num_vars) for s in range(num_states))
 
-    @caching.cached_data_prop
-    def _inputs(self):
-        """Remaps inputs from being specified by variable names to being
-        specified by variable indexes. Makes update functions run faster.
-        """
-        return [
-            [self.var_name_ndxs[cInput] for cInput in self.rules[i][1]]
-            for i in range(self.num_vars)
-        ]
-
     def _iterate_1step_discrete(self, start_state):
         """Run one interation of Boolean network.  iterate is pointed to this
         in parent class constructor."""
+
         return dynsys.hashable_state(np.array(
-            [self._get_var_next_state(v, start_state[self._inputs[v]])
+             [self._get_var_next_state(v, start_state[self.input_ixs[v]])
              for v in range(self.num_vars)]))
 
     def get_structural_graph(self):

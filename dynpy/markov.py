@@ -6,6 +6,7 @@ from __future__ import print_function
 import numpy as np
 import six
 range = six.moves.range
+map   = six.moves.map
 
 from . import dynsys
 from . import mx
@@ -63,12 +64,14 @@ class MarkovChain(dynsys.LinearSystem):
         #: to representations in terms of activations of the variables.
 
         if self.state2ndx_map is None:
-            return np.eye(self.transition_matrix.shape[0])
+            return np.eye(self.transition_matrix.shape[0], dtype='int')
 
         else:
-            num_vars = len(next(six.iterkeys(self.state2ndx_map)))
+            fkey = next(six.iterkeys(self.state2ndx_map))
+            num_vars = len(fkey)
 
-            mx = np.zeros(shape=(len(self.state2ndx_map),num_vars))
+            mx = np.zeros(shape=(len(self.state2ndx_map),num_vars), 
+                          dtype=fkey.dtype)
             for state, ndx in six.iteritems(self.state2ndx_map):
                 mx[ndx,:] = state
                 
@@ -177,10 +180,11 @@ class MarkovChain(dynsys.LinearSystem):
         mxcls = mx.SparseMatrix if issparse else mx.DenseMatrix
         trans = mxcls.create_editable_zeros_mx(shape=(N, N))
 
-        for state in base_sys.states():
-            nextstate = base_sys.iterate(state)
-            trans[state2ndx_map[state], state2ndx_map[nextstate]] = 1.
-
+        translist = \
+            ((state2ndx_map[state], state2ndx_map[base_sys.iterate(state)], 1.0)
+             for state in base_sys.states() )
+        nrows, ncols, ndata = list(map(np.array, zip(*translist)))
+        trans = mxcls.from_coords(nrows, ncols, ndata, shape=(N,N))
         trans = mx.finalize_mx(trans)
 
         return cls(transition_matrix=trans, state2ndx_map=state2ndx_map,
@@ -233,6 +237,9 @@ class MarkovChain(dynsys.LinearSystem):
                     done.add(c)
                     yield c
 
+        def s2n(x):
+            return state2ndx_map[x]
+
         state2ndx_map = dict( (state, ndx)
                              for ndx, state in enumerate(states()))
 
@@ -243,14 +250,21 @@ class MarkovChain(dynsys.LinearSystem):
 
         mxcls = mx.get_cls(markov_chain.transition_matrix)
         trans = mxcls.create_editable_zeros_mx(shape=(N, N))
-        for i, sstate in six.iteritems(markov_chain.ndx2state_map):
-            initial_p = initial_dist[i]
-            mI = state2ndx_map[marginalize_state(sstate)]
-            for j, estate in six.iteritems(markov_chain.ndx2state_map):
-                mJ = state2ndx_map[marginalize_state(estate)]
-                trans[mI, mJ] += initial_p * markov_chain.transition_matrix[i,j]
 
-        trans = mxcls.multiply(trans, 1.0/trans.sum(axis=1))
+        rows, cols, data = mxcls.get_coords(markov_chain.transition_matrix)
+
+        m_rows = marginalize_state(markov_chain.ndx2state_mx[rows,:].T).T
+        m_rows_ndxs = list(map(s2n, map(dynsys.hashable_state, m_rows)))
+
+        m_cols = marginalize_state(markov_chain.ndx2state_mx[cols,:].T).T
+        m_cols_ndxs = list(map(s2n, map(dynsys.hashable_state, m_cols)))
+
+        initial_p = initial_dist[rows]
+
+        trans = mxcls.from_coords(m_rows_ndxs, m_cols_ndxs, initial_p * data, 
+                                  shape=(N,N))
+
+        trans = mxcls.multiply(trans.T, 1.0/trans.sum(axis=1)).T
         trans = mxcls.finalize_mx(trans)
 
         return cls(transition_matrix=trans, state2ndx_map=state2ndx_map)

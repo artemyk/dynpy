@@ -4,6 +4,7 @@ systems"""
 from __future__ import division, print_function, absolute_import
 import six
 range = six.moves.range
+map   = six.moves.map
 
 import collections
 
