@@ -98,8 +98,8 @@ Cellular Automata
 
 The cellular automata class :class:`dynpy.ca.CellularAutomaton` is defined in
 :doc:`dynpy.ca`.  It is a subclass of :class:`dynpy.bn.BooleanNetwork`.
-Effectively, it constructs a Boolean network with a lattice connectivity
-topology and a homogenous update function.  Here is an example of how to use it:
+It constructs a Boolean network with a lattice connectivity
+topology and a homogenous update function.  For example:
 
 .. plot::
    :include-source:
@@ -121,7 +121,7 @@ Markov Chains
 --------------
 
 `dynpy` also implements Markov chains, or dynamical systems over distributions of
-states.  See the documentation for :class:`dynpy.dynsys.MarkovChain` for more 
+states.  See the documentation for :class:`dynpy.markov.MarkovChain` for more 
 details. 
 
 For example, here we use :doc:`dynpy.graphdynamics`, which implements dynamics on
@@ -191,7 +191,7 @@ It is also possible to get the equilibrium distribution by calling
 
 
 In fact, it is possible to turn any deterministic dynamical system into a Markov 
-chain by using the :method:`dynpy.markov.MarkovChain.from_deterministic_system` method.
+chain by using the :meth:`dynpy.markov.MarkovChain.from_deterministic_system` method.
 For example, to create a dynamical system over a distribution of states of 
 the yeast-cell cycle Boolean network:
 
