@@ -160,9 +160,12 @@ class SparseMatrix(MxBase):
         return mx
 
     @classmethod
-    def to_dense(cls, mx):
+    def todense(cls, mx):
         return mx.todense()
 
+    @classmethod
+    def multiply(cls, mx, other_mx):
+        return mx.multiply(other_mx)
 
 class DenseMatrix(MxBase):
     """Class for dense matrix operations.  See documentation for
@@ -208,6 +211,10 @@ class DenseMatrix(MxBase):
     def todense(cls, mx):
         return mx
 
+    @classmethod
+    def multiply(cls, mx, other_mx):
+        return np.multiply(mx, other_mx)
+        
 
 def get_cls(mx):
     if ss.issparse(mx):
@@ -238,4 +245,8 @@ def get_largest_right_eigs(mx):
 
 def get_largest_left_eigs(mx):
     return get_cls(mx).get_largest_left_eigs(mx)
+
+def multiply(cls, mx, other_mx):
+    return get_cls(mx).multiply(mx, other_mx)
+    
 

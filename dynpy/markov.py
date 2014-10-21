@@ -84,12 +84,12 @@ class MarkovChain(dynsys.LinearSystem):
             Equilibrium distribution
         """
 
-        equilibriumDist = super(MarkovChain, self).equilibrium_distribution()
-        equilibriumDist = equilibriumDist / equilibriumDist.sum()
+        dist = super(MarkovChain, self).equilibrium_distribution()
+        dist = dist / dist.sum()
 
-        if np.any(mx.todense(equilibriumDist) < 0.0):
+        if np.any(mx.todense(dist) < 0.0):
             raise Exception("Expect equilibrium state to be positive!")
-        return equilibriumDist
+        return dist
 
     def get_uniform_distribution(self):
         """Return uniform starting distribution over all system states.
@@ -102,21 +102,21 @@ class MarkovChain(dynsys.LinearSystem):
         transition matrices.
         """
         if self.transition_matrix.shape[0] != self.transition_matrix.shape[1]:
-            raise Exception('Expect square transition matrix (got %s)' %
-                            self.transition_matrix.shape)
+            raise ValueError('Expect square transition matrix -- got %s:' %
+                            (self.transition_matrix.shape,) )
         sums = mx.todense(self.transition_matrix.sum(axis=1))
         if self.discrete_time:
             if not np.allclose(sums, 1.0):
-                raise Exception('For discrete system, state transitions ' +
+                raise ValueError('For discrete system, state transitions ' +
                                 'entries should add up to 1.0 (%s)' % sums)
         else:
             if not np.allclose(sums, 0.0):
-                raise Exception('For continuous system, state transitions ' +
+                raise ValueError('For continuous system, state transitions ' +
                                 'entries should add up to 0.0 (%s)' % sums)
 
 
     @classmethod
-    def from_deterministic_system(cls, base_sys, issparse=False):
+    def from_deterministic_system(cls, base_sys, issparse=True):
         """Alternative constructor creates a a Markov Chain from the transitions
         of an underlying deterministic system. It maintains properties of the 
         underlying system, such as the sparsity of the state transition matrix,
@@ -201,7 +201,7 @@ class MarkovChain(dynsys.LinearSystem):
         ...     ['x2', ['x1','x2'], lambda x1,x2: (x1 or  x2) ],
         ... ]
         >>> bn = dynpy.bn.BooleanNetwork(rules=r, mode='FUNCS')
-        >>> bnensemble = dynpy.markov.MarkovChain.from_deterministic_system(bn)
+        >>> bnensemble = dynpy.markov.MarkovChain.from_deterministic_system(bn, issparse=False)
         >>> marg = dynpy.markov.MarkovChain.marginalize(bnensemble, [0])
         >>> print(marg.transition_matrix)
         [[ 1.   0. ]
@@ -248,7 +248,7 @@ class MarkovChain(dynsys.LinearSystem):
                 mJ = state2ndx_map[marginalize_state(estate)]
                 trans[mI, mJ] += initial_p * markov_chain.transition_matrix[i,j]
 
-        trans = trans/trans.sum(axis=1)[:,np.newaxis]
+        trans = mxcls.multiply(trans, 1.0/trans.sum(axis=1))
         trans = mxcls.finalize_mx(trans)
 
         return cls(transition_matrix=trans, state2ndx_map=state2ndx_map)

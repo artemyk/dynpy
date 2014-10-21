@@ -349,12 +349,12 @@ class LinearSystem(VectorDynamicalSystem):
             raise Exception("Expected one stable eigenvalue, but found " +
                             "%d instead (%s)" % (len(equil_evals), equil_evals))
 
-        equilibrium_distribution = np.real_if_close(np.ravel(vecs[equil_evals, :]))
+        dist = np.real_if_close(np.ravel(vecs[equil_evals, :]))
         if np.any(np.iscomplex(equil_evals)):
             raise Exception("Expect equilibrium state to be real! %s" %
                             equil_evals)
 
-        return mx.format_mx(equilibrium_distribution)
+        return mx.format_mx(dist)
 
     def _iterate_1step_discrete(self, start_state):
         # For discrete time systems, one step
