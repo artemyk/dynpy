@@ -246,15 +246,21 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
 
         """
         basin_atts, basin_states = self.get_attractor_basins()
-        row_format = "{:>7}" * self.num_vars
         for cur_basin_ndx in range(len(basin_atts)):
             print("* BASIN %d : %d States" %
                 (cur_basin_ndx, len(basin_states[cur_basin_ndx])))
             print("ATTRACTORS:")
-            print(row_format.format(*self.var_names))
+            print(self._get_state_row_title())
             for att in basin_atts[cur_basin_ndx]:
-                print(row_format.format(*att))
+                print(self._get_state_row_repr(att))
             print("".join(['-', ] * 80))
+
+    def _get_state_row_repr(self, state):
+        return state
+
+    def _get_state_row_title(self):
+        return 'State'
+
 
 class VectorDynamicalSystem(DynamicalSystem):
     """Mix-in for classes implementing dynamics over multivariate systems.
@@ -269,8 +275,8 @@ class VectorDynamicalSystem(DynamicalSystem):
         indexes of the variables.
     """
 
-    num_vars = None
     #: The number of variables in the dynamical system
+    num_vars = None
 
     def __init__(self, num_vars, var_names=None, discrete_time=True):
         super(VectorDynamicalSystem,self).__init__(discrete_time)
@@ -288,6 +294,13 @@ class VectorDynamicalSystem(DynamicalSystem):
         """
         return dict((l, ndx) for ndx, l in enumerate(self.var_names))
 
+    def _get_state_row_repr(self, state):
+        row_format = "{:>7}" * self.num_vars
+        return row_format.format(*state)
+
+    def _get_state_row_title(self):
+        row_format = "{:>7}" * self.num_vars
+        return row_format.format(*self.var_names)
 
 class LinearSystem(VectorDynamicalSystem):
     # TODO: TESTS
@@ -313,6 +326,7 @@ class LinearSystem(VectorDynamicalSystem):
         time dynamics.
     """
 
+    #: Transition matrix for linear system.
     transition_matrix = None
 
     def __init__(self, transition_matrix, discrete_time=True):
