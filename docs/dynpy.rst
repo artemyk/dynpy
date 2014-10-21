@@ -10,7 +10,7 @@ Submodules
 
 :doc:`dynpy.graphdynamics` - Dynamics on graphs
 
-:doc:`dynpy.markov` - Markov chains
+:doc:`dynpy.markov` - Markov chain module
 
 :doc:`dynpy.sample_nets` - Module with sample networks and dynamical systems
 
