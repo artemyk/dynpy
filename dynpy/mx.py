@@ -132,7 +132,8 @@ class MxBase(object):
 
     @classmethod
     def from_coords(cls, rows, cols, data, shape):
-        """Initialize matrix using data and row, column coordinates"""
+        """Initialize matrix using data and row, column coordinates. Duplicates
+        should be summed"""
         raise NotImplementedError  # virtual class, sublcasses should implement
 
     @classmethod
@@ -141,7 +142,7 @@ class MxBase(object):
         raise NotImplementedError  # virtual class, sublcasses should implement
 
     @classmethod
-    def diag(cls, data, shape):
+    def diag(cls, data):
         """Returns matrix with diagonals set to data"""
         raise NotImplementedError  # virtual class, sublcasses should implement
 
@@ -205,12 +206,15 @@ class SparseMatrix(MxBase):
         return mx.row, mx.col, mx.data
 
     @classmethod
-    def diag(cls, data, shape):
-        if isinstance(shape, int):
-            N, M = shape, shape
+    def diag(cls, data):
+        if data.shape[0] == 1:
+            N = data.shape[1]
+        elif len(data.shape) == 1 or data.shape[1] == 1:
+            N = data.shape[0]
         else:
-            N, M = shape[0], shape[1]
-        return ss.spdiags(data, 0, N, M) 
+            raise ValueError('data for diagonals should be one-dimensional')
+
+        return ss.spdiags(data, 0, N, N)
 
 
 class DenseMatrix(MxBase):
@@ -276,7 +280,9 @@ class DenseMatrix(MxBase):
     @classmethod
     def from_coords(cls, rows, cols, data, shape):
         mx = cls.create_editable_zeros_mx(shape, data.dtype)
-        mx[rows, cols] = data
+        for r, c, d in zip(rows, cols, data):
+            mx[r, c] += d
+        # mx[rows, cols] = data  # Doesn't sum duplicates
         return mx
 
     @classmethod
@@ -285,8 +291,8 @@ class DenseMatrix(MxBase):
         return mx.row, mx.col, mx.data
 
     @classmethod
-    def diag(cls, data, shape):
-        return np.diag(data, shape=shape) 
+    def diag(cls, data):
+        return np.diag(data) 
 
 
 def issparse(mx):
@@ -328,6 +334,6 @@ def isnan(mx):
 def array_equal(mx, other_mx):
     return get_cls(mx).array_equal(mx, other_mx)
 
-def diag(data, shape):
-    return get_cls(mx).diag(data, shape)
+def diag(data):
+    return get_cls(mx).diag(data)
     

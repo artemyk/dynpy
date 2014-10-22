@@ -58,6 +58,17 @@ def test_marginalize_initial():
 	_test_marginalize(False, initial_dist=dist, 
 		expected=[[ 1., 0.], [0.125, 0.875]])
 
+def test_marginalize_yeast():
+    bn = BooleanNetwork(rules=dynpy.sample_nets.yeast_cellcycle_bn, 
+    	                mode='TRUTHTABLES')
+    bnensemble1 = MarkovChain.from_deterministic_system(bn, issparse=True)
+    bnensemble2 = MarkovChain.from_deterministic_system(bn, issparse=False)
+
+    marg1 = MarkovChain.marginalize(bnensemble1, [0,1,2,3])
+    marg2 = MarkovChain.marginalize(bnensemble2, [0,1,2,3])
+    assert_array_equal(marg1.transition_matrix.todense(), marg2.transition_matrix)
+
+
 @raises(ValueError)
 def test_check_transition_matrix_not_square():
 	MarkovChain(transition_matrix=np.zeros(shape=[1,2]))

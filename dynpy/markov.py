@@ -13,6 +13,8 @@ from . import mx
 
 from . import caching
 
+TOLERANCE = 1e-10
+
 class MarkovChain(dynsys.LinearSystem):
     """This class implements Markov chains.
 
@@ -90,7 +92,7 @@ class MarkovChain(dynsys.LinearSystem):
         dist = super(MarkovChain, self).equilibrium_distribution()
         dist = dist / dist.sum()
 
-        if np.any(mx.todense(dist) < 0.0):
+        if np.any(mx.todense(dist) < -TOLERANCE):
             raise Exception("Expect equilibrium state to be positive!")
         return dist
 
@@ -114,8 +116,8 @@ class MarkovChain(dynsys.LinearSystem):
         nancount = np.ravel(mx.todense(mx.isnan(trans).sum(axis=1)))
 
         ok_rows = np.zeros(sums.shape, dtype='bool')
-        target = 1.0 if self.discrete_time else 0.0
-        ok_rows[~np.isnan(sums)] = np.abs(sums[~np.isnan(sums)]-target) < 1e-6
+        trg = 1.0 if self.discrete_time else 0.0
+        ok_rows[~np.isnan(sums)] = np.abs(sums[~np.isnan(sums)]-trg) < TOLERANCE
 
         # We allow states to be nan in case their transitions are not defined
         ok_rows[nancount == N] = True
@@ -124,7 +126,7 @@ class MarkovChain(dynsys.LinearSystem):
             raise ValueError(
                 'For %s system trans matrix cols should add to '
                 '%d or be all nan (%s)' % 
-                ('discrete' if self.discrete_time else 'continuous', target, sums)
+                ('discrete' if self.discrete_time else 'continuous', trg, sums)
             )
 
     @classmethod
@@ -246,6 +248,15 @@ class MarkovChain(dynsys.LinearSystem):
         def s2n(x):
             return state2ndx_map[x]
 
+        def multiply_rows(trans, multiplier):
+            if mx.issparse(trans):
+                r = mx.SparseMatrix.diag(multiplier).dot(trans)
+                r = mx.finalize_mx(r)
+                r[np.ravel(np.isnan(multiplier)),:] = np.nan
+            else:
+                r = np.multiply(trans, multiplier)
+            return r
+
         if not hasattr(keep_vars, '__len__'):
             raise ValueError('keep_vars must be list-like')
 
@@ -254,7 +265,7 @@ class MarkovChain(dynsys.LinearSystem):
         else:
             if initial_dist.ndim != 1:
                 raise ValueError('initial_dist should be 1-dimensional')
-            if initial_dist.sum() != 1.0:
+            if not np.isclose(initial_dist.sum(), 1.0):
                 raise ValueError('initial_dist should add up to 1')
 
         state2ndx_map = dict( (state, ndx)
@@ -265,30 +276,27 @@ class MarkovChain(dynsys.LinearSystem):
         mxcls = mx.get_cls(markov_chain.transition_matrix)
         trans = mxcls.create_editable_zeros_mx(shape=(N, N))
 
-        rows, cols, data = mxcls.get_coords(markov_chain.transition_matrix)
+        full_trans = multiply_rows(markov_chain.transition_matrix, initial_dist)
+        #if mx.issparse(full_trans):
+        #    full_trans.eliminate_zeros()
+
+        rows, cols, data = mxcls.get_coords(full_trans)
         m_rows = marginalize_state(markov_chain.ndx2state_mx[rows,:].T).T
         m_rows_ndxs = list(map(s2n, map(dynsys.hashable_state, m_rows)))
 
         m_cols = marginalize_state(markov_chain.ndx2state_mx[cols,:].T).T
         m_cols_ndxs = list(map(s2n, map(dynsys.hashable_state, m_cols)))
 
-        initial_p = initial_dist[rows]
+        #initial_p = initial_dist[rows]
 
-        trans = mxcls.from_coords(m_rows_ndxs, m_cols_ndxs, initial_p * data, 
-                                  shape=(N,N))
+        trans = mxcls.from_coords(m_rows_ndxs, m_cols_ndxs, data, shape=(N,N))
 
         trans = trans.astype('float64')
         sums = np.atleast_2d(trans.sum(axis=1)).T
         sums[sums == 0.] = np.nan
 
-        if mx.issparse(trans):
-            import scipy.sparse as ss
-            trans = mx.SparseMatrix.diag(1.0/sums, N).dot(trans)
-        else:
-            trans = np.multiply(trans, 1.0/sums)
+        trans = multiply_rows(trans, 1.0/sums)
 
-        trans = mxcls.finalize_mx(trans)
-        
         return cls(transition_matrix=trans, state2ndx_map=state2ndx_map)
 
 
