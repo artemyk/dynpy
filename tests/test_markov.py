@@ -38,7 +38,7 @@ def _test_marginalize(issparse, initial_dist=None, expected=[[1., 0.], [0.5, 0.5
     bn = BooleanNetwork(rules=bnrules, mode='FUNCS')
     bnensemble = MarkovChain.from_deterministic_system(
     				bn, issparse=issparse)
-    marg = MarkovChain.marginalize(bnensemble, [0], initial_dist=initial_dist)
+    marg = bnensemble.marginalize([0], initial_dist=initial_dist)
     trans = dynpy.mx.todense(marg.transition_matrix)
     assert_array_equal(trans, np.core.asarray(expected))
 
@@ -64,8 +64,8 @@ def test_marginalize_yeast():
     bnensemble1 = MarkovChain.from_deterministic_system(bn, issparse=True)
     bnensemble2 = MarkovChain.from_deterministic_system(bn, issparse=False)
 
-    marg1 = MarkovChain.marginalize(bnensemble1, [0,1,2,3])
-    marg2 = MarkovChain.marginalize(bnensemble2, [0,1,2,3])
+    marg1 = bnensemble1.marginalize([0,1,2,3])
+    marg2 = bnensemble2.marginalize([0,1,2,3])
     assert_array_equal(marg1.transition_matrix.todense(), marg2.transition_matrix)
 
 

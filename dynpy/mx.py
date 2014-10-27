@@ -18,41 +18,6 @@ import scipy.sparse.linalg
 import hashlib
 import functools
 
-@functools.total_ordering
-class hashable_array(np.ndarray):
-    """This class provides a hashable and sortable np.array.  This is useful for 
-    using np.array as dicitionary keys, for example.
-
-    Notice that hashable arrays change the default behavior of numpy arrays for 
-    equality and comparison operators.  Instead of performing element-wise
-    tests, hashable arrays return a value for the array as a whole
-    """
-
-    def __new__(cls, data): 
-        r = np.ascontiguousarray(np.array(data, copy=False)).view(type=cls)
-        r.flags.writeable = False
-        return r
-
-    def __init__(self, values): 
-        self.__hash = int(hashlib.sha1(self).hexdigest(), 16)
-
-    def __hash__(self):
-        return self.__hash
-
-    def __eq__(self, other): # equality test
-        return DenseMatrix.array_equal(self, other)
-
-    def __lt__(self, other):  # comparison test
-        if self.size < other.size:
-            return True
-        #if self == other:
-        #    return False
-        nonequal = ~np.equal(self, other)
-        if not len(nonequal):
-            return False
-        firstnonequal = np.flatnonzero(nonequal)[0]
-        return self[firstnonequal] < other[firstnonequal]
-
 class MxBase(object):
     """Base class from which sparse and dense matrix operation classes inherit
     """
@@ -216,6 +181,8 @@ class SparseMatrix(MxBase):
 
         return ss.spdiags(data, 0, N, N)
 
+    vstack = staticmethod(ss.vstack)
+
 
 class DenseMatrix(MxBase):
     """Class for dense matrix operations.  See documentation for
@@ -274,7 +241,7 @@ class DenseMatrix(MxBase):
         if mx.shape != other_mx.shape:
             return False
         both_equal = np.equal(mx, other_mx)
-        both_nan   = np.equal(np.isnan(mx), np.isnan(other_mx))
+        both_nan   = np.logical_and(np.isnan(mx), np.isnan(other_mx))
         return bool(np.logical_or(both_equal, both_nan).all())
 
     @classmethod
@@ -294,6 +261,7 @@ class DenseMatrix(MxBase):
     def diag(cls, data):
         return np.diag(data) 
 
+    vstack = staticmethod(np.vstack)
 
 def issparse(mx):
     return ss.issparse(mx)
@@ -337,3 +305,38 @@ def array_equal(mx, other_mx):
 def diag(data):
     return get_cls(mx).diag(data)
     
+
+@functools.total_ordering
+class hashable_array(np.ndarray):
+    """This class provides a hashable and sortable np.array.  This is useful for 
+    using np.array as dicitionary keys, for example.
+
+    Notice that hashable arrays change the default behavior of numpy arrays for 
+    equality and comparison operators.  Instead of performing element-wise
+    tests, hashable arrays return a value for the array as a whole
+    """
+
+    def __new__(cls, data): 
+        r = np.ascontiguousarray(np.array(data, copy=False)).view(type=cls)
+        r.flags.writeable = False
+        return r
+
+    def __init__(self, values): 
+        self.__hash = int(hashlib.sha1(self).hexdigest(), 16)
+
+    def __hash__(self):
+        return self.__hash
+
+    def __eq__(self, other): # equality test
+        return DenseMatrix.array_equal(self, other)
+
+    def __lt__(self, other):  # comparison test
+        if self.size < other.size:
+            return True
+        #if self == other:
+        #    return False
+        nonequal = ~np.equal(self, other)
+        if not len(nonequal):
+            return False
+        firstnonequal = np.flatnonzero(nonequal)[0]
+        return self[firstnonequal] < other[firstnonequal]

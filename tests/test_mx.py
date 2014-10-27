@@ -21,5 +21,13 @@ def test_from_coords_sparse():
 	data = np.array([1,1,1])
 	r = dynpy.mx.SparseMatrix.from_coords(rows, cols, data, shape=(2,2))
 	r = r.todense()
-	
+
 	assert_array_equal(r, np.array([[3,0],[0,0]]))
+
+def test_array_equal():
+	a = np.array([0,])
+	b = np.array([0,])
+	c = np.array([1,])
+	assert( dynpy.mx.DenseMatrix.array_equal(a, b) )
+	assert( not dynpy.mx.DenseMatrix.array_equal(a, c) )
+	

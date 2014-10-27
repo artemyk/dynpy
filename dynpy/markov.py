@@ -202,10 +202,9 @@ class MarkovChain(dynsys.LinearSystem):
             discrete_time=base_sys.discrete_time)
 
 
-    @classmethod
-    def marginalize(cls, markov_chain, keep_vars, initial_dist=None):
-        """Alternative constructor that creates a Markov chain by marginalizing
-        a Markov chain over a multivariate dynamical system onto a subset of 
+    def marginalize(self, keep_vars, initial_dist=None):
+        """Create a Markov chain by marginalizing an existing 
+        Markov chain over a multivariate dynamical system onto a subset of 
         those variables.
 
         For example:
@@ -225,8 +224,6 @@ class MarkovChain(dynsys.LinearSystem):
 
         Parameters
         ----------
-        markov_chain : class:`dynpy.markov.MarkovChain`
-            Markov chain to marginalize
         keep_vars : list 
             List of variables to keep 
         initial_dist : optional
@@ -239,7 +236,7 @@ class MarkovChain(dynsys.LinearSystem):
 
         def states():
             done = set()
-            for fullstate in markov_chain.state2ndx_map:
+            for fullstate in self.state2ndx_map:
                 c = marginalize_state(fullstate)
                 if c not in done:
                     done.add(c)
@@ -257,11 +254,11 @@ class MarkovChain(dynsys.LinearSystem):
                 r = np.multiply(trans, multiplier)
             return r
 
-        if not hasattr(keep_vars, '__len__'):
+        if not hasattr(keep_vars, '__iter__'):
             raise ValueError('keep_vars must be list-like')
 
         if initial_dist is None:
-            initial_dist = markov_chain.get_uniform_distribution()
+            initial_dist = self.get_uniform_distribution()
         else:
             if initial_dist.ndim != 1:
                 raise ValueError('initial_dist should be 1-dimensional')
@@ -273,18 +270,16 @@ class MarkovChain(dynsys.LinearSystem):
 
         N = len(state2ndx_map)
 
-        mxcls = mx.get_cls(markov_chain.transition_matrix)
+        mxcls = mx.get_cls(self.transition_matrix)
         trans = mxcls.create_editable_zeros_mx(shape=(N, N))
 
-        full_trans = multiply_rows(markov_chain.transition_matrix, initial_dist)
-        #if mx.issparse(full_trans):
-        #    full_trans.eliminate_zeros()
-
+        full_trans = multiply_rows(self.transition_matrix, initial_dist)
+        
         rows, cols, data = mxcls.get_coords(full_trans)
-        m_rows = marginalize_state(markov_chain.ndx2state_mx[rows,:].T).T
+        m_rows = marginalize_state(self.ndx2state_mx[rows,:].T).T
         m_rows_ndxs = list(map(s2n, map(dynsys.hashable_state, m_rows)))
 
-        m_cols = marginalize_state(markov_chain.ndx2state_mx[cols,:].T).T
+        m_cols = marginalize_state(self.ndx2state_mx[cols,:].T).T
         m_cols_ndxs = list(map(s2n, map(dynsys.hashable_state, m_cols)))
 
         #initial_p = initial_dist[rows]
@@ -297,7 +292,7 @@ class MarkovChain(dynsys.LinearSystem):
 
         trans = multiply_rows(trans, 1.0/sums)
 
-        return cls(transition_matrix=trans, state2ndx_map=state2ndx_map)
+        return MarkovChain(transition_matrix=trans, state2ndx_map=state2ndx_map)
 
 
 
@@ -307,17 +302,17 @@ class MarkovChainSampler(dynsys.StochasticDynamicalSystem):
 
     Parameters
     ----------
-    markov_chain : :class:`dynpy.markov.MarkovChain`
+    self : :class:`dynpy.markov.MarkovChain`
         Markov chain from which to sample from.  For now, only discrete time 
         is supported.
     """
 
     def __init__(self, markov_chain):
-        if markov_chain.discrete_time == False:
+        if self.discrete_time == False:
             raise Exception('Can only sample from discrete-time MCs')
         self.markov_chain = markov_chain
         super(MarkovChainSampler, self).__init__(
-            discrete_time=markov_chain.discrete_time)
+            discrete_time=self.discrete_time)
 
     def _iterate_1step_discrete(self, start_state):
         mc = self.markov_chain

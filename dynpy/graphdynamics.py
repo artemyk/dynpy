@@ -29,7 +29,7 @@ class RandomWalker(markov.MarkovChain):
 
     """
 
-    def __init__(self, graph, discrete_time=True, issparse=False):
+    def __init__(self, graph, discrete_time=True, issparse=True):
         self.cDataType = 'uint8'
         N = graph.shape[0]
         graph = np.asarray(graph).astype('double')

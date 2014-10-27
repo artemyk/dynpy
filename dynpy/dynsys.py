@@ -146,7 +146,7 @@ class DynamicalSystem(object):
             cur_state = next_state
             trajectory.append( cur_state )
 
-        return np.array(trajectory)
+        return mx.get_cls(self.transition_matrix).vstack(trajectory)
 
 class DeterministicDynamicalSystem(DynamicalSystem):
     pass
@@ -159,16 +159,20 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
     def states(self):
         NotImplementedError
 
-    def get_attractor_basins(self):
+    def get_attractor_basins(self, sort=True):
         """Computes the attractors and basins of the current discrete-state
         dynamical system.
+
+        Parameters
+        ----------
+        sort : bool, optional
+            Whether to sort attractors and basin states (slower).
 
         Returns
         -------
         basin_atts : list of lists
             A list of the the attractor states for each basin (basin order is
             from largest basin to smallest).
-
         basin_states : list of lists
             A list of all the states in each basin (basin order is from largest
             basin to smallest).
@@ -214,13 +218,20 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
             basins[basin].append(state)
 
         keyfunc = lambda k: (-len(basins[attractors[k]]),k)
-        attractors_sorted = sorted(attractors.keys(), key=keyfunc)
 
-        basins_sorted = []
-        for att in attractors_sorted:
-            basins_sorted.append(sorted(basins[attractors[att]]))
+        attractor_states = attractors.keys()
+
+        if sort:
+            attractor_states = sorted(attractor_states, key=keyfunc)
+
+        basins_states = []
+        for att in attractor_states:
+            cbasin = basins[attractors[att]]
+            if sort:
+                cbasin = sorted(cbasin)
+            basins_states.append(cbasin)
             
-        return attractors_sorted, basins_sorted
+        return attractor_states, basins_states
 
     def print_attractor_basins(self):
         """Prints the attractors and basin of the dynamical system
