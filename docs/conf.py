@@ -131,15 +131,14 @@ pygments_style = 'sphinx'
 #keep_warnings = False
 
 
-def skip_hashable_array_inheritted(app, what, name, obj, options, lines):
-    if name == 'dynpy.mx.hashable_array':
-      # hashable_array inherits from np.ndarray and we don't want to include
-      # thes inheritted docstrings
-      options['inherited-members'] = False
-      options['undoc-members'] = False
+def custom_opts(app, what, name, obj, options, lines):
+    if hasattr(obj, 'SPHINXDOC_INHERITED_MEMBERS'):
+      options['inherited-members'] = obj.SPHINXDOC_INHERITED_MEMBERS
+    if hasattr(obj, 'SPHINXDOC_UNDOC_MEMBERS'):
+      options['undoc-members']     = obj.SPHINXDOC_UNDOC_MEMBERS
 
 def setup(app):
-    app.connect('autodoc-process-docstring', skip_hashable_array_inheritted)
+    app.connect('autodoc-process-docstring', custom_opts)
 
 
 # -- Options for HTML output ----------------------------------------------

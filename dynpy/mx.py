@@ -326,6 +326,11 @@ class hashable_array(np.ndarray):
     tests, hashable arrays return a value for the array as a whole
     """
 
+    # We inherit from np.ndarray but don't want to include that documentation
+    # These attributes are parsed in Sphinx's conf.py
+    SPHINXDOC_INHERITED_MEMBERS = False
+    SPHINXDOC_UNDOC_MEMBERS     = False
+
     def __new__(cls, data): 
         r = np.ascontiguousarray(np.array(data, copy=False)).view(type=cls)
         r.flags.writeable = False
