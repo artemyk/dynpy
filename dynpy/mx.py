@@ -111,6 +111,11 @@ class MxBase(object):
         """Returns matrix with diagonals set to data"""
         raise NotImplementedError  # virtual class, sublcasses should implement
 
+    @classmethod
+    def vstack(cls, data):
+        """Stack arrays vertically"""
+        raise NotImplementedError  # virtual class, sublcasses should implement
+
 
 class SparseMatrix(MxBase):
     """Class for sparse matrix operations.  See documentation for
@@ -181,7 +186,9 @@ class SparseMatrix(MxBase):
 
         return ss.spdiags(data, 0, N, N)
 
-    vstack = staticmethod(ss.vstack)
+    @classmethod
+    def vstack(cls, data):
+        return ss.vstack(data)
 
 
 class DenseMatrix(MxBase):
@@ -261,7 +268,10 @@ class DenseMatrix(MxBase):
     def diag(cls, data):
         return np.diag(data) 
 
-    vstack = staticmethod(np.vstack)
+    @classmethod
+    def vstack(cls, data):
+        return np.vstack(data)
+
 
 def issparse(mx):
     return ss.issparse(mx)
@@ -333,8 +343,6 @@ class hashable_array(np.ndarray):
     def __lt__(self, other):  # comparison test
         if self.size < other.size:
             return True
-        #if self == other:
-        #    return False
         nonequal = ~np.equal(self, other)
         if not len(nonequal):
             return False

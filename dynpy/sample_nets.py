@@ -4,9 +4,8 @@ in testing and development.
 Right now it includes:
 
 ``yeast_cellcycle_bn``: A 11-node yeast-cell cycle Boolean network.  It is in
-the 'truthtable' format. For more details, see
-	Li et al, The yeast cell-cycle network is robustly designed, PNAS, 2004.
-	http://www.pnas.org/content/101/14/4781.full.pdf
+the 'truthtable' format. For more details, see Li et al, The yeast cell-cycle 
+network is robustly designed, PNAS, 2004.
 
 ``karateclub_net``: A 34-node graph representing Zachary's karate-club network.
 It is in numpy array format.
