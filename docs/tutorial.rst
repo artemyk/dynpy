@@ -24,7 +24,6 @@ Each node updates itself as a Boolean function of other nodes (it's 'inputs').
 can use it to compute the 
 space time diagram of the 11-node yeast cell-cycle network, as described in:
 Li et al, The yeast cell-cycle network is robustly designed, PNAS, 2004.
-http://www.pnas.org/content/101/14/4781.full.pdf
 
 
 .. plot::
