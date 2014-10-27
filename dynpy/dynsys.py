@@ -146,7 +146,7 @@ class DynamicalSystem(object):
             cur_state = next_state
             trajectory.append( cur_state )
 
-        return mx.get_cls(self.transition_matrix).vstack(trajectory)
+        return mx.get_cls(start_state).vstack(trajectory)
 
 class DeterministicDynamicalSystem(DynamicalSystem):
     pass
