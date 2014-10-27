@@ -139,14 +139,15 @@ class DynamicalSystem(object):
 
         cur_state = start_state
         trajectory = [cur_state,]
+        start_state_cls = mx.get_cls(start_state)
 
         for t in range(1, len(timepoints)):
             run_time = timepoints[t]-timepoints[t-1]
             next_state = self.iterate(cur_state, max_time=run_time)
-            cur_state = next_state
+            cur_state = start_state_cls.format_mx(next_state)
             trajectory.append( cur_state )
 
-        return mx.get_cls(start_state).vstack(trajectory)
+        return start_state_cls.vstack(trajectory)
 
 class DeterministicDynamicalSystem(DynamicalSystem):
     pass

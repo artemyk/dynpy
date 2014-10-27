@@ -100,7 +100,8 @@ class MarkovChain(dynsys.LinearSystem):
         """Return uniform starting distribution over all system states.
         """
         N = self.transition_matrix.shape[0]
-        return np.ones(N) / float(N)
+        dist = np.ones(N) / float(N)
+        return dist
 
     def _check_transition_mx(self):
         """Internally used function that checks the integrity/format of
