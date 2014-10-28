@@ -1,16 +1,22 @@
 dynpy [![Build Status](https://travis-ci.org/artemyk/dynpy.svg?branch=master)](https://travis-ci.org/artemyk/dynpy)
-=====
+===================================================================================================================
 
-dynpy is a framework for building dynamical systems in Python.  So far, it has basic support for linear dynamical systems, random walkers, Boolean Networks, and Cellular Autamata.
+dynpy is a package for defining and running dynamical systems in Python.  The
+goal is to support a wide-variety of dynamical systems, both continuous and
+discrete time as well as continuous and discrete state.
 
-For documentation, see http://dynpy.readthedocs.org/ .  The tutorial, at http://dynpy.readthedocs.org/tutorial.html , may be particularly helpful.
+So far, it has basic support for linear dynamical systems, Markov chains, 
+Boolean Networks, and Cellular Autamata.  
+
+It supports both Python2 and Python3.
+
+For documentation, see http://dynpy.readthedocs.org/ .  The tutorial, at 
+http://dynpy.readthedocs.org/tutorial.html , may be particularly helpful.
 
 
-Installation
+Requirements
 ------------
-Just download into a directory and do
-```
-python setup.py install
-```
 
-dynpy requires numpy and scipy.  Testing requires nose and coverage.  Building the documentation requires matplotlib.
+dynpy requires numpy, scipy, six and hashlib.  
+Testing requires nose and coverage.  
+Building the documentation requires matplotlib.
