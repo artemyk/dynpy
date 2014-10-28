@@ -8,6 +8,8 @@ def read(fname):
 
 exec(read('dynpy/version.py'))
 
+download_url = "https://github.com/artemyk/dynpy/tarball/master#egg=dynpy-%s.tar.gz" % __version__
+
 setup(name='dynpy',
       version=__version__,
       description='Dynamical systems for Python',
@@ -18,12 +20,13 @@ setup(name='dynpy',
       install_requires=['numpy>=1.6','scipy>=0.13','coverage>=3.7.0','six>=1.8.0'],
       license="GPL",
       long_description=read('README.md'),
-	  download_url='https://codeload.github.com/artemyk/dynpy/tar.gz/0.2#egg=dynpy-0.2.tar.gz',
+	  download_url=download_url,
       classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Science/Research",
         "Topic :: Scientific/Engineering",
         "Programming Language :: Python",
 		"Programming Language :: Python :: 3",
-    ],
+	  ],
+	  zip_safe=False,
      )
