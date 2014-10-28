@@ -17,6 +17,6 @@ http://dynpy.readthedocs.org/tutorial.html , may be particularly helpful.
 Requirements
 ------------
 
-dynpy requires numpy, scipy, six and hashlib.  
+dynpy requires numpy, scipy, and six.  
 Testing requires nose and coverage.  
 Building the documentation requires matplotlib.
