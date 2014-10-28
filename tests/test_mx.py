@@ -6,6 +6,7 @@ map = six.moves.map
 import dynpy
 import numpy as np
 from numpy.testing import assert_array_equal
+from nose.tools import raises
 
 def test_from_coords_dense():
 	rows = np.array([0,0,0])
@@ -31,3 +32,10 @@ def test_array_equal():
 	assert( dynpy.mx.DenseMatrix.array_equal(a, b) )
 	assert( not dynpy.mx.DenseMatrix.array_equal(a, c) )
 	
+def test_issparse():
+	assert( dynpy.mx.issparse(dynpy.mx.DenseMatrix.format_mx([[0,0],[0,0]])) == False)
+	assert( dynpy.mx.issparse(dynpy.mx.SparseMatrix.format_mx([[0,0],[0,0]])) == True)
+
+@raises(ValueError)
+def test_issparse_invalid():
+	assert( dynpy.mx.issparse('not a matrix') )

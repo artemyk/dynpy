@@ -247,6 +247,7 @@ class DenseMatrix(MxBase):
             return False
         if mx.shape != other_mx.shape:
             return False
+
         both_equal = np.equal(mx, other_mx)
         both_nan   = np.logical_and(np.isnan(mx), np.isnan(other_mx))
         return bool(np.logical_or(both_equal, both_nan).all())
@@ -274,7 +275,12 @@ class DenseMatrix(MxBase):
 
 
 def issparse(mx):
-    return ss.issparse(mx)
+    if ss.issparse(mx):
+        return True
+    elif isinstance(mx, (np.ndarray, np.generic) ):
+        return False
+    else:
+        raise ValueError('mx does not appear to be a matrix')
 
 def get_cls(mx):
     if issparse(mx):

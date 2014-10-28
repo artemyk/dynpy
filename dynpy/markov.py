@@ -125,7 +125,7 @@ class MarkovChain(dynsys.LinearSystem):
 
         if not ok_rows.all():
             raise ValueError(
-                'For %s system trans matrix cols should add to '
+                'For %s-time system trans matrix cols should add to '
                 '%d or be all nan (%s)' % 
                 ('discrete' if self.discrete_time else 'continuous', trg, sums)
             )
