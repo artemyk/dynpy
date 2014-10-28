@@ -248,7 +248,7 @@ class MarkovChain(dynsys.LinearSystem):
 
         def multiply_rows(trans, multiplier):
             if mx.issparse(trans):
-                r = mx.SparseMatrix.diag(multiplier).dot(trans)
+                r = mx.SparseMatrix.diag(np.ravel(multiplier)).dot(trans)
                 r = mx.finalize_mx(r)
                 r[np.ravel(np.isnan(multiplier)),:] = np.nan
             else:

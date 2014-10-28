@@ -44,7 +44,7 @@ class RandomWalker(markov.MarkovChain):
         trans = mxcls.format_mx( trans )
 
         def iter_states():
-            b = np.zeros(N)
+            b = np.zeros(N, 'int8')
             for start_state in range(N):
                 r = b.copy()
                 r[start_state] = 1

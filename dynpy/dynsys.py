@@ -286,6 +286,8 @@ class VectorDynamicalSystem(DynamicalSystem):
     var_names : list, optional
         Names for the variables (optional).  Default is simply the numeric
         indexes of the variables.
+    discrete_time : bool, optional
+        Whether dynamical system is discrete or continuous time.
     """
 
     #: The number of variables in the dynamical system
@@ -343,7 +345,8 @@ class LinearSystem(VectorDynamicalSystem):
     transition_matrix = None
 
     def __init__(self, transition_matrix, discrete_time=True):
-        super(LinearSystem, self).__init__(num_vars=transition_matrix.shape[0], discrete_time=discrete_time)
+        super(LinearSystem, self).__init__(num_vars=transition_matrix.shape[0], 
+            discrete_time=discrete_time)
         self.transition_matrix = transition_matrix
         self.stable_eigenvalue = 1.0 if discrete_time else 0.0
 

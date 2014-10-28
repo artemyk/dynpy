@@ -177,14 +177,7 @@ class SparseMatrix(MxBase):
 
     @classmethod
     def diag(cls, data):
-        if data.shape[0] == 1:
-            N = data.shape[1]
-        elif len(data.shape) == 1 or data.shape[1] == 1:
-            N = data.shape[0]
-        else:
-            raise ValueError('data for diagonals should be one-dimensional')
-
-        return ss.spdiags(data, 0, N, N)
+        return ss.diags(data, 0)
 
     @classmethod
     def vstack(cls, data):
@@ -338,12 +331,19 @@ class hashable_array(np.ndarray):
     SPHINXDOC_UNDOC_MEMBERS     = False
 
     def __new__(cls, data): 
-        r = np.ascontiguousarray(np.array(data, copy=False)).view(type=cls)
+        r = np.array(data, copy=False).view(type=cls)
         r.flags.writeable = False
         return r
 
     def __init__(self, values): 
-        self.__hash = int(hashlib.sha1(self).hexdigest(), 16)
+        if len(values) < 1000:
+            if len(values.shape) == 1:
+                tpl = tuple(values.tolist())
+            else:
+                tpl = tuple(map(tuple, values.tolist()))
+            self.__hash = hash(tpl)
+        else:
+            self.__hash = int(hashlib.sha1(self).hexdigest(), 16)
 
     def __hash__(self):
         return self.__hash
