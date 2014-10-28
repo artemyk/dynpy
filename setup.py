@@ -11,5 +11,18 @@ setup(name='dynpy',
       url='https://github.com/artemyk/dynpy',
       packages=['dynpy'],
       install_requires=['numpy>=1.6','scipy>=0.13','coverage>=3.7.0','six>=1.8.0'],
-      zip_safe=False
+      license="GPL",
+      long_description="""
+dynpy is a package for defining and running dynamical systems in Python.  The
+goal is to support a wide-variety of dynamical systems, both continuous and
+discrete time as well as continuous and discrete state.
+""",
+	  download_url="https://github.com/artemyk/dynpy/tarball/" + __version__,
+      classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Science/Research",
+        "Topic :: Scientific/Engineering",
+        "Programming Language :: Python",
+		"Programming Language :: Python :: 3",
+    ],
      )
