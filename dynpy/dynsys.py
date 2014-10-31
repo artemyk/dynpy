@@ -160,7 +160,7 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
     def states(self):
         NotImplementedError
 
-    def get_attractor_basins(self, sort=True):
+    def get_attractor_basins(self, sort=False):
         """Computes the attractors and basins of the current discrete-state
         dynamical system.
 
@@ -258,7 +258,7 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
         --------------------------------------------------------------------------------
 
         """
-        basin_atts, basin_states = self.get_attractor_basins()
+        basin_atts, basin_states = self.get_attractor_basins(sort=True)
         for cur_basin_ndx in range(len(basin_atts)):
             print("* BASIN %d : %d States" %
                 (cur_basin_ndx, len(basin_states[cur_basin_ndx])))

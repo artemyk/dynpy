@@ -1,5 +1,6 @@
 """Module which implements dynamical systems on graph
 """
+
 from __future__ import division, print_function, absolute_import
 import six
 range = six.moves.range
@@ -7,7 +8,7 @@ map   = six.moves.map
 
 import numpy as np
 
-from . import markov, mx, dynsys
+from . import markov, mx, dynsys, utils
 
 
 class RandomWalker(markov.MarkovChain):
@@ -49,7 +50,7 @@ class RandomWalker(markov.MarkovChain):
                 r = b.copy()
                 r[start_state] = 1
                 yield mx.hashable_array(r)
-        state2ndx_map = dict( (state,ndx) for ndx, state in enumerate(iter_states()) )
+        state2ndx_map = utils.readonlydict( (state,ndx) for ndx, state in enumerate(iter_states()) )
 
         super(RandomWalker, self).__init__(transition_matrix=trans,
             discrete_time=discrete_time, state2ndx_map=state2ndx_map)

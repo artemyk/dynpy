@@ -30,7 +30,7 @@ class TestBNs:
 		assert((bn1.transition_matrix-bn2.transition_matrix).min() == 0.0 )
 
 	def test_attractor_basin(self):
-		atts, basins = self.testbn.get_attractor_basins()
+		atts, basins = self.testbn.get_attractor_basins(sort=True)
 		atts = [ list(tuple(i.tolist()) for i in att) for att in atts]
 		basins = [ list(tuple(i.tolist()) for i in b) for b in basins]
 

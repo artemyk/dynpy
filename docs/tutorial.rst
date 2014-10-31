@@ -45,7 +45,7 @@ We can also get the network's attractors, by doing:
 
 >>> import dynpy
 >>> bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.yeast_cellcycle_bn)
->>> atts, attbasins = bn.get_attractor_basins()
+>>> atts, attbasins = bn.get_attractor_basins(sort=True)
 >>> print(list(map(len, attbasins)))
 [1764, 151, 109, 9, 7, 7, 1]
 

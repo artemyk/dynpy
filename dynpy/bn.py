@@ -15,24 +15,7 @@ import numpy as np
 from . import dynsys
 from . import caching
 
-
-def tuple2int(bitlist):
-    """Helper function which converts a binary representation (e.g.,
-        ``[1,0,1]``) into an integer
-    """
-    # return int("".join(map(str, map(int, bitlist))), 2)
-    out = 0
-    for bit in bitlist:
-        out = (out << 1) | bit
-    return out
-
-def int2tuple(i, num_places):
-    """Helper function which converts an integer into a binary representation
-    (in the form of a numpy array of 0s and 1s). The binary representation will
-    be `num_places` long, with extra places padded with 0s.
-    """
-    return dynsys.hashable_state(
-        np.array(list(map(int,bin(i)[2:].rjust(num_places, '0'))),'int8'))
+from .utils import int2tuple, tuple2int
 
 class BooleanNetwork(dynsys.VectorDynamicalSystem,
     dynsys.DiscreteStateDynamicalSystem, 
@@ -77,12 +60,13 @@ class BooleanNetwork(dynsys.VectorDynamicalSystem,
     rules : list
         The definition of the Boolean network, as described above
     mode : {'TRUTHTABLES','FUNCS'}, optional
-        Specifies how the update functions are defined, 'TRUTHTABLES' is default
+        Specifies how the update functions are defined, by default tries to 
+        guess
     """
 
     rules = None #: The provided definition of the Boolean network
 
-    def __init__(self, rules, mode='TRUTHTABLES'):
+    def __init__(self, rules, mode=None):
 
         var_names = [lbl for (lbl, inputs, table) in rules]
         self.rules = rules
@@ -91,10 +75,6 @@ class BooleanNetwork(dynsys.VectorDynamicalSystem,
         super(BooleanNetwork, self).__init__(
             num_vars, var_names, discrete_time=True)
 
-        ALLOWED_MODES = ['TRUTHTABLES', 'FUNCS']
-        if mode not in ALLOWED_MODES:
-            raise Exception('Parameter mode should be one of %s'%ALLOWED_MODES)
-
         # Remap inputs from being specified by variable names to being
         # specified by variable indexes. Makes update functions run faster.
         self.input_ixs = [
@@ -102,18 +82,25 @@ class BooleanNetwork(dynsys.VectorDynamicalSystem,
             for i in range(self.num_vars)
         ]
 
+        if mode is None:
+            if hasattr(self.rules[0][2], '__call__'):
+                # function update rule is callable, assume it is a function
+                mode = 'FUNCS'
+            else:
+                mode = 'TRUTHTABLES'
+
         if mode == 'TRUTHTABLES':
             self._get_var_next_state = self._get_var_next_state_tt
             for r in self.rules:
                 if not isinstance(r[2], collections.Iterable):
-                    raise Exception('Truth tables should be specified as ' +
+                    raise ValueError('Truth tables should be specified as ' +
                                     'iterable, not %s' % type(r[2]))
 
         elif mode == 'FUNCS':
             self._get_var_next_state = self._get_var_next_state_funcs
             for r in self.rules:
                 if not inspect.isfunction(r[2]):
-                    raise Exception(
+                    raise ValueError(
                         'Boolean functions should be specified as functions')
 
             # # Convert functions to truth tables
@@ -126,6 +113,8 @@ class BooleanNetwork(dynsys.VectorDynamicalSystem,
             #     new_rules.append((self.rules[v][0], self.rules[v][1], np.array(var_rules)))
             # self.rules = new_rules
             # self._get_var_next_state = self._get_var_next_state_tt
+        else:
+            raise ValueError('Invalid mode parameter %s' % mode)
 
     def _get_var_next_state_tt(self, var_index, inputs):
         """Execute update rule when network is specified using truthtables.
