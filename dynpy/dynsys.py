@@ -236,17 +236,17 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
         >>> rules = [ ['a',['a','b'],[1,1,1,0]],['b',['a','b'],[1,0,0,0]]]
         >>> bn = dynpy.bn.BooleanNetwork(rules=rules)
         >>> bn.print_attractor_basins()
-        * BASIN 0 : 2 States
+        * BASIN 1 : 2 States
         ATTRACTORS:
               a      b
               1      0
         --------------------------------------------------------------------------------
-        * BASIN 1 : 1 States
+        * BASIN 2 : 1 States
         ATTRACTORS:
               a      b
               0      0
         --------------------------------------------------------------------------------
-        * BASIN 2 : 1 States
+        * BASIN 3 : 1 States
         ATTRACTORS:
               a      b
               1      1
@@ -256,7 +256,7 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
         basin_atts, basin_states = self.get_attractor_basins(sort=True)
         for cur_basin_ndx in range(len(basin_atts)):
             print("* BASIN %d : %d States" %
-                (cur_basin_ndx, len(basin_states[cur_basin_ndx])))
+                (cur_basin_ndx+1, len(basin_states[cur_basin_ndx])))
             print("ATTRACTORS:")
             print(self._get_state_row_title())
             for att in basin_atts[cur_basin_ndx]:

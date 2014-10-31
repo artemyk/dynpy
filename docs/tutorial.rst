@@ -32,7 +32,7 @@ Li et al, The yeast cell-cycle network is robustly designed, PNAS, 2004.
     import numpy as np, matplotlib.pyplot as plt
     import dynpy
 
-    bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.yeast_cellcycle_bn)
+    bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.budding_yeast_bn)
 
     initState = np.zeros(bn.num_vars, 'int')
     initState[ [1,3,6] ] = 1
@@ -44,7 +44,7 @@ Li et al, The yeast cell-cycle network is robustly designed, PNAS, 2004.
 We can also get the network's attractors, by doing:
 
 >>> import dynpy
->>> bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.yeast_cellcycle_bn)
+>>> bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.budding_yeast_bn)
 >>> atts, attbasins = bn.get_attractor_basins(sort=True)
 >>> print(list(map(len, attbasins)))
 [1764, 151, 109, 9, 7, 7, 1]
@@ -53,42 +53,42 @@ We can also get the network's attractors, by doing:
 Or print them out using:
 
 >>> import dynpy
->>> bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.yeast_cellcycle_bn)
+>>> bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.budding_yeast_bn)
 >>> bn.print_attractor_basins()
-* BASIN 0 : 1764 States
+* BASIN 1 : 1764 States
 ATTRACTORS:
    Cln3    MBF    SBF Cln1,2   Sic1   Swi5  Cdc20 Clb5,6   Cdh1 Clb1,2   Mcm1
       0      0      0      0      1      0      0      0      1      0      0
 --------------------------------------------------------------------------------
-* BASIN 1 : 151 States
+* BASIN 2 : 151 States
 ATTRACTORS:
    Cln3    MBF    SBF Cln1,2   Sic1   Swi5  Cdc20 Clb5,6   Cdh1 Clb1,2   Mcm1
       0      0      1      1      0      0      0      0      0      0      0
 --------------------------------------------------------------------------------
-* BASIN 2 : 109 States
+* BASIN 3 : 109 States
 ATTRACTORS:
    Cln3    MBF    SBF Cln1,2   Sic1   Swi5  Cdc20 Clb5,6   Cdh1 Clb1,2   Mcm1
       0      1      0      0      1      0      0      0      1      0      0
 --------------------------------------------------------------------------------
-* BASIN 3 : 9 States
+* BASIN 4 : 9 States
 ATTRACTORS:
    Cln3    MBF    SBF Cln1,2   Sic1   Swi5  Cdc20 Clb5,6   Cdh1 Clb1,2   Mcm1
-      0      0      0      0      0      0      0      0      1      0      0
---------------------------------------------------------------------------------
-* BASIN 4 : 7 States
-ATTRACTORS:
-   Cln3    MBF    SBF Cln1,2   Sic1   Swi5  Cdc20 Clb5,6   Cdh1 Clb1,2   Mcm1
-      0      0      0      0      0      0      0      0      0      0      0
+      0      0      0      0      1      0      0      0      0      0      0
 --------------------------------------------------------------------------------
 * BASIN 5 : 7 States
 ATTRACTORS:
    Cln3    MBF    SBF Cln1,2   Sic1   Swi5  Cdc20 Clb5,6   Cdh1 Clb1,2   Mcm1
-      0      1      0      0      0      0      0      0      1      0      0
+      0      0      0      0      0      0      0      0      0      0      0
 --------------------------------------------------------------------------------
-* BASIN 6 : 1 States
+* BASIN 6 : 7 States
 ATTRACTORS:
    Cln3    MBF    SBF Cln1,2   Sic1   Swi5  Cdc20 Clb5,6   Cdh1 Clb1,2   Mcm1
-      0      0      0      0      1      0      0      0      0      0      0
+      0      1      0      0      1      0      0      0      0      0      0
+--------------------------------------------------------------------------------
+* BASIN 7 : 1 States
+ATTRACTORS:
+   Cln3    MBF    SBF Cln1,2   Sic1   Swi5  Cdc20 Clb5,6   Cdh1 Clb1,2   Mcm1
+      0      0      0      0      0      0      0      0      1      0      0
 --------------------------------------------------------------------------------
 
 
@@ -200,7 +200,7 @@ the yeast-cell cycle Boolean network:
     import matplotlib.pyplot as plt
     import dynpy
 
-    bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.yeast_cellcycle_bn)
+    bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.budding_yeast_bn)
     bnMC = dynpy.markov.MarkovChain.from_deterministic_system(bn)
 
     # get distribution over states at various timepoints

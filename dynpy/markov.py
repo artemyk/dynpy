@@ -121,7 +121,7 @@ class MarkovChain(dynsys.LinearDynamicalSystem):
         For example, for a Boolean network:
 
         >>> import dynpy
-        >>> yeast = dynpy.sample_nets.yeast_cellcycle_bn
+        >>> yeast = dynpy.sample_nets.budding_yeast_bn
         >>> bn = dynpy.bn.BooleanNetwork(rules=yeast)
         >>> bnEnsemble = dynpy.markov.MarkovChain.from_deterministic_system(bn, issparse=True)
         >>> init = bnEnsemble.get_uniform_distribution()
@@ -133,14 +133,14 @@ class MarkovChain(dynsys.LinearDynamicalSystem):
 
         >>> import dynpy
         >>> import numpy as np
-        >>> yeast = dynpy.sample_nets.yeast_cellcycle_bn
+        >>> yeast = dynpy.sample_nets.budding_yeast_bn
         >>> bn = dynpy.bn.BooleanNetwork(rules=yeast)
         >>> bn_ensemble = dynpy.markov.MarkovChain.from_deterministic_system(bn, issparse=True)
         >>> init = bn_ensemble.get_uniform_distribution()
         >>> final_state = bn_ensemble.iterate(init, max_time=80)
         >>> print(np.ravel(final_state.dot(bn.get_ndx2state_mx())))
-        [ 0.          0.05664062  0.07373047  0.07373047  0.91503906  0.          0.
-          0.          0.92236328  0.          0.        ]
+        [ 0.          0.05664062  0.07373047  0.07373047  0.92236328  0.          0.
+          0.          0.91503906  0.          0.        ]
 
 
         Parameters

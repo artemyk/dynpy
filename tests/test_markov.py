@@ -59,8 +59,7 @@ def test_marginalize_initial():
 		expected=[[ 1., 0.], [0.125, 0.875]])
 
 def test_marginalize_yeast():
-    bn = BooleanNetwork(rules=dynpy.sample_nets.yeast_cellcycle_bn, 
-    	                mode='TRUTHTABLES')
+    bn = BooleanNetwork(rules=dynpy.sample_nets.budding_yeast_bn)
     bnensemble1 = MarkovChain.from_deterministic_system(bn, issparse=True)
     bnensemble2 = MarkovChain.from_deterministic_system(bn, issparse=False)
 
@@ -90,7 +89,7 @@ def test_check_transition_matrix_cont_wrongsum():
 		discrete_time=False)
 
 def _test_attractors(issparse):
-	bn = BooleanNetwork(rules=dynpy.sample_nets.yeast_cellcycle_bn)
+	bn = BooleanNetwork(rules=dynpy.sample_nets.budding_yeast_bn)
 	bn_ensemble = MarkovChain.from_deterministic_system(bn, issparse=issparse)
 
 	final_dist = bn_ensemble.iterate(bn_ensemble.get_uniform_distribution(), 100)
