@@ -1,5 +1,6 @@
 """Module which implements dynamical systems on graph
 """
+
 from __future__ import division, print_function, absolute_import
 import six
 range = six.moves.range
@@ -7,10 +8,27 @@ map   = six.moves.map
 
 import numpy as np
 
-from . import markov, mx, dynsys
+from . import markov, mx, dynsys, utils
 
+class RandomWalker(dynsys.DiscreteStateVectorDynamicalSystem,
+    dynsys.StochasticDynamicalSystem):
 
-class RandomWalker(markov.MarkovChain):
+    def __init__(self, graph):
+        self.graph = graph
+        N = graph.shape[0]
+        super(RandomWalker,self).__init__(num_vars=N)
+
+    def states(self):
+        for i in range(self.num_vars):
+            c = np.zeros(self.num_vars, dtype='int8')
+            c[i] = 1
+            yield c
+
+    def iterate(self):
+        # Should use a sampler from RandomWalkerEnsemble instead
+        raise NotImplementedError
+
+class RandomWalkerEnsemble(markov.MarkovChain):
     """This intializes a stochastic dynamical system representing a random
     walker on a graph.dynpy.sample_nets.karateclub_net
 
@@ -30,28 +48,21 @@ class RandomWalker(markov.MarkovChain):
     """
 
     def __init__(self, graph, discrete_time=True, issparse=True):
-        self.cDataType = 'uint8'
-        N = graph.shape[0]
-        graph = np.asarray(graph).astype('double')
+        base_sys = RandomWalker(graph)
 
         mxcls = mx.SparseMatrix if issparse else mx.DenseMatrix
 
-        trans = graph / np.atleast_2d( graph.sum(axis=1) ).T
+        trans = np.asarray(graph).astype('double') 
+        trans = trans / np.atleast_2d( graph.sum(axis=1) ).T
 
         if not discrete_time:
             trans = trans - np.eye(*trans.shape)
 
         trans = mxcls.format_mx( trans )
 
-        def iter_states():
-            b = np.zeros(N, 'int8')
-            for start_state in range(N):
-                r = b.copy()
-                r[start_state] = 1
-                yield mx.hashable_array(r)
-        state2ndx_map = dict( (state,ndx) for ndx, state in enumerate(iter_states()) )
-
-        super(RandomWalker, self).__init__(transition_matrix=trans,
-            discrete_time=discrete_time, state2ndx_map=state2ndx_map)
+        super(RandomWalkerEnsemble, self).__init__(
+            transition_matrix=trans,
+            discrete_time=discrete_time, 
+            base_sys=base_sys)
 
 

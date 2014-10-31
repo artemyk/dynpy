@@ -27,7 +27,7 @@ def test_from_deterministic():
 	assert_array_equal(dynpy.mx.todense(mc.transition_matrix), expected)
 
 def test_sampler():
-	rw = dynpy.graphdynamics.RandomWalker(graph=dynpy.sample_nets.karateclub_net)
+	rw = dynpy.graphdynamics.RandomWalkerEnsemble(graph=dynpy.sample_nets.karateclub_net)
 	sampler = dynpy.markov.MarkovChainSampler(rw)
 
 	cur_state = np.zeros(rw.transition_matrix.shape[0])
@@ -101,7 +101,7 @@ def _test_attractors(issparse):
 	for att, basin in zip(*bn.get_attractor_basins()):
 	    basin_size = len(basin)
 	    weight = float(basin_size) / total_states
-	    dist2[ bn_ensemble.state2ndx(att[0]) ] = weight
+	    dist2[ bn_ensemble.state2ndx_map[att[0]] ] = weight
 	    
 	assert_allclose(dist2, np.ravel(dynpy.mx.todense(final_dist)))
 

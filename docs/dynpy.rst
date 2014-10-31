@@ -18,8 +18,6 @@ Submodules
 
 :doc:`dynpy.caching` - Utilities for caching and memoizing
 
-
-
-
+:doc:`dynpy.utils` - Various utility functions
 
 

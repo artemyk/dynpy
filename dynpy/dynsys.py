@@ -12,16 +12,11 @@ import numpy as np
 
 from . import mx
 from . import caching
+from .utils import hashable_state, readonlydict
 
 # Constants for finding attractors
 MAX_ATTRACTOR_LENGTH = 5
 TRANSIENT_LENGTH = 30
-
-def hashable_state(x):
-    if not isinstance(x, np.ndarray):
-        return x
-    else:
-        return mx.hashable_array(x)
 
 class DynamicalSystem(object):
     """Base class for dynamical systems.
@@ -158,9 +153,9 @@ class StochasticDynamicalSystem(DynamicalSystem):
 class DiscreteStateDynamicalSystem(DynamicalSystem):
 
     def states(self):
-        NotImplementedError
+        raise NotImplementedError
 
-    def get_attractor_basins(self, sort=True):
+    def get_attractor_basins(self, sort=False):
         """Computes the attractors and basins of the current discrete-state
         dynamical system.
 
@@ -258,7 +253,7 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
         --------------------------------------------------------------------------------
 
         """
-        basin_atts, basin_states = self.get_attractor_basins()
+        basin_atts, basin_states = self.get_attractor_basins(sort=True)
         for cur_basin_ndx in range(len(basin_atts)):
             print("* BASIN %d : %d States" %
                 (cur_basin_ndx, len(basin_states[cur_basin_ndx])))
@@ -320,16 +315,46 @@ class VectorDynamicalSystem(DynamicalSystem):
 class DiscreteStateVectorDynamicalSystem(VectorDynamicalSystem,
     DiscreteStateDynamicalSystem):
 
-    @caching.cached_data_prop
-    def ndx2state_mx(self):
+    @caching.cached_data_method
+    def get_ndx2state_mx(self):
         #: ``(num_states, num_vars)``-shaped matrix that maps from state indexes
         #: to representations in terms of activations of the variables.
-
         return np.vstack(self.states())
 
-#    @caching.
-#dict( (state, ndx)
-#                             for ndx, state in enumerate(base_sys.states()))
+    @caching.cached_data_method
+    def get_ndx2state_map(self):
+        return readonlydict( enumerate(self.states()) )
+
+    @caching.cached_data_method
+    def get_state2ndx_map(self):
+        return readonlydict( 
+            { hashable_state(v):k 
+              for k, v in six.iteritems(self.get_ndx2state_map()) })
+
+
+class ProjectedStateSpace(DiscreteStateVectorDynamicalSystem):
+    # TODO: Document
+    def __init__(self, keep_vars, base_sys, *kargs, **kwargs):
+        self.keep_vars = keep_vars
+        self.base_sys = base_sys
+
+        var_names = None
+        if base_sys.var_names is not None:
+            var_names = [base_sys.var_names[i] for i in keep_vars]
+
+        super(ProjectedStateSpace, self).__init__(
+            num_vars=len(keep_vars),
+            var_names=var_names,
+            *kargs, **kwargs)
+
+    def states(self):
+        done = set()
+        n2smx = self.base_sys.get_ndx2state_mx()
+        for c in map(hashable_state, n2smx[:,self.keep_vars]):
+            if c not in done:
+                done.add(c)
+                yield c
+
 
 class LinearDynamicalSystem(VectorDynamicalSystem):
     # TODO: TESTS

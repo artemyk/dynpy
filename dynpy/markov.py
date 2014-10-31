@@ -12,8 +12,10 @@ from . import dynsys
 from . import mx
 
 from . import caching
+from .utils import hashable_state, readonlydict
 
 TOLERANCE = 1e-10
+TRANS_DTYPE = 'float32'
 
 class MarkovChain(dynsys.LinearDynamicalSystem):
     """This class implements Markov chains.
@@ -34,11 +36,9 @@ class MarkovChain(dynsys.LinearDynamicalSystem):
         discrete-time case) or
         :math:`\\dot{\\mathbf{x}} = \\mathbf{x}\\mathbf{A}` (in the
         continuous-time case)
-    state2ndx_map : dict, optional
-        Often a Markov chain will be defined over the states of another 
-        underlying dynamical system, possibly vector-valued.  This dictionary
-        maps from integer-valued states used by the Markov chain to another,
-        possibly multivariate state-space.
+    base_sys : DiscreteStateDynamicalSystem, optional
+        Specifies an underlying dynamical system, possibly vector-valued, to
+        whose states the individual outcomes of the Markov chain refer.
     discrete_time : bool, optional
         Whether updating should be done using discrete (default) or continuous
         time dynamics.
@@ -49,6 +49,13 @@ class MarkovChain(dynsys.LinearDynamicalSystem):
                                           discrete_time=discrete_time)
         self._check_transition_mx()
         self.base_sys = base_sys
+        if base_sys is not None:
+            self.state2ndx_map = base_sys.get_state2ndx_map()
+            self.ndx2state_map = base_sys.get_ndx2state_map()
+        else:
+            self.state2ndx_map = None
+            self.ndx2state_map = None
+
 
     def equilibrium_distribution(self):
         """Get equilibrium state (i.e. the stable, equilibrium distribution)
@@ -71,7 +78,7 @@ class MarkovChain(dynsys.LinearDynamicalSystem):
         """Return uniform starting distribution over all system states.
         """
         N = self.transition_matrix.shape[0]
-        dist = np.ones(N) / float(N)
+        dist = np.ones(N, TRANS_DTYPE) / N
         return dist
 
     def _check_transition_mx(self):
@@ -131,7 +138,7 @@ class MarkovChain(dynsys.LinearDynamicalSystem):
         >>> bn_ensemble = dynpy.markov.MarkovChain.from_deterministic_system(bn, issparse=True)
         >>> init = bn_ensemble.get_uniform_distribution()
         >>> final_state = bn_ensemble.iterate(init, max_time=80)
-        >>> print(np.ravel(final_state.dot(bn_ensemble.ndx2state_mx)))
+        >>> print(np.ravel(final_state.dot(bn.get_ndx2state_mx())))
         [ 0.          0.05664062  0.07373047  0.07373047  0.91503906  0.          0.
           0.          0.92236328  0.          0.        ]
 
@@ -155,22 +162,20 @@ class MarkovChain(dynsys.LinearDynamicalSystem):
         if not base_sys.discrete_time:
             raise ValueError('dynsys should be a discrete-time system')
 
-        state2ndx_map = dict( (state, ndx)
-                             for ndx, state in enumerate(base_sys.states()))
+        state2ndx_map = base_sys.get_state2ndx_map()
+        translist = [
+            (ndx, state2ndx_map[base_sys.iterate(state)], 1.0)
+             for ndx, state in six.iteritems(base_sys.get_ndx2state_map()) ]
 
-        N = len(state2ndx_map)
-
+        nrows, ncols, ndata = zip(*translist)
         mxcls = mx.SparseMatrix if issparse else mx.DenseMatrix
-        trans = mxcls.create_editable_zeros_mx(shape=(N, N))
-
-        translist = \
-            ((state2ndx_map[state], state2ndx_map[base_sys.iterate(state)], 1.0)
-             for state in base_sys.states() )
-        nrows, ncols, ndata = list(map(np.array, zip(*translist)))
-        trans = mxcls.from_coords(nrows, ncols, ndata, shape=(N,N))
+        N = len(state2ndx_map)
+        trans = mxcls.from_coords(nrows, ncols, 
+                                  np.array(ndata, dtype=TRANS_DTYPE), 
+                                  shape=(N,N))
         trans = mx.finalize_mx(trans)
 
-        return cls(transition_matrix=trans, state2ndx_map=state2ndx_map,
+        return cls(transition_matrix=trans, base_sys=base_sys,
             discrete_time=base_sys.discrete_time)
 
 
@@ -203,17 +208,6 @@ class MarkovChain(dynsys.LinearDynamicalSystem):
 
         """
 
-        def marginalize_state(state):
-            return dynsys.hashable_state(state[keep_vars])
-
-        def states():
-            done = set()
-            for fullstate in self.state2ndx_map:
-                c = marginalize_state(fullstate)
-                if c not in done:
-                    done.add(c)
-                    yield c
-
         def s2n(x):
             return state2ndx_map[x]
 
@@ -237,34 +231,34 @@ class MarkovChain(dynsys.LinearDynamicalSystem):
             if not np.isclose(initial_dist.sum(), 1.0):
                 raise ValueError('initial_dist should add up to 1')
 
-        state2ndx_map = dict( (state, ndx)
-                              for ndx, state in enumerate(states()) )
-
-        N = len(state2ndx_map)
-
         mxcls = mx.get_cls(self.transition_matrix)
-        trans = mxcls.create_editable_zeros_mx(shape=(N, N))
-
         full_trans = multiply_rows(self.transition_matrix, initial_dist)
-        
+
+        proj = dynsys.ProjectedStateSpace(
+            base_sys=self.base_sys, keep_vars=keep_vars)
+
+        new_s2n = proj.get_state2ndx_map()
+        n2s_mx  = self.base_sys.get_ndx2state_mx()
+
+        newN = len(new_s2n)
+
         rows, cols, data = mxcls.get_coords(full_trans)
-        m_rows = marginalize_state(self.ndx2state_mx[rows,:].T).T
-        m_rows_ndxs = list(map(s2n, map(dynsys.hashable_state, m_rows)))
 
-        m_cols = marginalize_state(self.ndx2state_mx[cols,:].T).T
-        m_cols_ndxs = list(map(s2n, map(dynsys.hashable_state, m_cols)))
+        m_rows = n2s_mx[rows,:][:,keep_vars]
+        m_rows_ndxs = [new_s2n[hashable_state(r)] for r in m_rows]
 
-        #initial_p = initial_dist[rows]
+        m_cols = n2s_mx[cols,:][:,keep_vars]
+        m_cols_ndxs = [new_s2n[hashable_state(c)] for c in m_cols]
 
-        trans = mxcls.from_coords(m_rows_ndxs, m_cols_ndxs, data, shape=(N,N))
+        trans = mxcls.from_coords(m_rows_ndxs, m_cols_ndxs, data, 
+                                  shape=(newN,newN))
 
-        trans = trans.astype('float64')
         sums = np.atleast_2d(trans.sum(axis=1)).T
         sums[sums == 0.] = np.nan
 
         trans = multiply_rows(trans, 1.0/sums)
 
-        return MarkovChain(transition_matrix=trans, state2ndx_map=state2ndx_map)
+        return MarkovChain(transition_matrix=trans, base_sys=proj)
 
 
 
@@ -288,11 +282,19 @@ class MarkovChainSampler(dynsys.StochasticDynamicalSystem):
 
     def _iterate_1step_discrete(self, start_state):
         mc = self.markov_chain
-        probs = mc.transition_matrix[mc.state2ndx(start_state),:]
+
+        if mc.state2ndx_map is not None:
+            start_state = mc.state2ndx_map[hashable_state(start_state)]
+
+        probs = mc.transition_matrix[start_state,:]
         probs = np.ravel(mx.get_cls(probs).todense(probs))
         num_states = self.markov_chain.transition_matrix.shape[0]
         r = np.random.choice(np.arange(num_states), None, replace=True, p=probs)
-        return mc.ndx2state(r)
+
+        if mc.ndx2state_map is not None:
+            r = mc.ndx2state_map[r]
+
+        return r
 
     def _iterate_continuous(self, start_state, max_time = 1.0):
         raise NotImplementedError

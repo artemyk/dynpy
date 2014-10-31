@@ -2,7 +2,7 @@ import numpy as np
 import scipy.sparse as ss
 import dynpy
 from dynpy.mx import DenseMatrix, SparseMatrix
-from dynpy.graphdynamics import RandomWalker
+from dynpy.graphdynamics import RandomWalkerEnsemble
 
 kc = dynpy.sample_nets.karateclub_net
 initState = np.zeros(kc.shape[0], 'float')
@@ -15,7 +15,7 @@ def very_close(mx1, mx2):
 
 def test_dense_discrete_equil_vs_iter():
         # Dense discrete time
-        rw = RandomWalker(graph=kc, issparse=False)
+        rw = RandomWalkerEnsemble(graph=kc, issparse=False)
 
         e1 = rw.iterate(initState, max_time = 100)
         e2 = rw.equilibrium_distribution()
@@ -23,8 +23,8 @@ def test_dense_discrete_equil_vs_iter():
 
 def test_dense_continuous_vs_discrete():
         # Dense continuous time
-        rw1 = RandomWalker(graph=kc, issparse=False)
-        rw2 = RandomWalker(graph=kc, discrete_time=False, issparse=False)
+        rw1 = RandomWalkerEnsemble(graph=kc, issparse=False)
+        rw2 = RandomWalkerEnsemble(graph=kc, discrete_time=False, issparse=False)
         e2 = rw1.equilibrium_distribution()
         e2ct = rw2.equilibrium_distribution()
         assert( very_close(e2ct , e2) )
@@ -32,7 +32,7 @@ def test_dense_continuous_vs_discrete():
 
 def test_dense_continuous_equil_vs_iter():
         # Dense continuous time
-        rw = RandomWalker(graph=kc, discrete_time=False, issparse=False)
+        rw = RandomWalkerEnsemble(graph=kc, discrete_time=False, issparse=False)
         e1 = rw.iterate(initState, max_time = 100)
         e2ct = rw.equilibrium_distribution()
         assert( very_close(e2ct , e1) )
@@ -40,7 +40,7 @@ def test_dense_continuous_equil_vs_iter():
 
 def test_sparse_discrete_equil_vs_iter():
         # Sparse discrete time
-        rw = RandomWalker(graph=kc, issparse=True)
+        rw = RandomWalkerEnsemble(graph=kc, issparse=True)
 
         e1 = rw.iterate(initState, max_time = 100)
         e2 = rw.equilibrium_distribution()
@@ -48,8 +48,8 @@ def test_sparse_discrete_equil_vs_iter():
 
 def test_sparse_continuous_vs_discrete():
         # Sparse continuous time
-        rw1 = RandomWalker(graph=kc, issparse=False)
-        rw2 = RandomWalker(graph=kc, discrete_time=False, issparse=True)
+        rw1 = RandomWalkerEnsemble(graph=kc, issparse=False)
+        rw2 = RandomWalkerEnsemble(graph=kc, discrete_time=False, issparse=True)
         e2 = rw1.equilibrium_distribution()
         e2ct = rw2.equilibrium_distribution()
         assert( very_close(e2ct , e2) )
@@ -57,7 +57,7 @@ def test_sparse_continuous_vs_discrete():
 
 def test_sparse_continuous_equil_vs_iter():
         # Sparse continuous time
-        rw = RandomWalker(graph=kc, discrete_time=False, issparse=True)
+        rw = RandomWalkerEnsemble(graph=kc, discrete_time=False, issparse=True)
         e1 = rw.iterate(initState, max_time = 100)
         e2ct = rw.equilibrium_distribution()
         assert( very_close(e2ct , e1) )

@@ -8,3 +8,4 @@ from . import graphdynamics
 from . import markov
 from . import mx
 from . import sample_nets
+from . import utils

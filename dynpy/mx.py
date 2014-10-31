@@ -22,7 +22,7 @@ class MxBase(object):
     """Base class from which sparse and dense matrix operation classes inherit
     """
     @classmethod
-    def create_editable_zeros_mx(cls, shape):
+    def create_editable_zeros_mx(cls, shape, dtype=None):
         """Create blank editable transition matrix, of size specified by `shape`
         """
         raise NotImplementedError  # virtual class, sublcasses should implement
@@ -122,8 +122,8 @@ class SparseMatrix(MxBase):
     :class:`dynpy.mx.MxBase` for description of methods.
     """
     @classmethod
-    def create_editable_zeros_mx(cls, shape):
-        return ss.lil_matrix(shape)
+    def create_editable_zeros_mx(cls, shape, dtype=None):
+        return ss.lil_matrix(shape, dtype=None)
 
     @classmethod
     def format_mx(cls, mx):

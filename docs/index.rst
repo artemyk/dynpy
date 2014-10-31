@@ -30,6 +30,7 @@ dynpy module Index
    dynpy.sample_nets
    dynpy.mx
    dynpy.caching
+   dynpy.utils
 
 
 

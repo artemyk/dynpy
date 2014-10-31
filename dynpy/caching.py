@@ -13,8 +13,8 @@ class setup_cached_data_method(object):
     """
     Class used to generate memoizing decorators.
     """
-    def __init__(self, depends_on_attributes=[], sideeffect_attributes=[],
-                 args_dont_use_for_key=[], use_cache_check_func=None):
+    def __init__(self, depends_on_attributes=None, sideeffect_attributes=None,
+                 args_dont_use_for_key=None, use_cache_check_func=None):
         self.depends_on_attributes = depends_on_attributes
         self.sideeffect_attributes = sideeffect_attributes
         self.args_dont_use_for_key = args_dont_use_for_key
@@ -23,26 +23,33 @@ class setup_cached_data_method(object):
     def __call__(self, func):
         def wrapper(obj, *args, **kwds):
 
+            kwditems = tuple(kwds.items())
+            if self.args_dont_use_for_key is not None:
+              kwditems = tuple((k,v) for k, v in kwditems  if k not in self.args_dont_use_for_key)
+
+            dependattrs = None
+            if self.depends_on_attributes is not None:
+              dependattrs = tuple([getattr(obj, depended_attr) for depended_attr in self.depends_on_attributes])
+
             try:
                 keyEntries = tuple([
                    func,
                    args,
-                   frozenset((k, v)
-                             for k, v in kwds.items()
-                             if k not in self.args_dont_use_for_key)] +
-                   [getattr(obj, depended_attr)
-                    for depended_attr in self.depends_on_attributes]
-                   )
+                   kwditems,
+                   dependattrs
+                   ])
             except TypeError:
                 print("Can't hash for tuple:")
                 print(" - func=%s\n - args=%s\n - kwds=%s" %
                       (str(func), str(args), str(kwds.items())))
-                for depended_attr in self.depends_on_attributes:
-                    print(" - attr[%s]=%s" %
-                          [depended_attr, getattr(obj, depended_attr)])
+                if self.depends_on_attributes is not None:
+                  for depended_attr in self.depends_on_attributes:
+                      print(" - attr[%s]=%s" %
+                            [depended_attr, getattr(obj, depended_attr)])
                 raise
 
-            key = hash(keyEntries)
+            #key = hash(keyEntries)
+            key = keyEntries
 
             if getattr(obj, '_cache', None) is None:
                 obj._cache = OrderedDict()
@@ -51,15 +58,18 @@ class setup_cached_data_method(object):
               (self.use_cache_check_func is not None and
                not self.use_cache_check_func(obj._cache[key], *args, **kwds)):
                 returnValue = func(obj, *args, **kwds)
-                sideEffects = tuple(
+                sideEffects = None
+                if self.sideeffect_attributes is not None:
+                  sideEffects = tuple(
                     [getattr(obj, sideeffect, None)
                      for sideeffect in self.sideeffect_attributes])
                 obj._cache[key] = (returnValue, sideEffects)
             else:
                 returnValue, sideEffects = obj._cache[key]
 
-            for n in range(len(sideEffects)):
-                setattr(obj, self.sideeffect_attributes[n], sideEffects[n])
+            if sideEffects is not None:
+              for n in range(len(sideEffects)):
+                  setattr(obj, self.sideeffect_attributes[n], sideEffects[n])
 
             return returnValue
 
