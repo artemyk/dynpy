@@ -34,8 +34,7 @@ def int2tuple(i, num_places):
     return dynsys.hashable_state(
         np.array(list(map(int,bin(i)[2:].rjust(num_places, '0'))),'int8'))
 
-class BooleanNetwork(dynsys.VectorDynamicalSystem,
-    dynsys.DiscreteStateDynamicalSystem, 
+class BooleanNetwork(dynsys.DiscreteStateVectorDynamicalSystem, 
     dynsys.DeterministicDynamicalSystem):
 
     """

@@ -15,7 +15,7 @@ from . import caching
 
 TOLERANCE = 1e-10
 
-class MarkovChain(dynsys.LinearSystem):
+class MarkovChain(dynsys.LinearDynamicalSystem):
     """This class implements Markov chains.
 
     There is some potential for confusion regarding the term 'Markov chain'. It 
@@ -44,40 +44,11 @@ class MarkovChain(dynsys.LinearSystem):
         time dynamics.
     """
 
-    def __init__(self, transition_matrix, state2ndx_map=None, discrete_time=True):
+    def __init__(self, transition_matrix, base_sys=None, discrete_time=True):
         super(MarkovChain, self).__init__(transition_matrix=transition_matrix,
                                           discrete_time=discrete_time)
         self._check_transition_mx()
-
-        if state2ndx_map is None:
-            self.state2ndx_map = None
-            self.ndx2state_map = None
-            self.state2ndx = lambda x: x
-            self.ndx2state = lambda x: x
-        else:
-            self.state2ndx_map = state2ndx_map
-            self.ndx2state_map = dict((v,k) for k,v in six.iteritems(state2ndx_map))
-            self.state2ndx = lambda x: self.state2ndx_map[dynsys.hashable_state(x)]
-            self.ndx2state = lambda x: self.ndx2state_map[dynsys.hashable_state(x)]
-
-    @caching.cached_data_prop
-    def ndx2state_mx(self):
-        #: ``(num_states, num_vars)``-shaped matrix that maps from state indexes
-        #: to representations in terms of activations of the variables.
-
-        if self.state2ndx_map is None:
-            return np.eye(self.transition_matrix.shape[0], dtype='int')
-
-        else:
-            fkey = next(six.iterkeys(self.state2ndx_map))
-            num_vars = len(fkey)
-
-            mx = np.zeros(shape=(len(self.state2ndx_map),num_vars), 
-                          dtype=fkey.dtype)
-            for state, ndx in six.iteritems(self.state2ndx_map):
-                mx[ndx,:] = state
-                
-            return mx
+        self.base_sys = base_sys
 
     def equilibrium_distribution(self):
         """Get equilibrium state (i.e. the stable, equilibrium distribution)

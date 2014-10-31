@@ -317,7 +317,21 @@ class VectorDynamicalSystem(DynamicalSystem):
         row_format = "{:>7}" * self.num_vars
         return row_format.format(*self.var_names)
 
-class LinearSystem(VectorDynamicalSystem):
+class DiscreteStateVectorDynamicalSystem(VectorDynamicalSystem,
+    DiscreteStateDynamicalSystem):
+
+    @caching.cached_data_prop
+    def ndx2state_mx(self):
+        #: ``(num_states, num_vars)``-shaped matrix that maps from state indexes
+        #: to representations in terms of activations of the variables.
+
+        return np.vstack(self.states())
+
+#    @caching.
+#dict( (state, ndx)
+#                             for ndx, state in enumerate(base_sys.states()))
+
+class LinearDynamicalSystem(VectorDynamicalSystem):
     # TODO: TESTS
     """This class implements linear dynamical systems, whether continuous or
     discrete-time.  It is also used by :class:`dynpy.dynsys.MarkovChain` to
@@ -345,7 +359,8 @@ class LinearSystem(VectorDynamicalSystem):
     transition_matrix = None
 
     def __init__(self, transition_matrix, discrete_time=True):
-        super(LinearSystem, self).__init__(num_vars=transition_matrix.shape[0], 
+        super(LinearDynamicalSystem, self).__init__(
+            num_vars=transition_matrix.shape[0], 
             discrete_time=discrete_time)
         self.transition_matrix = transition_matrix
         self.stable_eigenvalue = 1.0 if discrete_time else 0.0
