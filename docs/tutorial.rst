@@ -137,7 +137,7 @@ of a random walker on Zachary's karate club network.  Here,
 
     G = dynpy.sample_nets.karateclub_net
     N = G.shape[0]
-    rw = dynpy.graphdynamics.RandomWalker(graph=G)
+    rw = dynpy.graphdynamics.RandomWalkerEnsemble(graph=G)
 
     initState = np.zeros(N)
     initState[ 5 ] = 1
@@ -230,7 +230,7 @@ Stochastic systems can also be implemented.
     num_steps = 30
     G = dynpy.sample_nets.karateclub_net
     N = G.shape[0]
-    rw = dynpy.graphdynamics.RandomWalker(graph=G)
+    rw = dynpy.graphdynamics.RandomWalkerEnsemble(graph=G)
     sampler = dynpy.markov.MarkovChainSampler(rw)
 
     # Initialize with a single random walker on node id=5

@@ -10,13 +10,14 @@ import numpy as np
 
 from . import markov, mx, dynsys, utils
 
-class RandomWalker(dynsys.DiscreteStateVectorDynamicalSystem,
+class RandomWalkerBase(dynsys.DiscreteStateVectorDynamicalSystem,
     dynsys.StochasticDynamicalSystem):
+    #TODO: Document
 
     def __init__(self, graph):
         self.graph = graph
         N = graph.shape[0]
-        super(RandomWalker,self).__init__(num_vars=N)
+        super(RandomWalkerBase,self).__init__(num_vars=N)
 
     def states(self):
         for i in range(self.num_vars):
@@ -48,7 +49,7 @@ class RandomWalkerEnsemble(markov.MarkovChain):
     """
 
     def __init__(self, graph, discrete_time=True, issparse=True):
-        base_sys = RandomWalker(graph)
+        base_sys = RandomWalkerBase(graph)
 
         mxcls = mx.SparseMatrix if issparse else mx.DenseMatrix
 
