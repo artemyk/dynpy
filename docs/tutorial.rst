@@ -161,7 +161,7 @@ constructing the underlying dynamical system. Using the previous example:
 
     G = dynpy.sample_nets.karateclub_net
     N = G.shape[0]
-    rw = dynpy.graphdynamics.RandomWalker(graph=G, discrete_time=False)
+    rw = dynpy.graphdynamics.RandomWalkerEnsemble(graph=G, discrete_time=False)
 
     initState = np.zeros(N)
     initState[ 5 ] = 1
@@ -183,7 +183,7 @@ It is also possible to get the equilibrium distribution by calling
     import dynpy
 
     kc = dynpy.sample_nets.karateclub_net
-    rw = dynpy.graphdynamics.RandomWalker(graph=kc, discrete_time=False)
+    rw = dynpy.graphdynamics.RandomWalkerEnsemble(graph=kc, discrete_time=False)
 
     eq_state = rw.equilibrium_distribution()
     plt.imshow(np.atleast_2d(eq_state), interpolation='none')
