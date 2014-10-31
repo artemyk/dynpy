@@ -207,7 +207,7 @@ the yeast-cell cycle Boolean network:
     t = bnMC.get_trajectory(start_state=bnMC.get_uniform_distribution(), max_time=20)
 
     # project back from states onto activations of original nodes
-    bnProbs = t.dot(bnMC.ndx2state_mx)
+    bnProbs = t.dot(bn.get_ndx2state_mx())
 
     # plot
     plt.imshow(bnProbs, interpolation='none')
