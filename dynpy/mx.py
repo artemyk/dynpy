@@ -84,6 +84,11 @@ class MxBase(object):
         raise NotImplementedError  # virtual class, sublcasses should implement
 
     @classmethod
+    def tosparse(cls, mx):
+        """Convert matrix `mx` to sparse format"""
+        raise NotImplementedError  # virtual class, sublcasses should implement
+
+    @classmethod
     def isnan(cls, mx):
         """Element-wise isnan operation on matrix elements"""
         raise NotImplementedError  # virtual class, sublcasses should implement
@@ -109,6 +114,11 @@ class MxBase(object):
     @classmethod
     def diag(cls, data):
         """Returns matrix with diagonals set to data"""
+        raise NotImplementedError  # virtual class, sublcasses should implement
+
+    @classmethod
+    def getdiag(cls, data):
+        """Returns diagonals of matrix """
         raise NotImplementedError  # virtual class, sublcasses should implement
 
     @classmethod
@@ -161,6 +171,10 @@ class SparseMatrix(MxBase):
         return mx.todense()
 
     @classmethod
+    def tosparse(cls, mx):
+        return mx
+
+    @classmethod
     def isnan(cls, mx):
         r = mx.copy()
         r.data[:] = np.isnan(r.data)
@@ -178,6 +192,11 @@ class SparseMatrix(MxBase):
     @classmethod
     def diag(cls, data):
         return ss.diags(data, 0)
+
+    @classmethod
+    def getdiag(cls, mx):
+        ix = np.arange(mx.shape[0], dtype='int')
+        return np.ravel(todense(mx[ix, ix]))
 
     @classmethod
     def vstack(cls, data):
@@ -229,6 +248,10 @@ class DenseMatrix(MxBase):
         return mx
 
     @classmethod
+    def tosparse(cls, mx):
+        return SparseMatrix.format_mx(mx)
+
+    @classmethod
     def isnan(cls, mx):
         return np.isnan(mx)
         
@@ -261,6 +284,10 @@ class DenseMatrix(MxBase):
     @classmethod
     def diag(cls, data):
         return np.diag(data) 
+
+    @classmethod
+    def getdiag(cls, mx):
+        return np.diagonal(mx)
 
     @classmethod
     def vstack(cls, data):
@@ -299,6 +326,9 @@ def make2d(mx):
 def todense(mx):
     return get_cls(mx).todense(mx)
 
+def tosparse(mx):
+    return get_cls(mx).tosparse(mx)
+
 def get_largest_right_eigs(mx):
     return get_cls(mx).get_largest_right_eigs(mx)
 
@@ -311,9 +341,8 @@ def isnan(mx):
 def array_equal(mx, other_mx):
     return get_cls(mx).array_equal(mx, other_mx)
 
-def diag(data):
-    return get_cls(mx).diag(data)
-    
+def getdiag(mx):
+    return get_cls(mx).getdiag(mx)
 
 @functools.total_ordering
 class hashable_array(np.ndarray):
