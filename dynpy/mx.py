@@ -126,6 +126,10 @@ class MxBase(object):
         """Stack arrays vertically"""
         raise NotImplementedError  # virtual class, sublcasses should implement
 
+    @classmethod
+    def multiplyrows(cls, mx, multiplier):
+        """TODO: Document"""
+        return NotImplementedError
 
 class SparseMatrix(MxBase):
     """Class for sparse matrix operations.  See documentation for
@@ -201,6 +205,13 @@ class SparseMatrix(MxBase):
     @classmethod
     def vstack(cls, data):
         return ss.vstack(data)
+
+    @classmethod
+    def multiplyrows(cls, mx, multiplier):
+        r = cls.diag(np.ravel(multiplier)).dot(mx)
+        r = cls.finalize_mx(r)
+        r[np.ravel(np.isnan(multiplier)),:] = np.nan
+        return r
 
 
 class DenseMatrix(MxBase):
@@ -293,6 +304,10 @@ class DenseMatrix(MxBase):
     def vstack(cls, data):
         return np.vstack(data)
 
+    @classmethod
+    def multiplyrows(cls, mx, multiplier):
+        return np.multiply(mx, multiplier)
+
 
 def issparse(mx):
     if ss.issparse(mx):
@@ -343,6 +358,10 @@ def array_equal(mx, other_mx):
 
 def getdiag(mx):
     return get_cls(mx).getdiag(mx)
+
+def multiplyrows(mx, multiplier):
+    return get_cls(mx).multiplyrows(mx, multiplier)
+
 
 @functools.total_ordering
 class hashable_array(np.ndarray):

@@ -138,7 +138,7 @@ class BooleanNetwork(dynsys.DiscreteStateVectorDynamicalSystem,
 
         return hashable_state(np.array(
              [self._get_var_next_state(v, start_state[self.input_ixs[v]])
-             for v in range(self.num_vars)]))
+             for v in range(self.num_vars)], dtype=start_state.dtype))
 
     def get_structural_graph(self):
         """

@@ -303,3 +303,10 @@ test2_bn = [
   ['x3', ['x1','x2','x3','x4'], [1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1]],
   ['x4', ['x1','x2','x3','x4'], [1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1]],
  ]
+
+test3_bn = [ 
+  ['x1', ['x1','x2','x3','x4'], lambda x1,x2,x3,x4: (not x1 and x2) or (x1 and not x2) or (x1 and x2) or (x3 and x4)],
+  ['x2', ['x1','x2','x3','x4'], lambda x1,x2,x3,x4: (not x1 and not x2) or (x1 and not x2) or (x1 and x2) or (x3 and x4)],
+  ['x3', ['x1','x2','x3','x4'], lambda x1,x2,x3,x4: (not x3 and x4) or (x3 and not x4) or (x1 and x2) or (x3 and x4)],
+  ['x4', ['x1','x2','x3','x4'], lambda x1,x2,x3,x4: (not x3 and not x4) or (x3 and not x4) or (x1 and x2) or (x3 and x4)],
+]

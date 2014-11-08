@@ -178,9 +178,8 @@ class MarkovChain(dynsys.LinearDynamicalSystem):
         return cls(transition_matrix=trans, base_sys=base_sys,
             discrete_time=base_sys.discrete_time)
 
-
-    def marginalize(self, keep_vars, initial_dist=None):
-        """Create a Markov chain by marginalizing an existing 
+    def project(self, keep_vars, initial_dist=None):
+        """Create a Markov chain by projecting an existing 
         Markov chain over a multivariate dynamical system onto a subset of 
         those variables.
 
@@ -193,8 +192,8 @@ class MarkovChain(dynsys.LinearDynamicalSystem):
         ... ]
         >>> bn = dynpy.bn.BooleanNetwork(rules=r, mode='FUNCS')
         >>> bnensemble = dynpy.markov.MarkovChain.from_deterministic_system(bn, issparse=False)
-        >>> marg = dynpy.markov.MarkovChain.marginalize(bnensemble, [0])
-        >>> print(marg.transition_matrix)
+        >>> proj = dynpy.markov.MarkovChain.project(bnensemble, [0])
+        >>> print(proj.transition_matrix)
         [[ 1.   0. ]
          [ 0.5  0.5]]
 
@@ -211,28 +210,21 @@ class MarkovChain(dynsys.LinearDynamicalSystem):
         def s2n(x):
             return state2ndx_map[x]
 
-        def multiply_rows(trans, multiplier):
-            if mx.issparse(trans):
-                r = mx.SparseMatrix.diag(np.ravel(multiplier)).dot(trans)
-                r = mx.finalize_mx(r)
-                r[np.ravel(np.isnan(multiplier)),:] = np.nan
-            else:
-                r = np.multiply(trans, multiplier)
-            return r
-
         if not hasattr(keep_vars, '__iter__'):
             raise ValueError('keep_vars must be list-like')
 
         if initial_dist is None:
             initial_dist = self.get_uniform_distribution()
         else:
-            if initial_dist.ndim != 1:
+            initial_dist = np.ravel(mx.todense(initial_dist))
+            if len([d for d in initial_dist.shape if d > 1]) != 1:
                 raise ValueError('initial_dist should be 1-dimensional')
             if not np.isclose(initial_dist.sum(), 1.0):
                 raise ValueError('initial_dist should add up to 1')
+            #TODO : optimize performance in case that initial_dist is sparse
+            # and some starting states have 0 probability
 
         mxcls = mx.get_cls(self.transition_matrix)
-        full_trans = multiply_rows(self.transition_matrix, initial_dist)
 
         proj = dynsys.ProjectedStateSpace(
             base_sys=self.base_sys, keep_vars=keep_vars)
@@ -242,7 +234,7 @@ class MarkovChain(dynsys.LinearDynamicalSystem):
 
         newN = len(new_s2n)
 
-        rows, cols, data = mxcls.get_coords(full_trans)
+        rows, cols, data = mxcls.get_coords(self.transition_matrix)
 
         m_rows = n2s_mx[rows,:][:,keep_vars]
         m_rows_ndxs = [new_s2n[hashable_state(r)] for r in m_rows]
@@ -250,16 +242,23 @@ class MarkovChain(dynsys.LinearDynamicalSystem):
         m_cols = n2s_mx[cols,:][:,keep_vars]
         m_cols_ndxs = [new_s2n[hashable_state(c)] for c in m_cols]
 
-        trans = mxcls.from_coords(m_rows_ndxs, m_cols_ndxs, data, 
+        init_conds = initial_dist[rows]
+        trans = mxcls.from_coords(m_rows_ndxs, m_cols_ndxs,
+                                  init_conds * data, 
                                   shape=(newN,newN))
 
-        sums = np.atleast_2d(trans.sum(axis=1)).T
-        sums[sums == 0.] = np.nan
+        # TODO: write tests for continuous-time projection
 
-        trans = multiply_rows(trans, 1.0/sums)
+        marg_init_prob = np.zeros((trans.shape[0],1))
+        for old_ndx, s in enumerate(n2s_mx[:,keep_vars]):
+            marg_init_prob[new_s2n[hashable_state(s)]] += initial_dist[old_ndx]
 
-        return MarkovChain(transition_matrix=trans, base_sys=proj)
+        marg_init_prob[marg_init_prob == 0.] = np.nan
+        
+        trans = mx.multiplyrows(trans, 1.0/marg_init_prob)
 
+        return MarkovChain(transition_matrix=trans, base_sys=proj,
+            discrete_time=self.discrete_time)
 
 
 class MarkovChainSampler(dynsys.StochasticDynamicalSystem):

@@ -13,7 +13,7 @@ from dynpy.bn     import BooleanNetwork
 import numpy as np
 
 bnrules = [['x1', ['x1','x2'], lambda x1,x2: (x1 and x2) ],
-         ['x2', ['x1','x2'], lambda x1,x2: (x1 or  x2) ]]
+           ['x2', ['x1','x2'], lambda x1,x2: (x1 or  x2) ]]
 
 def test_from_deterministic():
 	bn = BooleanNetwork(rules=bnrules, mode='FUNCS')
@@ -34,37 +34,46 @@ def test_sampler():
 	cur_state[ 5 ] = 1
 	sampler.iterate(cur_state)
 
-def _test_marginalize(issparse, initial_dist=None, expected=[[1., 0.], [0.5, 0.5]]):
+def _test_project(issparse, initial_dist=None, expected=[[1., 0.], [0.5, 0.5]]):
     bn = BooleanNetwork(rules=bnrules, mode='FUNCS')
     bnensemble = MarkovChain.from_deterministic_system(
     				bn, issparse=issparse)
-    marg = bnensemble.marginalize([0], initial_dist=initial_dist)
+    marg = bnensemble.project([0], initial_dist=initial_dist)
     trans = dynpy.mx.todense(marg.transition_matrix)
     assert_array_equal(trans, np.core.asarray(expected))
 
-def test_marginalize_dense():
-	_test_marginalize(False, expected=[[1., 0.], [0.5, 0.5]])
+def test_project_dense():
+	_test_project(False)
 
-def test_marginalize_sparse():
-	_test_marginalize(True , expected=[[1., 0.], [0.5, 0.5]])
+def test_project_sparse():
+	_test_project(True)
 
-def test_marginalize_initial_withnan():
+
+def test_project_otherinitial():
+    # 50% of the time we are on 0,1; 50% on 1,1
+    # since x0 = x0 ^ x1, projected x0 should go 0->0 or
+    # 1->1 
+	dist = np.ravel(np.array([0.0,0.5,0.0,0.5]))
+	_test_project(False, initial_dist=dist, 
+		expected=[[ 1., 0.], [0.0, 1.0]])
+
+def test_project_initial_withnan():
 	dist = np.ravel(np.array([0,0,0,1]))
-	_test_marginalize(False, initial_dist=dist, 
+	_test_project(False, initial_dist=dist, 
 		expected=[[np.nan, np.nan], [0, 1]])
 
-def test_marginalize_initial():
+def test_project_initial():
 	dist = np.ravel(np.array([0.1,0.1,0.1,0.7]))
-	_test_marginalize(False, initial_dist=dist, 
+	_test_project(False, initial_dist=dist, 
 		expected=[[ 1., 0.], [0.125, 0.875]])
 
-def test_marginalize_yeast():
+def test_project_yeast():
     bn = BooleanNetwork(rules=dynpy.sample_nets.budding_yeast_bn)
     bnensemble1 = MarkovChain.from_deterministic_system(bn, issparse=True)
     bnensemble2 = MarkovChain.from_deterministic_system(bn, issparse=False)
 
-    marg1 = bnensemble1.marginalize([0,1,2,3])
-    marg2 = bnensemble2.marginalize([0,1,2,3])
+    marg1 = bnensemble1.project([0,1,2,3])
+    marg2 = bnensemble2.project([0,1,2,3])
     assert_array_equal(marg1.transition_matrix.todense(), marg2.transition_matrix)
 
 
