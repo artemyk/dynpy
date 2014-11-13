@@ -7,14 +7,15 @@ import dynpy
 import numpy as np
 from numpy.testing import assert_array_equal
 
+testrules = [
+	['x1', ['x1','x2'], [1,0,0,0]],
+	['x2', ['x1','x2'], [1,1,1,0]],
+]
+
 class TestBNs:
 
 	def setUp(self):
-		r = [
-			['x1', ['x1','x2'], [1,0,0,0]],
-			['x2', ['x1','x2'], [1,1,1,0]],
-		]
-		self.testbn = dynpy.bn.BooleanNetwork(rules=r)
+		self.testbn = dynpy.bn.BooleanNetwork(rules=testrules)
 
 	def test_def_bns(self):
 		bn1 = dynpy.markov.MarkovChain.from_deterministic_system(self.testbn)
@@ -50,3 +51,16 @@ class TestBNs:
 
 		G = cur_bn.get_structural_graph()
 		assert_array_equal(G, expected_graph)
+
+	def test_def_truthtable(self):
+		testbn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.test2_bn)
+		assert_array_equal(testbn.get_attractor_basins(sort=True)[0][0], [[1,1,1,1],])
+
+	def test_convert_truthtable(self):
+		testbn1 = dynpy.bn.BooleanNetwork(rules=testrules, convert_to_truthtable=True)
+		testbn2 = dynpy.bn.BooleanNetwork(rules=testrules, convert_to_truthtable=False)
+		atts1, basins1 = testbn1.get_attractor_basins(sort=True)
+		atts2, basins2 = testbn2.get_attractor_basins(sort=True)
+		assert_array_equal(atts1, atts2)
+		assert_array_equal(basins1, basins2)
+		

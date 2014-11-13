@@ -180,7 +180,8 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
 
         iteratefunc = self.iterate
 
-        for startstate in self.states():
+        for raw_startstate in self.states():
+            startstate = hashable_state(raw_startstate)
             if startstate in state_basins:
                 continue
 
@@ -188,7 +189,7 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
             cstate = startstate
             while True:                
                 traj.add(cstate)
-                cstate = iteratefunc(cstate)
+                cstate = hashable_state(iteratefunc(cstate))
 
                 if cstate in traj:  # cycle closed
                     cur_cycle = []

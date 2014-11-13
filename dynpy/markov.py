@@ -164,7 +164,7 @@ class MarkovChain(dynsys.LinearDynamicalSystem):
 
         state2ndx_map = base_sys.get_state2ndx_map()
         translist = [
-            (ndx, state2ndx_map[base_sys.iterate(state)], 1.0)
+            (ndx, state2ndx_map[hashable_state(base_sys.iterate(state))], 1.0)
              for ndx, state in six.iteritems(base_sys.get_ndx2state_map()) ]
 
         nrows, ncols, ndata = zip(*translist)

@@ -34,7 +34,7 @@ Li et al, The yeast cell-cycle network is robustly designed, PNAS, 2004.
 
     bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.budding_yeast_bn)
 
-    initState = np.zeros(bn.num_vars, 'int')
+    initState = np.zeros(bn.num_vars, 'uint8')
     initState[ [1,3,6] ] = 1
     plt.spy(bn.get_trajectory(start_state=initState, max_time=15))
     plt.xlabel('Node')
@@ -108,7 +108,7 @@ topology and a homogenous update function.  For example:
 
     ca = dynpy.ca.CellularAutomaton(num_vars=100, num_neighbors=1, ca_rule_number=110)
 
-    initState = np.zeros(ca.num_vars, 'int')
+    initState = np.zeros(ca.num_vars, 'uint8')
     initState[int(ca.num_vars/2)] = 1
     plt.spy(ca.get_trajectory(start_state=initState, max_time=50))
     plt.xlabel('Node')

@@ -7,6 +7,7 @@ range = six.moves.range
 map   = six.moves.map
 
 from . import bn
+from .cutils import int2tuple
 
 class CellularAutomaton(bn.BooleanNetwork):
     """Cellular automaton object.  Constructs an underlying
@@ -18,7 +19,7 @@ class CellularAutomaton(bn.BooleanNetwork):
     >>> from dynpy.ca import CellularAutomaton
     >>> import numpy as np
     >>> ca = CellularAutomaton(num_vars=50, num_neighbors=1, ca_rule_number=110)
-    >>> init_state = np.zeros(ca.num_vars, 'int')
+    >>> init_state = np.zeros(ca.num_vars, dtype='uint8')
     >>> init_state[int(ca.num_vars/2)] = 1
     >>> for line in ca.get_trajectory(init_state, 10):
     ...   print("".join('#' if e == 1 else '-' for e in line))
@@ -45,7 +46,7 @@ class CellularAutomaton(bn.BooleanNetwork):
 
     """
     def __init__(self, num_vars, num_neighbors, ca_rule_number):
-        truth_table = bn.int2tuple(ca_rule_number, 2**(2*num_neighbors+1))
+        truth_table = list(int2tuple(ca_rule_number, 2**(2*num_neighbors+1)))
         rules = []
         for i in range(num_vars):
             conns = [(i+n) % num_vars
