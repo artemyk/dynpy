@@ -40,11 +40,13 @@ def numpy_includes():
 required_packages = [
     'numpy>=1.6',
     'scipy>=0.13',
-    'coverage>=3.7.0',
     'six>=1.8.0',
+    'coverage>=3.7.0',
     'cython>=0.21',
     'sphinx>=1.0.0',
+    'sphinxcontrib-autorun',
 ]
+# The last four are for testing
 
 setup(name='dynpy',
       version=__version__,
