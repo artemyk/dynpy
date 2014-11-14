@@ -24,9 +24,9 @@ install:
   - deps='pip atlas numpy scipy nose sphinx coverage six'
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION $deps
   - source activate test-environment
-  - python setup.py install
+  # Need to use develop so that extensions are available in the right directory for nose
+  - python setup.py develop
 
 script:
-  # - "nosetests -v --with-doctest"
   - "nosetests -v"
 
