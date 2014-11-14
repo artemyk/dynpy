@@ -59,4 +59,5 @@ setup(name='dynpy',
       ],
       cmdclass=dict(build_ext=build_ext),
       ext_modules=ext_modules,
+      zip_safe=False,
      )
