@@ -1,5 +1,15 @@
 import os
-from setuptools import setup
+from setuptools import setup, Extension
+from setuptools.command.build_ext import build_ext as _build_ext
+
+# http://stackoverflow.com/questions/19919905/how-to-bootstrap-numpy-installation-in-setup-py
+class build_ext(_build_ext):
+    def finalize_options(self):
+        _build_ext.finalize_options(self)
+        # Prevent numpy from thinking it is still in its setup process:
+        __builtins__.__NUMPY_SETUP__ = False
+        import numpy as np
+        self.include_dirs.append(np.get_include())
 
 def read(fname):
   c_dir = os.path.dirname(os.path.realpath(__file__))
@@ -10,43 +20,26 @@ exec(read('dynpy/version.py'))
 download_url = "https://github.com/artemyk/dynpy/tarball/master#egg=" + \
                "dynpy-%s.tar.gz" % __version__
 
-class lazy_list(list):
-    # See http://stackoverflow.com/questions/11010151/distributing-a-shared-library-and-some-c-code-with-a-cython-extension-module
-    # We do this so Cython/numpy gets installed before extensions built
-    def __init__(self, callback):
-        self._list, self.callback = None, callback
-    def c_list(self):
-        if self._list is None: self._list = self.callback()
-        return self._list
-    def __iter__(self):
-        for e in self.c_list(): yield e
-    def __getitem__(self, ii): 
-        return self.c_list()[ii]
-    def __getslice__(self, i, j):
-        return self.c_list()[i:j]
-    def __len__(self): 
-        return len(self.c_list())
-    def append(self, val): 
-        self.c_list().append(val)
+cython_modules = ['cutils','bniterate']
 
-def extensions():
-    from Cython.Build import cythonize
-    return cythonize('dynpy/*.pyx')
+try:
+    from Cython.Distutils import build_ext
+    ext_modules = cythonize(cython_modules)
 
-def numpy_includes():
-    import numpy as np
-    return [np.get_include(),]
+except ImportError:
+    ext_modules = [Extension('dynpy.'+s, ['dynpy/'+s+'.c']) for s in cython_modules]
 
+REQUIRED_NUMPY = 'numpy>=1.6'
 required_packages = [
-    'numpy>=1.6',
+    REQUIRED_NUMPY,
     'scipy>=0.13',
     'six>=1.8.0',
     'coverage>=3.7.0',
-    'cython>=0.21',
     'sphinx>=1.0.0',
     'sphinxcontrib-autorun',
 ]
 # The last four are for testing
+
 
 setup(name='dynpy',
       version=__version__,
@@ -55,6 +48,7 @@ setup(name='dynpy',
       author_email='artemyk@gmail.com',
       url='https://github.com/artemyk/dynpy',
       packages=['dynpy'],
+      setup_requires=[REQUIRED_NUMPY],
       install_requires=required_packages,
       license="GPL",
       long_description=read('README.md'),
@@ -66,7 +60,6 @@ setup(name='dynpy',
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
       ],
-      zip_safe=False,
-      ext_modules=lazy_list(extensions),
-      include_dirs=lazy_list(numpy_includes),
+      cmdclass=dict(build_ext=build_ext),
+      ext_modules=ext_modules,
      )
