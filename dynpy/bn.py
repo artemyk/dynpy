@@ -141,8 +141,7 @@ class BooleanNetwork(dynsys.DiscreteStateVectorDynamicalSystem,
     """
 
     def _init_truthtables(self):
-        from types import MethodType
-        self._iterate_1step_discrete = MethodType(iterate_1step_truthtable, self, self.__class__)
+        self._iterate_1step_discrete = six.create_bound_method(iterate_1step_truthtable, self)
 
     def _iterate_1step_discrete_funcs(self, start_state):
         """Run one interation of Boolean network.  iterate is pointed to this
