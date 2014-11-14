@@ -8,15 +8,12 @@ map   = six.moves.map
 
 import inspect
 import collections
-import itertools
 
 import numpy as np
 
 from . import dynsys
-from . import caching
-from .utils import hashable_state
 
-from .cutils import tuple2int, int2tuple
+from .cutils import int2tuple
 from .bniterate import iterate_1step_truthtable
 
 class BooleanNetwork(dynsys.DiscreteStateVectorDynamicalSystem, 
@@ -73,7 +70,7 @@ class BooleanNetwork(dynsys.DiscreteStateVectorDynamicalSystem,
 
     def __init__(self, rules, mode=None, convert_to_truthtable=False):
 
-        var_names = [lbl for (lbl, inputs, table) in rules]
+        var_names = [lbl for (lbl, _, _) in rules]
         num_vars = len(rules)
 
         # Remap inputs from being specified by variable names to being
@@ -115,10 +112,10 @@ class BooleanNetwork(dynsys.DiscreteStateVectorDynamicalSystem,
                 new_rules = []
                 for v in range(num_vars):
                     var_rules = []
-                    N = len(self.input_ixs[v])
+                    N = len(rules[v][1])
                     for inputstate in range(2**N - 1, -1, -1):
                         var_rules.append(self._get_var_next_state_funcs(v, int2tuple(inputstate, N)))
-                    new_rules.append((self.rules[v][0], self.rules[v][1], np.array(var_rules)))
+                    new_rules.append((self.rules[v][0], self.rules[v][1], var_rules))
                 self.rules = new_rules
                 self._init_truthtables()
 
@@ -131,14 +128,6 @@ class BooleanNetwork(dynsys.DiscreteStateVectorDynamicalSystem,
         super(BooleanNetwork, self).__init__(
             num_vars, var_names, discrete_time=True)
 
-
-    """
-    def _get_var_next_state_tt(self, var_index, inputs):
-        #: Execute update rule when network is specified using truthtables.
-        #: Repointed in constructor.
-        return self.rules[var_index][2][-1 - tuple2int(inputs)]
-
-    """
 
     def _init_truthtables(self):
         self._iterate_1step_discrete = six.create_bound_method(iterate_1step_truthtable, self)
@@ -173,7 +162,7 @@ class BooleanNetwork(dynsys.DiscreteStateVectorDynamicalSystem,
             which other variables
         """
         mx = np.zeros(shape=(self.num_vars, self.num_vars))
-        for ndx, (var, inputs, table) in enumerate(self.rules):
+        for var, inputs, _ in self.rules:
             ix1 = self.var_name_ndxs[var]
             for i in inputs:
                 mx[i,ix1] = 1.0

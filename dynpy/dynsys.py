@@ -6,8 +6,6 @@ import six
 range = six.moves.range
 map   = six.moves.map
 
-import collections
-
 import numpy as np
 
 from . import mx
@@ -84,7 +82,10 @@ class DynamicalSystem(object):
         """
         raise NotImplementedError
 
-    def _iterate_1step_discrete(self, start_state, num_iters=1):
+    def _iterate_1step_discrete(self, start_state):
+        raise NotImplementedError
+
+    def _iterate_continuous(self, start_state, max_time=1.0):
         raise NotImplementedError
 
     def _iterate_discrete(self, start_state, max_time=1.0):
@@ -210,7 +211,7 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
                         state_basins[s] = state_basins[cstate]
                     break
 
-        basins = [ [] for i in range(len(attractors))]
+        basins = [ [] for _ in range(len(attractors))]
         for state, basin in six.iteritems(state_basins):
             basins[basin].append(state)
 

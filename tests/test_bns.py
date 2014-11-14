@@ -12,6 +12,11 @@ testrules = [
 	['x2', ['x1','x2'], [1,1,1,0]],
 ]
 
+testfuncs = [
+	['x1', ['x1','x2'], lambda x1,x2: (x1 and x2) ],
+	['x2', ['x1','x2'], lambda x1,x2: (x1 or  x2) ],
+]
+
 class TestBNs:
 
 	def setUp(self):
@@ -20,11 +25,7 @@ class TestBNs:
 	def test_def_bns(self):
 		bn1 = dynpy.markov.MarkovChain.from_deterministic_system(self.testbn)
 
-		r2 = [
-			['x1', ['x1','x2'], lambda x1,x2: (x1 and x2) ],
-			['x2', ['x1','x2'], lambda x1,x2: (x1 or  x2) ],
-		]
-		bn2base = dynpy.bn.BooleanNetwork(rules=r2, mode='FUNCS')
+		bn2base = dynpy.bn.BooleanNetwork(rules=testfuncs, mode='FUNCS')
 		bn2 = dynpy.markov.MarkovChain.from_deterministic_system(bn2base)
 
 		assert((bn1.transition_matrix-bn2.transition_matrix).max() == 0.0 )
@@ -57,8 +58,8 @@ class TestBNs:
 		assert_array_equal(testbn.get_attractor_basins(sort=True)[0][0], [[1,1,1,1],])
 
 	def test_convert_truthtable(self):
-		testbn1 = dynpy.bn.BooleanNetwork(rules=testrules, convert_to_truthtable=True)
-		testbn2 = dynpy.bn.BooleanNetwork(rules=testrules, convert_to_truthtable=False)
+		testbn1 = dynpy.bn.BooleanNetwork(rules=testfuncs, convert_to_truthtable=True)
+		testbn2 = dynpy.bn.BooleanNetwork(rules=testfuncs, convert_to_truthtable=False)
 		atts1, basins1 = testbn1.get_attractor_basins(sort=True)
 		atts2, basins2 = testbn2.get_attractor_basins(sort=True)
 		assert_array_equal(atts1, atts2)

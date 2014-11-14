@@ -11,8 +11,7 @@ map   = six.moves.map
 from . import dynsys
 from . import mx
 
-from . import caching
-from .utils import hashable_state, readonlydict
+from .utils import hashable_state
 
 TOLERANCE = 1e-10
 TRANS_DTYPE = 'float32'
@@ -206,9 +205,6 @@ class MarkovChain(dynsys.LinearDynamicalSystem):
             Marginalize using this distribution for starting conditions
 
         """
-
-        def s2n(x):
-            return state2ndx_map[x]
 
         if not hasattr(keep_vars, '__iter__'):
             raise ValueError('keep_vars must be list-like')

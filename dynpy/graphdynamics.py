@@ -8,7 +8,7 @@ map   = six.moves.map
 
 import numpy as np
 
-from . import markov, mx, dynsys, utils
+from . import markov, mx, dynsys
 
 class RandomWalkerBase(dynsys.DiscreteStateVectorDynamicalSystem,
     dynsys.StochasticDynamicalSystem):

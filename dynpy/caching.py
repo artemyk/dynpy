@@ -25,11 +25,11 @@ class setup_cached_data_method(object):
 
             kwditems = tuple(kwds.items())
             if self.args_dont_use_for_key is not None:
-              kwditems = tuple((k,v) for k, v in kwditems  if k not in self.args_dont_use_for_key)
+                kwditems = tuple((k,v) for k, v in kwditems  if k not in self.args_dont_use_for_key)
 
             dependattrs = None
             if self.depends_on_attributes is not None:
-              dependattrs = tuple([getattr(obj, depended_attr) for depended_attr in self.depends_on_attributes])
+                dependattrs = tuple([getattr(obj, depended_attr) for depended_attr in self.depends_on_attributes])
 
             try:
                 keyEntries = tuple([
@@ -43,9 +43,9 @@ class setup_cached_data_method(object):
                 print(" - func=%s\n - args=%s\n - kwds=%s" %
                       (str(func), str(args), str(kwds.items())))
                 if self.depends_on_attributes is not None:
-                  for depended_attr in self.depends_on_attributes:
-                      print(" - attr[%s]=%s" %
-                            [depended_attr, getattr(obj, depended_attr)])
+                    for depended_attr in self.depends_on_attributes:
+                        print(" - attr[%s]=%s" %
+                               (depended_attr, getattr(obj, depended_attr)))
                 raise
 
             #key = hash(keyEntries)
@@ -60,16 +60,16 @@ class setup_cached_data_method(object):
                 returnValue = func(obj, *args, **kwds)
                 sideEffects = None
                 if self.sideeffect_attributes is not None:
-                  sideEffects = tuple(
-                    [getattr(obj, sideeffect, None)
-                     for sideeffect in self.sideeffect_attributes])
+                    sideEffects = tuple(
+                      [getattr(obj, sideeffect, None)
+                       for sideeffect in self.sideeffect_attributes])
                 obj._cache[key] = (returnValue, sideEffects)
             else:
                 returnValue, sideEffects = obj._cache[key]
 
             if sideEffects is not None:
-              for n in range(len(sideEffects)):
-                  setattr(obj, self.sideeffect_attributes[n], sideEffects[n])
+                for n in range(len(sideEffects)):
+                    setattr(obj, self.sideeffect_attributes[n], sideEffects[n])
 
             return returnValue
 
