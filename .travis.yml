@@ -27,4 +27,6 @@ install:
   - python setup.py install
 
 script:
-  - "nosetests -v --with-doctest"
+  # - "nosetests -v --with-doctest"
+  - "nosetests -v"
+
