@@ -36,9 +36,7 @@ required_packages = [
     'six>=1.8.0',
     'coverage>=3.7.0',
     'sphinx>=1.0.0',
-    'sphinxcontrib-autorun',
 ]
-# The last four are for testing
 
 setup(name='dynpy',
       version=__version__,
