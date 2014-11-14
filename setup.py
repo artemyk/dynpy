@@ -40,7 +40,6 @@ required_packages = [
 ]
 # The last four are for testing
 
-
 setup(name='dynpy',
       version=__version__,
       description='Dynamical systems for Python',
