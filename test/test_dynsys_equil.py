@@ -18,15 +18,15 @@ def test_dense_discrete_equil_vs_iter():
         rw = RandomWalkerEnsemble(graph=kc, issparse=False)
 
         e1 = rw.iterate(initState, max_time = 100)
-        e2 = rw.equilibrium_distribution()
+        e2 = rw.get_equilibrium_distribution()
         assert( very_close(e1 , e2) )
 
 def test_dense_continuous_vs_discrete():
         # Dense continuous time
         rw1 = RandomWalkerEnsemble(graph=kc, issparse=False)
         rw2 = RandomWalkerEnsemble(graph=kc, discrete_time=False, issparse=False)
-        e2 = rw1.equilibrium_distribution()
-        e2ct = rw2.equilibrium_distribution()
+        e2 = rw1.get_equilibrium_distribution()
+        e2ct = rw2.get_equilibrium_distribution()
         assert( very_close(e2ct , e2) )
 
 
@@ -34,7 +34,7 @@ def test_dense_continuous_equil_vs_iter():
         # Dense continuous time
         rw = RandomWalkerEnsemble(graph=kc, discrete_time=False, issparse=False)
         e1 = rw.iterate(initState, max_time = 100)
-        e2ct = rw.equilibrium_distribution()
+        e2ct = rw.get_equilibrium_distribution()
         assert( very_close(e2ct , e1) )
 
 
@@ -43,15 +43,15 @@ def test_sparse_discrete_equil_vs_iter():
         rw = RandomWalkerEnsemble(graph=kc, issparse=True)
 
         e1 = rw.iterate(initState, max_time = 100)
-        e2 = rw.equilibrium_distribution()
+        e2 = rw.get_equilibrium_distribution()
         assert( very_close(e1 , e2) )
 
 def test_sparse_continuous_vs_discrete():
         # Sparse continuous time
         rw1 = RandomWalkerEnsemble(graph=kc, issparse=False)
         rw2 = RandomWalkerEnsemble(graph=kc, discrete_time=False, issparse=True)
-        e2 = rw1.equilibrium_distribution()
-        e2ct = rw2.equilibrium_distribution()
+        e2 = rw1.get_equilibrium_distribution()
+        e2ct = rw2.get_equilibrium_distribution()
         assert( very_close(e2ct , e2) )
 
 
@@ -59,6 +59,6 @@ def test_sparse_continuous_equil_vs_iter():
         # Sparse continuous time
         rw = RandomWalkerEnsemble(graph=kc, discrete_time=False, issparse=True)
         e1 = rw.iterate(initState, max_time = 100)
-        e2ct = rw.equilibrium_distribution()
+        e2ct = rw.get_equilibrium_distribution()
         assert( very_close(e2ct , e1) )
 

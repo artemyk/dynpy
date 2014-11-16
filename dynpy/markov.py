@@ -56,7 +56,7 @@ class MarkovChain(dynsys.LinearDynamicalSystem):
             self.ndx2state_map = None
 
 
-    def equilibrium_distribution(self):
+    def get_equilibrium_distribution(self):
         """Get equilibrium state (i.e. the stable, equilibrium distribution)
         for this dynamical system.  Uses eigen-decomposition.
 
