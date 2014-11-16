@@ -23,11 +23,13 @@ download_url = "https://github.com/artemyk/dynpy/tarball/master#egg=" + \
 cython_modules = ['cutils','bniterate']
 
 try:
-    from Cython.Distutils import build_ext
-    ext_modules = cythonize(cython_modules)
+    from Cython.Build import cythonize
+    ext_modules = cythonize([os.path.join('dynpy', s+'.pyx') 
+    	                     for s in cython_modules])
 
 except ImportError:
-    ext_modules = [Extension('dynpy.'+s, ['dynpy/'+s+'.c']) for s in cython_modules]
+    ext_modules = [Extension('dynpy.'+s, [os.path.join('dynpy', s+'.c')]) 
+                   for s in cython_modules]
 
 REQUIRED_NUMPY = 'numpy>=1.6'
 required_packages = [
