@@ -29,16 +29,16 @@ Li et al, The yeast cell-cycle network is robustly designed, PNAS, 2004.
 .. plot::
    :include-source:
 
-    import numpy as np, matplotlib.pyplot as plt
-    import dynpy
-
-    bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.budding_yeast_bn)
-
-    initState = np.zeros(bn.num_vars, 'uint8')
-    initState[ [1,3,6] ] = 1
-    plt.spy(bn.get_trajectory(start_state=initState, max_time=15))
-    plt.xlabel('Node')
-    plt.ylabel('Time')
+>>> import numpy as np, matplotlib.pyplot as plt
+>>> import dynpy
+>>> 
+>>> bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.budding_yeast_bn)
+>>> 
+>>> initState = np.zeros(bn.num_vars, 'uint8')
+>>> initState[ [1,3,6] ] = 1
+>>> plt.spy(bn.get_trajectory(start_state=initState, max_time=15))  # doctest: +SKIP
+>>> plt.xlabel('Node')  # doctest: +SKIP
+>>> plt.ylabel('Time')  # doctest: +SKIP
 
 
 We can also get the network's attractors, by doing:
@@ -103,16 +103,16 @@ topology and a homogenous update function.  For example:
 .. plot::
    :include-source:
 
-    import numpy as np, matplotlib.pyplot as plt
-    import dynpy
-
-    ca = dynpy.ca.CellularAutomaton(num_vars=100, num_neighbors=1, ca_rule_number=110)
-
-    initState = np.zeros(ca.num_vars, 'uint8')
-    initState[int(ca.num_vars/2)] = 1
-    plt.spy(ca.get_trajectory(start_state=initState, max_time=50))
-    plt.xlabel('Node')
-    plt.ylabel('Time')
+>>> import numpy as np, matplotlib.pyplot as plt
+>>> import dynpy
+>>> 
+>>> ca = dynpy.ca.CellularAutomaton(num_vars=100, num_neighbors=1, ca_rule_number=110)
+>>> 
+>>> initState = np.zeros(ca.num_vars, 'uint8')
+>>> initState[int(ca.num_vars/2)] = 1
+>>> plt.spy(ca.get_trajectory(start_state=initState, max_time=50))  # doctest: +SKIP
+>>> plt.xlabel('Node')  # doctest: +SKIP
+>>> plt.ylabel('Time')  # doctest: +SKIP
 
 
 
@@ -132,20 +132,20 @@ of a random walker on Zachary's karate club network.  Here,
 .. plot::
     :include-source:
 
-    import matplotlib.pyplot as plt
-    import dynpy
-
-    G = dynpy.sample_nets.karateclub_net
-    N = G.shape[0]
-    rw = dynpy.graphdynamics.RandomWalkerEnsemble(graph=G)
-
-    initState = np.zeros(N)
-    initState[ 5 ] = 1
-
-    trajectory = rw.get_trajectory(start_state=initState, max_time=30)
-    plt.imshow(trajectory, interpolation='none')
-    plt.xlabel('Node')
-    plt.ylabel('Time')
+>>> import matplotlib.pyplot as plt
+>>> import dynpy
+>>> 
+>>> G = dynpy.sample_nets.karateclub_net
+>>> N = G.shape[0]
+>>> rw = dynpy.graphdynamics.RandomWalkerEnsemble(graph=G)
+>>> 
+>>> initState = np.zeros(N)
+>>> initState[ 5 ] = 1
+>>> 
+>>> trajectory = rw.get_trajectory(start_state=initState, max_time=30)
+>>> plt.imshow(trajectory, interpolation='none')  # doctest: +SKIP
+>>> plt.xlabel('Node')  # doctest: +SKIP
+>>> plt.ylabel('Time')  # doctest: +SKIP
 
 
 A Markov chain, like some other dynamical systems implemented by `dynpy`, can also 
@@ -156,37 +156,37 @@ constructing the underlying dynamical system. Using the previous example:
 .. plot::
     :include-source:
 
-    import matplotlib.pyplot as plt
-    import dynpy
+>>> import matplotlib.pyplot as plt
+>>> import dynpy
 
-    G = dynpy.sample_nets.karateclub_net
-    N = G.shape[0]
-    rw = dynpy.graphdynamics.RandomWalkerEnsemble(graph=G, discrete_time=False)
+>>> G = dynpy.sample_nets.karateclub_net
+>>> N = G.shape[0]
+>>> rw = dynpy.graphdynamics.RandomWalkerEnsemble(graph=G, discrete_time=False)
 
-    initState = np.zeros(N)
-    initState[ 5 ] = 1
+>>> initState = np.zeros(N)
+>>> initState[ 5 ] = 1
 
-    trajectory = rw.get_trajectory(start_state=initState, max_time=30)
-    plt.imshow(trajectory, interpolation='none')
-    plt.xlabel('Node')
-    plt.ylabel('Time')
+>>> trajectory = rw.get_trajectory(start_state=initState, max_time=30)
+>>> plt.imshow(trajectory, interpolation='none')  # doctest: +SKIP
+>>> plt.xlabel('Node')  # doctest: +SKIP
+>>> plt.ylabel('Time')  # doctest: +SKIP
 
 
 It is also possible to get the equilibrium distribution by calling
-``equilibrium_distribution()``, which uses eigenspace decomposition:
+``get_equilibrium_distribution()``, which uses eigenspace decomposition:
 
 .. plot::
     :include-source:
 
-    import matplotlib.pyplot as plt
-    import numpy as np
-    import dynpy
+>>> import matplotlib.pyplot as plt
+>>> import numpy as np
+>>> import dynpy
 
-    kc = dynpy.sample_nets.karateclub_net
-    rw = dynpy.graphdynamics.RandomWalkerEnsemble(graph=kc, discrete_time=False)
+>>> kc = dynpy.sample_nets.karateclub_net
+>>> rw = dynpy.graphdynamics.RandomWalkerEnsemble(graph=kc, discrete_time=False)
 
-    eq_state = rw.equilibrium_distribution()
-    plt.imshow(np.atleast_2d(eq_state), interpolation='none')
+>>> eq_state = rw.get_equilibrium_distribution()
+>>> plt.imshow(np.atleast_2d(eq_state), interpolation='none')  # doctest: +SKIP
 
 
 In fact, it is possible to turn any deterministic dynamical system into a Markov 
@@ -197,22 +197,22 @@ the yeast-cell cycle Boolean network:
 .. plot::
     :include-source:
 
-    import matplotlib.pyplot as plt
-    import dynpy
-
-    bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.budding_yeast_bn)
-    bnMC = dynpy.markov.MarkovChain.from_deterministic_system(bn)
-
-    # get distribution over states at various timepoints
-    t = bnMC.get_trajectory(start_state=bnMC.get_uniform_distribution(), max_time=20)
-
-    # project back from states onto activations of original nodes
-    bnProbs = t.dot(bn.get_ndx2state_mx())
-
-    # plot
-    plt.imshow(bnProbs, interpolation='none')
-    plt.xlabel('Node')
-    plt.ylabel('Time')
+>>> import matplotlib.pyplot as plt
+>>> import dynpy
+>>> 
+>>> bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.budding_yeast_bn)
+>>> bnMC = dynpy.markov.MarkovChain.from_deterministic_system(bn)
+>>> 
+>>> # get distribution over states at various timepoints
+>>> t = bnMC.get_trajectory(start_state=bnMC.get_uniform_distribution(), max_time=20)
+>>> 
+>>> # project back from states onto activations of original nodes
+>>> bnProbs = t.dot(bn.get_ndx2state_mx())
+>>> 
+>>> # plot
+>>> plt.imshow(bnProbs, interpolation='none')  # doctest: +SKIP
+>>> plt.xlabel('Node')  # doctest: +SKIP
+>>> plt.ylabel('Time')  # doctest: +SKIP
 
 
 Stochastic Systems
@@ -223,23 +223,23 @@ Stochastic systems can also be implemented.
 .. plot::
     :include-source:
 
-    import matplotlib.pyplot as plt
-    import numpy as np
-    import dynpy
-
-    num_steps = 30
-    G = dynpy.sample_nets.karateclub_net
-    N = G.shape[0]
-    rw = dynpy.graphdynamics.RandomWalkerEnsemble(graph=G)
-    sampler = dynpy.markov.MarkovChainSampler(rw)
-
-    # Initialize with a single random walker on node id=5
-    cState = np.zeros(N)
-    cState[ 5 ] = 1
-
-    spacetime = sampler.get_trajectory(start_state=cState, max_time=num_steps)
-
-    plt.spy(spacetime)
-    plt.xlabel('Node')
-    plt.ylabel('Time')
+>>> import matplotlib.pyplot as plt
+>>> import numpy as np
+>>> import dynpy
+>>> 
+>>> num_steps = 30
+>>> G = dynpy.sample_nets.karateclub_net
+>>> N = G.shape[0]
+>>> rw = dynpy.graphdynamics.RandomWalkerEnsemble(graph=G)
+>>> sampler = dynpy.markov.MarkovChainSampler(rw)
+>>> 
+>>> # Initialize with a single random walker on node id=5
+>>> cState = np.zeros(N)
+>>> cState[ 5 ] = 1
+>>> 
+>>> spacetime = sampler.get_trajectory(start_state=cState, max_time=num_steps)
+>>> 
+>>> plt.spy(spacetime)  # doctest: +SKIP
+>>> plt.xlabel('Node')  # doctest: +SKIP
+>>> plt.ylabel('Time')  # doctest: +SKIP
 

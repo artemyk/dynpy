@@ -66,7 +66,7 @@ class MarkovChain(dynsys.LinearDynamicalSystem):
             Equilibrium distribution
         """
 
-        dist = super(MarkovChain, self).equilibrium_distribution()
+        dist = super(MarkovChain, self).get_equilibrium_distribution()
         dist = dist / dist.sum()
 
         if np.any(mx.todense(dist) < -TOLERANCE):

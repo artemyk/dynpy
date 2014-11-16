@@ -392,7 +392,7 @@ class LinearDynamicalSystem(VectorDynamicalSystem):
         self.transition_matrix = transition_matrix
         self.stable_eigenvalue = 1.0 if discrete_time else 0.0
 
-    def equilibrium_distribution(self):
+    def get_equilibrium_distribution(self):
         """Get equilibrium state of dynamical system using eigen-decomposition
 
         Returns
