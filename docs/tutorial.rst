@@ -123,18 +123,8 @@ constructing the underlying dynamical system. Using the previous example:
 It is also possible to get the equilibrium distribution by calling
 ``get_equilibrium_distribution()``, which uses eigenspace decomposition:
 
-.. plot::
+.. plot:: equil_dist.py
     :include-source:
-
->>> import matplotlib.pyplot as plt
->>> import numpy as np
->>> import dynpy
-
->>> kc = dynpy.sample_nets.karateclub_net
->>> rw = dynpy.graphdynamics.RandomWalkerEnsemble(graph=kc, discrete_time=False)
-
->>> eq_state = rw.get_equilibrium_distribution()
->>> plt.imshow(np.atleast_2d(eq_state), interpolation='none')
 
 
 In fact, it is possible to turn any deterministic dynamical system into a Markov 
@@ -142,25 +132,9 @@ chain by using the :meth:`dynpy.markov.MarkovChain.from_deterministic_system` me
 For example, to create a dynamical system over a distribution of states of 
 the yeast-cell cycle Boolean network:
 
-.. plot::
+.. plot:: bn_dist.py
     :include-source:
 
->>> import matplotlib.pyplot as plt
->>> import dynpy
->>> 
->>> bn = dynpy.bn.BooleanNetwork(rules=dynpy.sample_nets.budding_yeast_bn)
->>> bnMC = dynpy.markov.MarkovChain.from_deterministic_system(bn)
->>> 
->>> # get distribution over states at various timepoints
->>> t = bnMC.get_trajectory(start_state=bnMC.get_uniform_distribution(), max_time=20)
->>> 
->>> # project back from states onto activations of original nodes
->>> bnProbs = t.dot(bn.get_ndx2state_mx())
->>> 
->>> # plot
->>> plt.imshow(bnProbs, interpolation='none')
->>> plt.xlabel('Node')
->>> plt.ylabel('Time')
 
 
 Stochastic Systems
@@ -168,26 +142,7 @@ Stochastic Systems
 
 Stochastic systems can also be implemented.
 
-.. plot::
+.. plot:: random_walker.py
     :include-source:
 
->>> import matplotlib.pyplot as plt
->>> import numpy as np
->>> import dynpy
->>> 
->>> num_steps = 30
->>> G = dynpy.sample_nets.karateclub_net
->>> N = G.shape[0]
->>> rw = dynpy.graphdynamics.RandomWalkerEnsemble(graph=G)
->>> sampler = dynpy.markov.MarkovChainSampler(rw)
->>> 
->>> # Initialize with a single random walker on node id=5
->>> cState = np.zeros(N)
->>> cState[ 5 ] = 1
->>> 
->>> spacetime = sampler.get_trajectory(start_state=cState, max_time=num_steps)
->>> 
->>> plt.spy(spacetime)
->>> plt.xlabel('Node')
->>> plt.ylabel('Time')
 
