@@ -68,7 +68,7 @@ class BooleanNetwork(dynsys.DiscreteStateVectorDynamicalSystem,
 
     rules = None #: The provided definition of the Boolean network
 
-    def __init__(self, rules, mode=None, convert_to_truthtable=False):
+    def __init__(self, rules, mode=None, convert_to_truthtable=True):
 
         var_names = [lbl for (lbl, _, _) in rules]
         num_vars = len(rules)
