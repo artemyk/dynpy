@@ -54,7 +54,8 @@ class RandomWalkerEnsemble(markov.MarkovChain):
         mxcls = mx.SparseMatrix if issparse else mx.DenseMatrix
 
         trans = np.asarray(graph).astype('double') 
-        trans = trans / np.atleast_2d( graph.sum(axis=1) ).T
+        sums = np.ravel(graph.sum(axis=1))
+        trans = trans / sums[:, np.newaxis]
 
         if not discrete_time:
             trans = trans - np.eye(*trans.shape)
