@@ -313,7 +313,7 @@ class DenseMatrix(MxBase):
         if m.shape[0] == 1:
             m = m.T
 
-        return np.multiply(mx, multiplier)
+        return np.multiply(mx, m)
 
 
 def issparse(mx):
