@@ -21,7 +21,7 @@ install:
   # Useful for debugging any issues with conda
   - conda info -a
 
-  - deps='pip atlas numpy scipy nose sphinx coverage six'
+  - deps='pip atlas numpy scipy nose sphinx coverage six matplotlib'
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION $deps
   - source activate test-environment
   # Need to use develop so that extensions are available in the right directory for nose
