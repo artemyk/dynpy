@@ -27,6 +27,11 @@ install:
   # Need to use develop so that extensions are available in the right directory for nose
   - python setup.py develop
 
+  # Matplotlib settings
+  - mkdir -p $HOME/.matplotlib
+  - touch $HOME/.matplotlib/matplotlibrc
+  - "echo 'backend : Agg' > $HOME/.matplotlib/matplotlibrc"
+
 script:
   - "nosetests -v"
 
