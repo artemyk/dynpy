@@ -10,6 +10,7 @@ from . import mx
 from . import sample_nets
 from . import utils
 
+from . import coupledmaps
+
 from . import cutils
 from . import bniterate
-

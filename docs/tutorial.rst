@@ -123,7 +123,7 @@ constructing the underlying dynamical system. Using the previous example:
 It is also possible to get the equilibrium distribution by calling
 ``get_equilibrium_distribution()``, which uses eigenspace decomposition:
 
-.. plot:: equil_dist.py
+.. plot:: test_pyplots/equil_dist.py
     :include-source:
 
 
@@ -132,7 +132,7 @@ chain by using the :meth:`dynpy.markov.MarkovChain.from_deterministic_system` me
 For example, to create a dynamical system over a distribution of states of 
 the yeast-cell cycle Boolean network:
 
-.. plot:: bn_dist.py
+.. plot:: test_pyplots/bn_dist.py
     :include-source:
 
 
@@ -142,6 +142,6 @@ Stochastic Systems
 
 Stochastic systems can also be implemented.
 
-.. plot:: random_walker.py
+.. plot:: test_pyplots/random_walker.py
     :include-source:
 

@@ -36,8 +36,11 @@ required_packages = [
     REQUIRED_NUMPY,
     'scipy>=0.13',
     'six>=1.8.0',
+]
+tests_require = [
     'coverage>=3.7.0',
     'sphinx>=1.0.0',
+    'matplotlib',
 ]
 
 setup(name='dynpy',
@@ -49,6 +52,7 @@ setup(name='dynpy',
       packages=['dynpy'],
       setup_requires=[REQUIRED_NUMPY,"setuptools_git>=0.3"],
       install_requires=required_packages,
+      tests_require=tests_require,
       license="GPL",
       long_description=read('README.md'),
       download_url=download_url,
