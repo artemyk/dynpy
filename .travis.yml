@@ -28,9 +28,9 @@ install:
   - python setup.py develop
 
   # Matplotlib settings
-  - mkdir -p $HOME/.matplotlib
-  - touch $HOME/.matplotlib/matplotlibrc
-  - "echo 'backend : Agg' > $HOME/.matplotlib/matplotlibrc"
+  #- mkdir -p $HOME/.matplotlib
+  #- touch $HOME/.matplotlib/matplotlibrc
+  - "echo 'backend : Agg' > matplotlibrc"
 
 script:
   - "nosetests -v"
