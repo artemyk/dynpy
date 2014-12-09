@@ -1,2 +1,1 @@
-exclude .gitignore
 exclude .travis.yml
