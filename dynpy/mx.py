@@ -307,7 +307,7 @@ class DenseMatrix(MxBase):
     @classmethod
     def multiplyrows(cls, mx, multiplier):
         m = np.atleast_2d(multiplier)
-        if np.sum(m.shape>1) > 1:
+        if len([d for d in m.shape if d>1]) > 1:
             raise Exception('multiplier must be row or column ' +
                             'vector')
         if m.shape[0] == 1:
