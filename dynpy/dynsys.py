@@ -207,7 +207,6 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
                         if cyclestate == cstate:
                             break
                     cur_cycle = tuple(sorted(cur_cycle))
-                    print(cur_cycle)
                     if cur_cycle not in attractors:
                         cndx = len(attractors)
                         attractors[cur_cycle] = cndx

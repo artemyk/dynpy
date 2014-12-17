@@ -168,6 +168,7 @@ class BooleanNetwork(dynsys.DiscreteStateVectorDynamicalSystem,
                 mx[i,ix1] = 1.0
         return mx
 
+    """
     def jacobian(self, state, time=1.0):
         next_state = self.iterate(state, time)
         indexes = np.arange(self.num_vars, dtype='int')
@@ -179,4 +180,5 @@ class BooleanNetwork(dynsys.DiscreteStateVectorDynamicalSystem,
             r.append(np.logical_xor(next_state, self.iterate(perturbed_state)))
 
         return np.array(r)
+    """
 
