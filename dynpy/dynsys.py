@@ -156,7 +156,7 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
     def states(self):
         raise NotImplementedError
 
-    def get_attractor_basins(self, sort=False):
+    def get_attractor_basins(self, sort=False, start_state_iter=None):
         """Computes the attractors and basins of the current discrete-state
         dynamical system.
 
@@ -164,6 +164,9 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
         ----------
         sort : bool, optional
             Whether to sort attractors and basin states (slower).
+        start_state_iter : iterator, optional
+            Iterator to indicate which start-states to start from.  If not
+            specified, tries all states.
 
         Returns
         -------
@@ -181,7 +184,10 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
 
         iteratefunc = self.iterate
 
-        for raw_startstate in self.states():
+        if start_state_iter is None:
+            start_state_iter = self.states()
+
+        for raw_startstate in start_state_iter:
             startstate = hashable_state(raw_startstate)
             if startstate in state_basins:
                 continue
@@ -201,6 +207,7 @@ class DiscreteStateDynamicalSystem(DynamicalSystem):
                         if cyclestate == cstate:
                             break
                     cur_cycle = tuple(sorted(cur_cycle))
+                    print(cur_cycle)
                     if cur_cycle not in attractors:
                         cndx = len(attractors)
                         attractors[cur_cycle] = cndx
@@ -421,12 +428,18 @@ class LinearDynamicalSystem(VectorDynamicalSystem):
 
     def _iterate_discrete(self, start_state, max_time=1.0):
         # For discrete time systems
+        if max_time == 0.0:
+            return start_state
+
         cls = mx.get_cls(self.transition_matrix)
         r = cls.format_mx(start_state).dot(
                 cls.pow(self.transition_matrix, int(max_time)))
         return r
 
     def _iterate_continuous(self, start_state, max_time=1.0):
+        if max_time == 0.0:
+            return start_state
+
         cls = mx.get_cls(self.transition_matrix)
         curStartStates = cls.format_mx(start_state)
         r = curStartStates.dot(
