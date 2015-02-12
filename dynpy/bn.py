@@ -93,11 +93,11 @@ class BooleanNetwork(dynsys.DiscreteStateVectorDynamicalSystem,
                 mode = 'TRUTHTABLES'
 
         if mode == 'TRUTHTABLES':
-            self._init_truthtables()
             for r in self.rules:
-                if not isinstance(r[2], collections.Iterable):
+                if not isinstance(r[2], list):
                     raise ValueError('Truth tables should be specified as ' +
-                                    'iterable, not %s' % type(r[2]))
+                                    'list, not %s' % type(r[2]))
+            self._init_truthtables()
 
         elif mode == 'FUNCS':
             for r in self.rules:
