@@ -123,6 +123,29 @@ drosophila4_bn = [
 ]
 
 
+# Non-spatial, single cell drosophila model
+# From K Willadsen and J Wiles, "Robustness and state-space structure of Boolean gene regulatory models," J Theor Biol, 2007.
+# From http://staff.itee.uq.edu.au/janetw/papers/PhD%202006%20Willadsen.pdf, fig 7.4s
+drosophila_bn = [
+ ['SLP', ['SLP'], lambda SLP: SLP],
+ ['wg', ['wg', 'CIA', 'CIR', 'SLP'], lambda wg, CIA, CIR, SLP: ((CIA and SLP and not CIR) or (wg and (CIA or SLP) and not CIR))],
+ ['WG', ['wg'], lambda wg: ((wg))],
+ ['en', ['nWG', 'SLP'], lambda nWG, SLP: (nWG and not SLP)],
+ ['EN', ['en'], lambda en: ((en))],
+ ['hh', ['EN', 'CIR'], lambda EN, CIR: ((EN and not CIR))],
+ ['HH', ['hh'], lambda hh: ((hh))],
+ ['ptc', ['CIA', 'EN', 'CIR'], lambda CIA, EN, CIR: ((CIA and not EN and not CIR))],
+ ['PTC', ['ptc', 'PTC', 'nhh'], lambda ptc, PTC, nhh: ((PTC and not nhh) or (ptc))],
+ ['PH', ['ptc', 'PTC','nhh'], lambda ptc, PTC, nhh: (((PTC and not nhh) or (ptc)) and nhh)],
+ ['SMO', ['ptc', 'PTC','nhh'], lambda ptc, PTC, nhh: (not ((PTC and not nhh) or (ptc)) or nhh)],
+ ['ci', ['EN'], lambda EN: ((not EN))],
+ ['CI', ['ci'], lambda ci: ((ci))],
+ ['CIA', ['CI', 'SMO', 'nhh'], lambda CI, SMO, nhh: (CI and (SMO or nhh))],
+ ['CIR', ['CI', 'SMO', 'nhh'], lambda CI, SMO, nhh: (CI and not (SMO or nhh))],
+ ['nWG', ['nWG'], lambda nWG: nWG],
+ ['nhh', ['nhh'], lambda nhh: nhh],
+]
+
 
 # Adapted from http://people.kth.se/~dubrova/bns.html (cnet files provided for BNS)
 #  # Boolean network model of the control of the fission yeast cell cycle regulation from
