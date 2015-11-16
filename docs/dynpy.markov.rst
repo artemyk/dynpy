@@ -1,7 +1,7 @@
 dynpy.markov - Markov chain module
 ==================================
 
-.. automodule:: dynpy.bn
+.. automodule:: dynpy.markov
     :members:
     :inherited-members:
     :undoc-members:

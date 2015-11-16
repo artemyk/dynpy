@@ -24,7 +24,6 @@ class TestBNs:
 
 	def test_def_bns(self):
 		bn1 = dynpy.markov.MarkovChain.from_deterministic_system(self.testbn)
-
 		bn2base = dynpy.bn.BooleanNetwork(rules=testfuncs, mode='FUNCS')
 		bn2 = dynpy.markov.MarkovChain.from_deterministic_system(bn2base)
 

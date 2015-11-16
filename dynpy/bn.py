@@ -106,17 +106,8 @@ class BooleanNetwork(dynsys.DiscreteStateVectorDynamicalSystem,
                         'Boolean functions should be specified as functions')
 
             if convert_to_truthtable:
-                # Convert Python functions to truth tables
-                # TODO: Test
-                # TODO: Cythonize
-                new_rules = []
-                for v in range(num_vars):
-                    var_rules = []
-                    N = len(rules[v][1])
-                    for inputstate in range(2**N - 1, -1, -1):
-                        var_rules.append(self._get_var_next_state_funcs(v, int2tuple(inputstate, N)))
-                    new_rules.append((self.rules[v][0], self.rules[v][1], var_rules))
-                self.rules = new_rules
+                self.rules = [(names, inputs, self._updatefunc_to_truthtables(len(inputs), f))
+                              for names, inputs, f in self.rules]
                 self._init_truthtables()
 
             else:
@@ -128,6 +119,13 @@ class BooleanNetwork(dynsys.DiscreteStateVectorDynamicalSystem,
         super(BooleanNetwork, self).__init__(
             num_vars, var_names, discrete_time=True)
 
+    @classmethod
+    def _updatefunc_to_truthtables(cls, K, func):
+        # Convert Python functions to truth tables
+        # TODO: Test
+        # TODO: Cythonize
+        return [func(*int2tuple(inputstate, K))
+                for inputstate in range(2**K - 1, -1, -1)]
 
     def _init_truthtables(self):
         self._iterate_1step_discrete = six.create_bound_method(iterate_1step_truthtable, self)
