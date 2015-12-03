@@ -90,7 +90,7 @@ class CellularAutomaton(bn.BooleanNetwork):
             conn_address = zip(*[(coffsets[:,d] % num_vars[d]) 
                                  for d in range(dim)])
             conns = [all_var_ndxs[v] for v in conn_address]
-            rules.append([v, conns, updaterule])
+            rules.append([tuple(v), conns, updaterule])
 
         super(CellularAutomaton,self).__init__(
             rules=rules, mode='TRUTHTABLES')
