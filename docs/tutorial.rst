@@ -18,7 +18,7 @@ Example: Boolean Networks
 -------------------------
 
 Boolean network are a type of discrete-state, discrete-time dynamical system.  
-Each node updates itself as a Boolean function of other nodes (it's 'inputs').
+Each node updates itself as a Boolean function of other nodes (its 'inputs').
 
 :doc:`dynpy.bn` implement Boolean network dynamical systems. For example, we
 can use it to compute the 
