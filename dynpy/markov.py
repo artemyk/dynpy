@@ -10,8 +10,8 @@ map   = six.moves.map
 
 from . import dynsys
 from . import mx
-
-from .utils import hashable_state, is_int
+from .mx import hashable_state
+from .utils import is_int
 
 TOLERANCE = 1e-10
 TRANS_DTYPE = 'float32'

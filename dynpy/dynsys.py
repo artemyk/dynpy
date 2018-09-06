@@ -10,7 +10,8 @@ import numpy as np
 
 from . import mx
 from . import caching
-from .utils import hashable_state, readonlydict
+from .mx import hashable_state
+from .utils import readonlydict
 
 # Constants for finding attractors
 MAX_ATTRACTOR_LENGTH = 5

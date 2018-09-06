@@ -7,8 +7,6 @@ import six
 range = six.moves.range
 map   = six.moves.map
 
-from .utils import is_int 
-
 import numpy as np
 from numpy.core import asarray
 
@@ -19,6 +17,9 @@ import scipy.sparse.linalg
 
 import hashlib
 import functools
+
+from .utils import is_int
+
 
 class StateBase(object):
     """Base class for managing objects which hold state of dynamical system
@@ -397,6 +398,7 @@ def multiplyrows(mx, multiplier):
     return get_matrix_cls(mx).multiplyrows(mx, multiplier)
 
 
+
 @functools.total_ordering
 class hashable_array(np.ndarray):
     """This class provides a hashable and sortable np.array.  This is useful for 
@@ -441,3 +443,11 @@ class hashable_array(np.ndarray):
             return False
         firstnonequal = np.flatnonzero(nonequal)[0]
         return self[firstnonequal] < other[firstnonequal]
+
+
+def hashable_state(x):
+    if not isinstance(x, np.ndarray):
+        return x
+    else:
+        return hashable_array(x)
+
