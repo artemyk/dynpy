@@ -1,1 +1,1 @@
-sphinxcontrib-autorun
+sphinx-autorun

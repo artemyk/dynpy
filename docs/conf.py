@@ -58,7 +58,7 @@ extensions += [
           # 'matplotlib.sphinxext.ipython_directive',
              
 extensions += [
-	'sphinxcontrib.autorun'
+	'sphinx_autorun'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
