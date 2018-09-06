@@ -142,8 +142,8 @@ class MarkovChain(dynsys.LinearDynamicalSystem):
         >>> init = bn_ensemble.get_uniform_distribution()
         >>> final_state = bn_ensemble.iterate(init, max_time=80)
         >>> print(np.ravel(final_state.dot(bn.get_ndx2state_mx()))) # doctest: +NORMALIZE_WHITESPACE
-        [ 0.          0.05664062  0.07373047  0.07373047  0.92236328  0.          0.
-          0.          0.91503906  0.          0.        ]
+        [0.          0.05664062  0.07373047  0.07373047  0.92236328  0.          0. 
+         0.          0.91503906  0.          0.        ]
 
 
         Parameters
@@ -197,8 +197,8 @@ class MarkovChain(dynsys.LinearDynamicalSystem):
         >>> bnensemble = dynpy.markov.MarkovChain.from_deterministic_system(bn, issparse=False)
         >>> proj = dynpy.markov.MarkovChain.project(bnensemble, [0])
         >>> print(proj.transition_matrix) # doctest: +NORMALIZE_WHITESPACE
-        [[ 1.   0. ]
-         [ 0.5  0.5]]
+        [[1.   0. ]
+         [0.5  0.5]]
 
 
         Parameters
