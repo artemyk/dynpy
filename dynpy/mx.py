@@ -51,8 +51,9 @@ class MxBase(StateBase):
     """Base class from which sparse and dense matrix operation classes inherit
     """
 
-    def format_obj(self, obj):
-        return self.format_mx(obj)
+    @classmethod
+    def format_obj(cls, obj):
+        return cls.format_mx(obj)
 
     @classmethod
     def create_editable_zeros_mx(cls, shape, dtype=None):
