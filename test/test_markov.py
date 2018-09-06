@@ -30,9 +30,24 @@ def test_sampler():
 	rw = dynpy.graphdynamics.RandomWalkerEnsemble(graph=dynpy.sample_nets.karateclub_net)
 	sampler = dynpy.markov.MarkovChainSampler(rw)
 
-	cur_state = np.zeros(rw.transition_matrix.shape[0])
-	cur_state[ 5 ] = 1
-	sampler.iterate(cur_state)
+	sampler.iterate(5)
+
+def test_sampler_trajectory():
+	N=10
+	rnd_mx = np.random.random((N,N))
+	transition_mx = rnd_mx/rnd_mx.sum(axis=1)[:,None]
+	mc = dynpy.markov.MarkovChain(transition_mx)
+	mc_sample = dynpy.markov.MarkovChainSampler(mc)
+	mc_sample.get_trajectory(start_state=5, max_time=100)
+
+def test_sampler_trajectory2():
+	num_steps = 30
+	G = dynpy.sample_nets.karateclub_net
+	N = G.shape[0]
+	rw = dynpy.graphdynamics.RandomWalkerEnsemble(graph=G)
+	sampler = dynpy.markov.MarkovChainSampler(rw)
+	spacetime = sampler.get_trajectory(start_state=5, max_time=num_steps)
+
 
 def _test_project(issparse, initial_dist=None, expected=[[1., 0.], [0.5, 0.5]]):
     bn = BooleanNetwork(rules=bnrules, mode='FUNCS')

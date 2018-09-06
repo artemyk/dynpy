@@ -9,11 +9,9 @@ rw = dynpy.graphdynamics.RandomWalkerEnsemble(graph=G)
 sampler = dynpy.markov.MarkovChainSampler(rw)
 
 # Initialize with a single random walker on node id=5
-cState = np.zeros(N)
-cState[ 5 ] = 1
+trajectory = sampler.get_trajectory(start_state=5, max_time=num_steps)
 
-spacetime = sampler.get_trajectory(start_state=cState, max_time=num_steps)
-
-plt.spy(spacetime)
-plt.xlabel('Node')
-plt.ylabel('Time')
+plt.plot(np.arange(num_steps), trajectory, 'o')
+plt.ylim([0, rw.num_states])
+plt.xlabel('Time')
+plt.ylabel('State')

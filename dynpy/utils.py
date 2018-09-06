@@ -24,5 +24,7 @@ def hashable_state(x):
     else:
         return mx.hashable_array(x)
 
+def is_int(x):
+	return isinstance(x, int) or isinstance(x, np.integer)
 
 

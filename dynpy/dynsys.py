@@ -135,12 +135,12 @@ class DynamicalSystem(object):
 
         cur_state = start_state
         trajectory = [cur_state,]
-        start_state_cls = mx.get_cls(start_state)
-
+        start_state_cls = mx.get_state_cls(start_state)
+ 
         for t in range(1, len(timepoints)):
             run_time = timepoints[t]-timepoints[t-1]
             next_state = self.iterate(cur_state, max_time=run_time)
-            cur_state = start_state_cls.format_mx(next_state)
+            cur_state = start_state_cls.format_obj(next_state)
             trajectory.append( cur_state )
 
         return start_state_cls.vstack(trajectory)
@@ -431,7 +431,7 @@ class LinearDynamicalSystem(VectorDynamicalSystem):
         if max_time == 0.0:
             return start_state
 
-        cls = mx.get_cls(self.transition_matrix)
+        cls = mx.get_matrix_cls(self.transition_matrix)
         r = cls.format_mx(start_state).dot(
                 cls.pow(self.transition_matrix, int(max_time)))
         return r
@@ -440,7 +440,7 @@ class LinearDynamicalSystem(VectorDynamicalSystem):
         if max_time == 0.0:
             return start_state
 
-        cls = mx.get_cls(self.transition_matrix)
+        cls = mx.get_matrix_cls(self.transition_matrix)
         curStartStates = cls.format_mx(start_state)
         r = curStartStates.dot(
               cls.expm(max_time * (self.transition_matrix)))

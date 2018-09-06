@@ -11,7 +11,7 @@ map   = six.moves.map
 from . import dynsys
 from . import mx
 
-from .utils import hashable_state
+from .utils import hashable_state, is_int
 
 TOLERANCE = 1e-10
 TRANS_DTYPE = 'float32'
@@ -55,7 +55,6 @@ class MarkovChain(dynsys.LinearDynamicalSystem):
             self.state2ndx_map = None
             self.ndx2state_map = None
 
-
     def get_equilibrium_distribution(self):
         """Get equilibrium state (i.e. the stable, equilibrium distribution)
         for this dynamical system.  Uses eigen-decomposition.
@@ -73,10 +72,15 @@ class MarkovChain(dynsys.LinearDynamicalSystem):
             raise Exception("Expect equilibrium state to be positive!")
         return dist
 
+    @property
+    def num_states(self):
+        return self.transition_matrix.shape[0]
+    
+
     def get_uniform_distribution(self):
         """Return uniform starting distribution over all system states.
         """
-        N = self.transition_matrix.shape[0]
+        N = self.num_states
         dist = np.ones(N, TRANS_DTYPE) / N
         return dist
 
@@ -220,7 +224,7 @@ class MarkovChain(dynsys.LinearDynamicalSystem):
             #TODO : optimize performance in case that initial_dist is sparse
             # and some starting states have 0 probability
 
-        mxcls = mx.get_cls(self.transition_matrix)
+        mxcls = mx.get_matrix_cls(self.transition_matrix)
 
         proj = dynsys.ProjectedStateSpace(
             base_sys=self.base_sys, keep_vars=keep_vars)
@@ -278,16 +282,12 @@ class MarkovChainSampler(dynsys.StochasticDynamicalSystem):
     def _iterate_1step_discrete(self, start_state):
         mc = self.markov_chain
 
-        if mc.state2ndx_map is not None:
-            start_state = mc.state2ndx_map[hashable_state(start_state)]
+        if not is_int(start_state):
+            raise Exception('MarkovChainSampler state should be an int')
 
         probs = mc.transition_matrix[start_state,:]
-        probs = np.ravel(mx.get_cls(probs).todense(probs))
-        num_states = self.markov_chain.transition_matrix.shape[0]
-        r = np.random.choice(np.arange(num_states), None, replace=True, p=probs)
-
-        if mc.ndx2state_map is not None:
-            r = mc.ndx2state_map[r]
+        probs = np.ravel(mx.todense(probs))
+        r = np.random.choice(np.arange(self.markov_chain.num_states), None, replace=True, p=probs)
 
         return r
 

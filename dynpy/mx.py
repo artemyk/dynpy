@@ -7,6 +7,8 @@ import six
 range = six.moves.range
 map   = six.moves.map
 
+from .utils import is_int 
+
 import numpy as np
 from numpy.core import asarray
 
@@ -18,19 +20,42 @@ import scipy.sparse.linalg
 import hashlib
 import functools
 
-class MxBase(object):
-    """Base class from which sparse and dense matrix operation classes inherit
+class StateBase(object):
+    """Base class for managing objects which hold state of dynamical system
     """
     @classmethod
-    def create_editable_zeros_mx(cls, shape, dtype=None):
-        """Create blank editable transition matrix, of size specified by `shape`
+    def format_obj(cls, obj):
+        """Format object `obj` into the current class's preferred type
+        (e.g., convert a dense matrix to sparse, or vice-versa, as appropriate)
         """
         raise NotImplementedError  # virtual class, sublcasses should implement
 
     @classmethod
-    def format_mx(cls,mx):
-        """Format a matrix `mx` into the current class's preferred matrix type
-        (i.e., convert a dense matrix to sparse, or vice-versa, as appropriate)
+    def vstack(cls, data):
+        """Stack states vertically"""
+        raise NotImplementedError  # virtual class, sublcasses should implement
+
+
+class IntScalar(StateBase):
+    @classmethod
+    def format_obj(cls, obj):
+        return obj
+
+    @classmethod
+    def vstack(cls, data):
+        return np.array(data)
+
+
+class MxBase(StateBase):
+    """Base class from which sparse and dense matrix operation classes inherit
+    """
+
+    def format_obj(self, obj):
+        return self.format_mx(obj)
+
+    @classmethod
+    def create_editable_zeros_mx(cls, shape, dtype=None):
+        """Create blank editable transition matrix, of size specified by `shape`
         """
         raise NotImplementedError  # virtual class, sublcasses should implement
 
@@ -122,14 +147,10 @@ class MxBase(object):
         raise NotImplementedError  # virtual class, sublcasses should implement
 
     @classmethod
-    def vstack(cls, data):
-        """Stack arrays vertically"""
-        raise NotImplementedError  # virtual class, sublcasses should implement
-
-    @classmethod
     def multiplyrows(cls, mx, multiplier):
         """TODO: Document"""
         return NotImplementedError
+
 
 class SparseMatrix(MxBase):
     """Class for sparse matrix operations.  See documentation for
@@ -324,50 +345,56 @@ def issparse(mx):
     else:
         raise ValueError('mx does not appear to be a matrix')
 
-def get_cls(mx):
+def get_state_cls(obj):
+    if is_int(obj):
+        return IntScalar
+    else:
+        return get_matrix_cls(obj)
+
+def get_matrix_cls(mx):
     if issparse(mx):
         return SparseMatrix
     else:
         return DenseMatrix
 
 def format_mx(mx):
-    return get_cls(mx).format_mx(mx)
+    return get_matrix_cls(mx).format_mx(mx)
 
 def finalize_mx(mx):
-    return get_cls(mx).finalize_mx(mx)
+    return get_matrix_cls(mx).finalize_mx(mx)
 
 def pow(mx, exponent):
-    return get_cls(mx).pow(mx, exponent)
+    return get_matrix_cls(mx).pow(mx, exponent)
 
 def expm(mx):
-    return get_cls(mx).expm(mx)
+    return get_matrix_cls(mx).expm(mx)
 
 def make2d(mx):
-    return get_cls(mx).make2d(mx)
+    return get_matrix_cls(mx).make2d(mx)
 
 def todense(mx):
-    return get_cls(mx).todense(mx)
+    return get_matrix_cls(mx).todense(mx)
 
 def tosparse(mx):
-    return get_cls(mx).tosparse(mx)
+    return get_matrix_cls(mx).tosparse(mx)
 
 def get_largest_right_eigs(mx):
-    return get_cls(mx).get_largest_right_eigs(mx)
+    return get_matrix_cls(mx).get_largest_right_eigs(mx)
 
 def get_largest_left_eigs(mx):
-    return get_cls(mx).get_largest_left_eigs(mx)
+    return get_matrix_cls(mx).get_largest_left_eigs(mx)
 
 def isnan(mx):
-    return get_cls(mx).isnan(mx)
+    return get_matrix_cls(mx).isnan(mx)
 
 def array_equal(mx, other_mx):
-    return get_cls(mx).array_equal(mx, other_mx)
+    return get_matrix_cls(mx).array_equal(mx, other_mx)
 
 def getdiag(mx):
-    return get_cls(mx).getdiag(mx)
+    return get_matrix_cls(mx).getdiag(mx)
 
 def multiplyrows(mx, multiplier):
-    return get_cls(mx).multiplyrows(mx, multiplier)
+    return get_matrix_cls(mx).multiplyrows(mx, multiplier)
 
 
 @functools.total_ordering
