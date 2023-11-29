@@ -1,3 +1,5 @@
+:tocdepth: 2
+
 dynpy.caching - Module for caching and memoizing class methods
 ==============================================================
 

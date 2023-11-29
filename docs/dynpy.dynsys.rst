@@ -1,3 +1,5 @@
+:tocdepth: 2
+
 dynpy.dynsys - Base module for dynamical systems
 ================================================
 

@@ -1,3 +1,5 @@
+:tocdepth: 2
+
 dynpy.graphdynamics - Module for implementing dynamical systems on graphs
 =========================================================================
 

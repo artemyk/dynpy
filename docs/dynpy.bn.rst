@@ -1,3 +1,5 @@
+:tocdepth: 2
+
 dynpy.bn - Boolean network module
 =================================
 

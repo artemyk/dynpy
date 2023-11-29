@@ -1,3 +1,5 @@
+:tocdepth: 2
+
 dynpy.mx - Matrix utilities module
 ==================================
 
