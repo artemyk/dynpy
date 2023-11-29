@@ -1,4 +1,4 @@
-dynpy [![Build Status](https://travis-ci.org/artemyk/dynpy.svg?branch=master)](https://travis-ci.org/artemyk/dynpy) [![Documentation Status](https://readthedocs.org/projects/dynpy/badge/)](https://readthedocs.org/projects/dynpy/)
+dynpy [![Documentation Status](https://readthedocs.org/projects/dynpy/badge/)](https://readthedocs.org/projects/dynpy/)
 ===================================================================================================================
 
 dynpy is a package for defining and running dynamical systems in Python.  The
