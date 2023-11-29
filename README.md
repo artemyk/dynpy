@@ -18,5 +18,5 @@ Requirements
 ------------
 
 dynpy requires numpy, scipy, and six.  
-Testing requires nose and coverage.  
+Testing requires pytest.
 Building the documentation requires matplotlib.

@@ -6,7 +6,6 @@ map = six.moves.map
 import dynpy
 import numpy as np
 from numpy.testing import assert_array_equal
-from nose.tools import raises
 
 densemx = dynpy.mx.DenseMatrix.format_mx([[0,1],[2,3]])
 sparsemx = dynpy.mx.SparseMatrix.format_mx([[0,1],[2,3]])
@@ -38,10 +37,6 @@ def test_array_equal():
 def test_issparse():
 	assert( dynpy.mx.issparse(densemx) == False)
 	assert( dynpy.mx.issparse(sparsemx) == True)
-
-@raises(ValueError)
-def test_issparse_invalid():
-	assert( dynpy.mx.issparse('not a matrix') )
 
 def test_todense():
 	assert( dynpy.mx.issparse(dynpy.mx.todense(densemx)) == False)

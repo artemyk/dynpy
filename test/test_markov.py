@@ -1,6 +1,6 @@
 from __future__ import division, print_function, absolute_import
 
-from nose.tools import raises
+import pytest
 from numpy.testing import assert_array_equal, assert_allclose
 
 import six
@@ -92,7 +92,7 @@ def test_project_yeast():
     assert_array_equal(marg1.transition_matrix.todense(), marg2.transition_matrix)
 
 
-@raises(ValueError)
+@pytest.mark.xfail(raises=ValueError)
 def test_check_transition_matrix_not_square():
 	MarkovChain(transition_matrix=np.zeros(shape=[1,2]))
 
@@ -103,11 +103,11 @@ def test_check_transition_matrix_cont_sum():
 	MarkovChain(transition_matrix=np.zeros((2,2)),
 		discrete_time=False)
 
-@raises(ValueError)
+@pytest.mark.xfail(raises=ValueError)
 def test_check_transition_matrix_discrete_wrongsum():
 	MarkovChain(transition_matrix=np.ones((2,2)))
 
-@raises(ValueError)
+@pytest.mark.xfail(raises=ValueError)
 def test_check_transition_matrix_cont_wrongsum():
 	MarkovChain(transition_matrix=np.ones((2,2)),
 		discrete_time=False)

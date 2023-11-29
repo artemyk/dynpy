@@ -19,7 +19,7 @@ testfuncs = [
 
 class TestBNs:
 
-	def setUp(self):
+	def setup_method(self):
 		self.testbn = dynpy.bn.BooleanNetwork(rules=testrules)
 
 	def test_def_bns(self):
@@ -62,5 +62,5 @@ class TestBNs:
 		atts1, basins1 = testbn1.get_attractor_basins(sort=True)
 		atts2, basins2 = testbn2.get_attractor_basins(sort=True)
 		assert_array_equal(atts1, atts2)
-		assert_array_equal(basins1, basins2)
+		assert(repr(basins1)==repr(basins2))
 		

@@ -329,7 +329,7 @@ class DiscreteStateVectorDynamicalSystem(VectorDynamicalSystem,
     def get_ndx2state_mx(self):
         #: ``(num_states, num_vars)``-shaped matrix that maps from state indexes
         #: to representations in terms of activations of the variables.
-        return np.vstack(self.states())
+        return np.vstack(list(self.states()))
 
     @caching.cached_data_method
     def get_ndx2state_map(self):
