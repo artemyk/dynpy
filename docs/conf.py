@@ -41,7 +41,6 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
     'matplotlib.sphinxext.plot_directive',
-    'ipython_console_highlighting',
     'numpydoc',
     'sphinx_autorun',
 ]
