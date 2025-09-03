@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel", "Cython", "numpy"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dynpy"
+version = "0.2.0"  # Or pull dynamically from dynpy/version.py if you prefer
+description = "Dynamical systems for Python"
+readme = { file = "README.md", content-type = "text/markdown" }
+license = "GPL-3.0-or-later"
+authors = [
+    { name = "Artemy Kolchinsky", email = "artemyk@gmail.com" }
+]
+requires-python = ">=3.8"
+dependencies = [
+    "numpy>=1.6",
+    "scipy>=0.13",
+    "six>=1.8.0"
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3"
+]
+
+[project.optional-dependencies]
+test = [
+    "coverage>=3.7.0",
+    "sphinx>=1.0.0",
+    "matplotlib"
+]
+
+[project.urls]
+Homepage = "https://github.com/artemyk/dynpy"
+Documentation = "http://dynpy.readthedocs.org/"
+Download = "https://github.com/artemyk/dynpy/tarball/master"
+
+[tool.setuptools]
+packages = ["dynpy"]
+
