@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dynpy"
-version = "0.2.0"  # Or pull dynamically from dynpy/version.py if you prefer
+version = "0.3.0"  
 description = "Dynamical systems for Python"
 readme = { file = "README.md", content-type = "text/markdown" }
 license = "GPL-3.0-or-later"

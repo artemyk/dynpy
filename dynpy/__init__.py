@@ -1,5 +1,3 @@
-from .version import __version__
-
 from . import bn
 from . import ca
 from . import caching
